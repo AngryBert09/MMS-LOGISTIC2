@@ -4,15 +4,17 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>Login to greatwall</title>
+    <title>Login to Great Wall</title>
 
     <!-- Site favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}" />
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}" />
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="images/greatwall-logo.ico'" />
+    <link rel="icon" type="image/png" sizes="32x32" href="images/greatwall-logo.ico" />
+    <link rel="icon" type="image/png" sizes="16x16"
+        href="images/greatwall-logo.ico />
 
     <!-- Mobile Specific Metas -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1" />
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -65,8 +67,9 @@
     <div class="login-header box-shadow">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <div class="brand-logo">
-                <a href="login.html">
-                    <img src="" alt="" />
+                <a href="{{ route('login') }}">
+                    <img src="images/greatwall-logo.png " style="height:90px" />
+                    <img src="images/greatwallarts-logo.svg " style="height:100px " />
                 </a>
             </div>
             <div class="login-menu">
@@ -110,26 +113,70 @@
                         </div>
                         <form action="{{ route('login') }}" method="post">
                             @csrf
-                            @error('email')
-                                <span class="d-block fs-1 text-danger mt-2"> {{ $message }} </span>
-                            @enderror
                             <div class="input-group custom">
-                                <input type="text" class="form-control form-control-lg" placeholder="Email"
-                                    name='email' />
+                                <input type="text" class="form-control form-control-lg " placeholder="Email"
+                                    name="email" value="{{ old('email') }}" />
+
+                                {{-- Show warning icon if there is an error --}}
                                 <div class="input-group-append custom">
-                                    <span class="input-group-text"><i class="icon-copy dw dw-user1"></i></span>
+                                    <span class="input-group-text" data-toggle="tooltip" data-placement="top"
+                                        title="{{ $errors->has('email') ? $errors->first('email') : '' }}">
+                                        @if ($errors->has('email'))
+                                            <i class="icon-copy dw dw-warning text-danger"></i>
+                                        @else
+                                            <i class="icon-copy dw dw-user1"></i>
+                                        @endif
+                                    </span>
                                 </div>
                             </div>
-                            @error('password')
-                                <span class="d-block fs-6 text-danger mt-2"> {{ $message }} </span>
-                            @enderror
-                            <div class="input-group custom">
-                                <input type="password" class="form-control form-control-lg" name='password'
-                                    placeholder="Password" />
+
+                            <div class="input-group custom mt-3">
+                                <input id="password-field" type="password"
+                                    class="form-control form-control-lg {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                                    name="password" placeholder="Password" />
+
+                                {{-- Show warning icon if there is an error --}}
                                 <div class="input-group-append custom">
-                                    <span class="input-group-text"><i class="dw dw-padlock1"></i></span>
+                                    <span class="input-group-text" data-toggle="tooltip" data-placement="top"
+                                        title="{{ $errors->has('password') ? $errors->first('password') : '' }}">
+                                        @if ($errors->has('password'))
+                                            <i class="icon-copy dw dw-warning text-danger"></i>
+                                        @else
+                                            <i id="toggle-password" class="dw dw-padlock1" style="cursor: pointer;"></i>
+                                        @endif
+                                    </span>
                                 </div>
                             </div>
+
+                            <script>
+                                // Enable Bootstrap tooltips once for all elements
+                                $(function() {
+                                    $('[data-toggle="tooltip"]').tooltip();
+                                });
+
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    var togglePassword = document.getElementById('toggle-password');
+                                    var passwordField = document.getElementById('password-field');
+
+
+                                    if (togglePassword && passwordField) {
+                                        togglePassword.addEventListener('click', function() {
+                                            if (passwordField.type === 'password') {
+                                                passwordField.type = 'text';
+                                                togglePassword.classList.remove('dw-padlock1');
+
+                                                togglePassword.classList.add('dw-eye');
+                                            } else {
+                                                passwordField.type = 'password';
+                                                togglePassword.classList.remove('dw-eye');
+                                                togglePassword.classList.add('dw-padlock1');
+                                            }
+                                        });
+                                    }
+                                });
+                            </script>
+
+
                             <div class="row pb-30">
                                 <div class="col-6">
                                     <div class="custom-control custom-checkbox">
@@ -146,7 +193,8 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
-                                        <input class="btn btn-primary btn-lg btn-block" type="submit" value="Sign In">
+                                        <input class="btn btn-primary btn-lg btn-block" type="submit"
+                                            value="Sign In">
                                         {{-- <a class="btn btn-primary btn-lg btn-block" href="index.html">Sigsn In</a> --}}
                                     </div>
                         </form>
@@ -155,7 +203,8 @@
                         </div>
                         <div class="input-group mb-0">
                             <a class="btn btn-outline-primary btn-lg btn-block"
-                                href="{{ route('register') }}">Register To
+                                href="{{ route('register') }}">Register
+                                To
                                 Create Account</a>
 
                         </div>
@@ -172,8 +221,6 @@
     <script src="{{ asset('js/script.min.js') }}"></script>
     <script src="{{ asset('js/process.js') }}"></script>
     <script src="{{ asset('js/layout-settings.js') }}"></script>
-
-
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
