@@ -26,10 +26,6 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
 
 
-
-
-
-
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GBZ3SGGX85"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2973766580778258"
@@ -154,9 +150,8 @@
                                 @if (!$errors->has('password'))
                                     <div class="input-group-append custom">
                                         <span class="input-group-text">
-                                            <!-- Use bi-lock for closed and bi-unlock for open padlock -->
-                                            <i id="toggle-password" class="bi bi-lock-fill"
-                                                style="cursor: pointer;"></i>
+                                            <!-- Use ti-lock for closed and ti-lock-open for open padlock -->
+                                            <i id="toggle-password" class="dw dw-padlock1" style="cursor: pointer;"></i>
                                         </span>
                                     </div>
                                 @endif
@@ -167,18 +162,22 @@
                                     var passwordField = document.getElementById('password-field');
                                     var icon = document.getElementById('toggle-password');
 
-                                    // Toggle the password field type between 'password' and 'text'
                                     if (passwordField.type === 'password') {
                                         passwordField.type = 'text';
-                                        icon.classList.remove('bi-lock-fill'); // Remove closed padlock icon
-                                        icon.classList.add('bi-unlock-fill'); // Add open padlock icon
+                                        icon.classList.remove('ti-lock');
+                                        icon.classList.add('dw-open-padlock'); // Changed to ti-lock-open
                                     } else {
                                         passwordField.type = 'password';
-                                        icon.classList.remove('bi-unlock-fill'); // Remove open padlock icon
-                                        icon.classList.add('bi-lock-fill'); // Add closed padlock icon
+                                        icon.classList.remove('dw-open-padlock');
+                                        icon.classList.add('dw-padlock1');
                                     }
                                 });
                             </script>
+
+                            <!-- Ensure Themify Icons are included -->
+                            <link rel="stylesheet"
+                                href="https://cdnjs.cloudflare.com/ajax/libs/themify-icons/0.1.2/css/themify-icons.css">
+
 
                             <!-- Include Bootstrap Icons CSS -->
                             <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
