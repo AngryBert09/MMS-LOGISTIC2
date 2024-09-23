@@ -42,22 +42,36 @@ class AuthController extends Controller
 
     public function authenticate()
     {
-        $validated = request()->validate(
-            [
-                'email' => 'required|email',
-                'password' => 'required|min:8'
-            ]
-        );
+        $validated = request()->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+        ]);
 
+        // Check if the user exists
+        $user = \App\Models\User::where('email', $validated['email'])->first();
+
+        if (!$user) {
+            // Email not found, display error for both email and password
+            return redirect()->route('login')->withErrors([
+                'email' => 'No user found with this email.',
+                'password' => 'The provided credentials do not match our records.'
+            ])->withInput(request()->only('email'));
+        }
+
+        // Attempt to log in
         if (auth()->attempt($validated)) {
             request()->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
+        } else {
+            // Password incorrect, display error for both email and password
+            return redirect()->route('login')->withErrors([
+                'email' => 'The provided credentials do not match our records.',
+                'password' => 'The provided credentials do not match our records.'
+            ])->withInput(request()->only('email'));
         }
-
-        return redirect()->route('login')->withErrors([
-            'email' => "No matching user found with the provided email and password"
-        ]);
     }
+
+
 
     public function logout()
     {

@@ -113,70 +113,51 @@
                         </div>
                         <form action="{{ route('login') }}" method="post">
                             @csrf
-                            <div class="input-group custom">
-                                <input type="text" class="form-control form-control-lg " placeholder="Email"
-                                    name="email" value="{{ old('email') }}" />
-
-                                {{-- Show warning icon if there is an error --}}
-                                <div class="input-group-append custom">
-                                    <span class="input-group-text" data-toggle="tooltip" data-placement="top"
-                                        title="{{ $errors->has('email') ? $errors->first('email') : '' }}">
+                            @if ($errors->has('email') || $errors->has('password'))
+                                <div class="alert alert-danger mt-3">
+                                    <p>
                                         @if ($errors->has('email'))
-                                            <i class="icon-copy dw dw-warning text-danger"></i>
-                                        @else
-                                            <i class="icon-copy dw dw-user1"></i>
+                                            {{ $errors->first('email') }}
                                         @endif
-                                    </span>
+
+                                        @if ($errors->has('password'))
+                                            {{ $errors->first('password') }}
+                                        @endif
+                                    </p>
                                 </div>
+                            @endif
+
+                            <div class="input-group custom">
+                                <input type="text"
+                                    class="form-control form-control-lg {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                                    placeholder="Email" name="email" value="{{ old('email') }}"
+                                    title="{{ $errors->has('email') ? $errors->first('email') : '' }}" />
+
+                                {{-- Show user icon only if there is no error --}}
+                                @if (!$errors->has('email'))
+                                    <div class="input-group-append custom">
+                                        <span class="input-group-text">
+                                            <i class="icon-copy dw dw-user1"></i>
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
 
                             <div class="input-group custom mt-3">
                                 <input id="password-field" type="password"
                                     class="form-control form-control-lg {{ $errors->has('password') ? 'is-invalid' : '' }}"
-                                    name="password" placeholder="Password" />
+                                    name="password" placeholder="Password"
+                                    title="{{ $errors->has('password') ? $errors->first('password') : '' }}" />
 
-                                {{-- Show warning icon if there is an error --}}
-                                <div class="input-group-append custom">
-                                    <span class="input-group-text" data-toggle="tooltip" data-placement="top"
-                                        title="{{ $errors->has('password') ? $errors->first('password') : '' }}">
-                                        @if ($errors->has('password'))
-                                            <i class="icon-copy dw dw-warning text-danger"></i>
-                                        @else
+                                {{-- Show padlock icon only if there is no error --}}
+                                @if (!$errors->has('password'))
+                                    <div class="input-group-append custom">
+                                        <span class="input-group-text">
                                             <i id="toggle-password" class="dw dw-padlock1" style="cursor: pointer;"></i>
-                                        @endif
-                                    </span>
-                                </div>
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
-
-                            <script>
-                                // Enable Bootstrap tooltips once for all elements
-                                $(function() {
-                                    $('[data-toggle="tooltip"]').tooltip();
-                                });
-
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    var togglePassword = document.getElementById('toggle-password');
-                                    var passwordField = document.getElementById('password-field');
-
-
-                                    if (togglePassword && passwordField) {
-                                        togglePassword.addEventListener('click', function() {
-                                            if (passwordField.type === 'password') {
-                                                passwordField.type = 'text';
-                                                togglePassword.classList.remove('dw-padlock1');
-
-                                                togglePassword.classList.add('dw-eye');
-                                            } else {
-                                                passwordField.type = 'password';
-                                                togglePassword.classList.remove('dw-eye');
-                                                togglePassword.classList.add('dw-padlock1');
-                                            }
-                                        });
-                                    }
-                                });
-                            </script>
-
-
                             <div class="row pb-30">
                                 <div class="col-6">
                                     <div class="custom-control custom-checkbox">
