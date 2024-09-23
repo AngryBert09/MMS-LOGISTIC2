@@ -69,6 +69,7 @@ class AuthController extends Controller
         ])->withInput(request()->only('email'));
     }
 
+
     public function logout()
     {
         auth()->logout();
@@ -76,6 +77,12 @@ class AuthController extends Controller
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'logged out successfully');
+        return redirect()->route('login')->with('success', 'Logged out successfully');
+    }
+
+
+    public function forgotpassword()
+    {
+        return view('auth.forgot-password');
     }
 }

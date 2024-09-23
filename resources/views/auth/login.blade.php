@@ -89,9 +89,9 @@
                 <div class="col-md-6 col-lg-5">
                     <div class="login-box bg-white box-shadow border-radius-10">
                         <div class="login-title">
-                            <h2 class="text-center text-primary">Login to Greatwall</h2>
+                            <h2 class="text-center text-primary">LOGIN TO GREATWALL</h2>
                         </div>
-                        <div class="select-role">
+                        {{-- <div class="select-role">
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                 <label class="btn active">
                                     <input type="radio" name="options" id="admin" />
@@ -110,7 +110,7 @@
                                     Employee
                                 </label>
                             </div>
-                        </div>
+                        </div> --}}
                         <form action="{{ route('login') }}" method="post">
                             @csrf
                             @if ($errors->has('email') || $errors->has('password'))
@@ -128,10 +128,13 @@
                             @endif
 
                             <div class="input-group custom">
+                                {{-- {{ dd(session('remembered_email')) }} --}}
                                 <input type="text"
                                     class="form-control form-control-lg {{ $errors->has('email') ? 'is-invalid' : '' }}"
                                     placeholder="Email" name="email" value="{{ old('email') }}"
+                                    data-toggle="tooltip" data-placement="top"
                                     title="{{ $errors->has('email') ? $errors->first('email') : '' }}" />
+
 
                                 {{-- Show user icon only if there is no error --}}
                                 @if (!$errors->has('email'))
@@ -158,24 +161,26 @@
                                     </div>
                                 @endif
                             </div>
+
+
                             <div class="row pb-30">
                                 <div class="col-6">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="customCheck1" />
+                                        <input type="checkbox" class="custom-control-input" id="customCheck1"
+                                            name="remember" {{ old('remember') ? 'checked' : '' }} />
                                         <label class="custom-control-label" for="customCheck1">Remember</label>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="forgot-password">
-                                        <a href="forgot-password.html">Forgot Password</a>
+                                        <a href="{{ route('forgot-password') }}">Forgot Password</a>
                                     </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
-                                        <input class="btn btn-primary btn-lg btn-block" type="submit"
-                                            value="Sign In">
+                                        <input class="btn btn-primary btn-lg btn-block" type="submit" value="Sign In">
                                         {{-- <a class="btn btn-primary btn-lg btn-block" href="index.html">Sigsn In</a> --}}
                                     </div>
                         </form>
@@ -183,8 +188,7 @@
                             OR
                         </div>
                         <div class="input-group mb-0">
-                            <a class="btn btn-outline-primary btn-lg btn-block"
-                                href="{{ route('register') }}">Register
+                            <a class="btn btn-outline-primary btn-lg btn-block" href="{{ route('register') }}">Register
                                 To
                                 Create Account</a>
 

@@ -60,13 +60,14 @@
     <div class="login-header box-shadow">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <div class="brand-logo">
-                <a href="login.html">
-                    <img src="" alt="" />
+                <a href="{{ route('login') }}">
+                    <img src="images/greatwall-logo.png " style="height:90px" />
+                    <img src="images/greatwallarts-logo.svg " style="height:100px " />
                 </a>
             </div>
             <div class="login-menu">
                 <ul>
-                    <li><a href="login.html">Login</a></li>
+                    <li><a href="{{ route('login') }}">Login</a></li>
                 </ul>
             </div>
         </div>
