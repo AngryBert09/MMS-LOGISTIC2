@@ -132,7 +132,6 @@
                                 <input type="text"
                                     class="form-control form-control-lg {{ $errors->has('email') ? 'is-invalid' : '' }}"
                                     placeholder="Email" name="email" value="{{ old('email') }}"
-                                    data-toggle="tooltip" data-placement="top"
                                     title="{{ $errors->has('email') ? $errors->first('email') : '' }}" />
 
 

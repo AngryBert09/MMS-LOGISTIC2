@@ -39,7 +39,6 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
-
     public function authenticate()
     {
         $validated = request()->validate([
@@ -50,24 +49,26 @@ class AuthController extends Controller
         // Check if the user exists
         $user = \App\Models\User::where('email', $validated['email'])->first();
 
-        // If the user does not exist, display an email error
         if (!$user) {
             return redirect()->route('login')->withErrors([
-                'email' => 'No user found with this email.'
+                'email' => 'No user found with this email.',
             ])->withInput(request()->only('email'));
         }
 
-        // Attempt to log in
-        if (auth()->attempt($validated)) {
+        // Attempt to log in with remember me
+        $remember = request()->has('remember'); // check if 'remember' is checked
+
+        if (auth()->attempt($validated, $remember)) {
             request()->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
         }
 
-        // If the email is valid but the password is incorrect, display only the password error
+        // If the email is valid but the password is incorrect, display the password error
         return redirect()->route('login')->withErrors([
-            'password' => 'The provided password is incorrect.'
+            'password' => 'The provided password is incorrect.',
         ])->withInput(request()->only('email'));
     }
+
 
 
     public function logout()
