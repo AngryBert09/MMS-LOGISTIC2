@@ -50,11 +50,10 @@ class AuthController extends Controller
         // Check if the user exists
         $user = \App\Models\User::where('email', $validated['email'])->first();
 
+        // If the user does not exist, display an email error
         if (!$user) {
-            // Email not found, display error for both email and password
             return redirect()->route('login')->withErrors([
-                'email' => 'No user found with this email.',
-                'password' => 'The provided credentials do not match our records.'
+                'email' => 'No user found with this email.'
             ])->withInput(request()->only('email'));
         }
 
@@ -62,16 +61,13 @@ class AuthController extends Controller
         if (auth()->attempt($validated)) {
             request()->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
-        } else {
-            // Password incorrect, display error for both email and password
-            return redirect()->route('login')->withErrors([
-                'email' => 'The provided credentials do not match our records.',
-                'password' => 'The provided credentials do not match our records.'
-            ])->withInput(request()->only('email'));
         }
+
+        // If the email is valid but the password is incorrect, display only the password error
+        return redirect()->route('login')->withErrors([
+            'password' => 'The provided password is incorrect.'
+        ])->withInput(request()->only('email'));
     }
-
-
 
     public function logout()
     {
