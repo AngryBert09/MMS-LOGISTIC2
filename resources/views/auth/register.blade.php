@@ -7,8 +7,8 @@
     <title>Register to greatwall</title>
 
     <!-- Site favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}" />
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
+    <link rel="icon" type="image/png" sizes="32x32" href="images/gwa-favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}" />
 
     <!-- Mobile Specific Metas -->
