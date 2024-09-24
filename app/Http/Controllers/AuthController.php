@@ -42,22 +42,33 @@ class AuthController extends Controller
 
     public function authenticate()
     {
-        $validated = request()->validate(
-            [
-                'email' => 'required|email',
-                'password' => 'required|min:8'
-            ]
-        );
+        $validated = request()->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8',
+        ]);
 
+        // Check if the user exists
+        $user = \App\Models\User::where('email', $validated['email'])->first();
+
+        // If the user does not exist, display an email error
+        if (!$user) {
+            return redirect()->route('login')->withErrors([
+                'email' => 'No user found with this email.'
+            ])->withInput(request()->only('email'));
+        }
+
+        // Attempt to log in
         if (auth()->attempt($validated)) {
             request()->session()->regenerate();
             return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
         }
 
+        // If the email is valid but the password is incorrect, display only the password error
         return redirect()->route('login')->withErrors([
-            'email' => "No matching user found with the provided email and password"
-        ]);
+            'password' => 'The provided password is incorrect.'
+        ])->withInput(request()->only('email'));
     }
+
 
     public function logout()
     {
@@ -66,6 +77,12 @@ class AuthController extends Controller
         request()->session()->invalidate();
         request()->session()->regenerateToken();
 
-        return redirect()->route('dashboard')->with('success', 'logged out successfully');
+        return redirect()->route('login')->with('success', 'Logged out successfully');
+    }
+
+
+    public function forgotpassword()
+    {
+        return view('auth.forgot-password');
     }
 }

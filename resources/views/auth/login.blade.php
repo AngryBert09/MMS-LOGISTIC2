@@ -4,15 +4,17 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>Login to greatwall</title>
+    <title>Login to Great Wall</title>
 
     <!-- Site favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}" />
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32x32.png') }}" />
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="images/greatwall-logo.ico'" />
+    <link rel="icon" type="image/png" sizes="32x32" href="images/greatwall-logo.ico" />
+    <link rel="icon" type="image/png" sizes="16x16"
+        href="images/greatwall-logo.ico />
 
     <!-- Mobile Specific Metas -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1" />
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
@@ -65,8 +67,9 @@
     <div class="login-header box-shadow">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <div class="brand-logo">
-                <a href="login.html">
-                    <img src="" alt="" />
+                <a href="{{ route('login') }}">
+                    <img src="images/greatwall-logo.png " style="height:90px" />
+                    <img src="images/greatwallarts-logo.svg " style="height:100px " />
                 </a>
             </div>
             <div class="login-menu">
@@ -86,9 +89,9 @@
                 <div class="col-md-6 col-lg-5">
                     <div class="login-box bg-white box-shadow border-radius-10">
                         <div class="login-title">
-                            <h2 class="text-center text-primary">Login to Greatwall</h2>
+                            <h2 class="text-center text-primary">LOGIN TO GREATWALL</h2>
                         </div>
-                        <div class="select-role">
+                        {{-- <div class="select-role">
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
                                 <label class="btn active">
                                     <input type="radio" name="options" id="admin" />
@@ -107,39 +110,70 @@
                                     Employee
                                 </label>
                             </div>
-                        </div>
+                        </div> --}}
                         <form action="{{ route('login') }}" method="post">
                             @csrf
-                            @error('email')
-                                <span class="d-block fs-1 text-danger mt-2"> {{ $message }} </span>
-                            @enderror
-                            <div class="input-group custom">
-                                <input type="text" class="form-control form-control-lg" placeholder="Email"
-                                    name='email' />
-                                <div class="input-group-append custom">
-                                    <span class="input-group-text"><i class="icon-copy dw dw-user1"></i></span>
+                            @if ($errors->has('email') || $errors->has('password'))
+                                <div class="alert alert-danger mt-3">
+                                    <p>
+                                        @if ($errors->has('email'))
+                                            {{ $errors->first('email') }}
+                                        @endif
+
+                                        @if ($errors->has('password'))
+                                            {{ $errors->first('password') }}
+                                        @endif
+                                    </p>
                                 </div>
-                            </div>
-                            @error('password')
-                                <span class="d-block fs-6 text-danger mt-2"> {{ $message }} </span>
-                            @enderror
+                            @endif
+
                             <div class="input-group custom">
-                                <input type="password" class="form-control form-control-lg" name='password'
-                                    placeholder="Password" />
-                                <div class="input-group-append custom">
-                                    <span class="input-group-text"><i class="dw dw-padlock1"></i></span>
-                                </div>
+                                {{-- {{ dd(session('remembered_email')) }} --}}
+                                <input type="text"
+                                    class="form-control form-control-lg {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                                    placeholder="Email" name="email" value="{{ old('email') }}"
+                                    data-toggle="tooltip" data-placement="top"
+                                    title="{{ $errors->has('email') ? $errors->first('email') : '' }}" />
+
+
+                                {{-- Show user icon only if there is no error --}}
+                                @if (!$errors->has('email'))
+                                    <div class="input-group-append custom">
+                                        <span class="input-group-text">
+                                            <i class="icon-copy dw dw-user1"></i>
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
+
+                            <div class="input-group custom mt-3">
+                                <input id="password-field" type="password"
+                                    class="form-control form-control-lg {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                                    name="password" placeholder="Password"
+                                    title="{{ $errors->has('password') ? $errors->first('password') : '' }}" />
+
+                                {{-- Show padlock icon only if there is no error --}}
+                                @if (!$errors->has('password'))
+                                    <div class="input-group-append custom">
+                                        <span class="input-group-text">
+                                            <i id="toggle-password" class="dw dw-padlock1" style="cursor: pointer;"></i>
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+
+
                             <div class="row pb-30">
                                 <div class="col-6">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="customCheck1" />
+                                        <input type="checkbox" class="custom-control-input" id="customCheck1"
+                                            name="remember" {{ old('remember') ? 'checked' : '' }} />
                                         <label class="custom-control-label" for="customCheck1">Remember</label>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="forgot-password">
-                                        <a href="forgot-password.html">Forgot Password</a>
+                                        <a href="{{ route('forgot-password') }}">Forgot Password</a>
                                     </div>
                                 </div>
                             </div>
@@ -154,8 +188,8 @@
                             OR
                         </div>
                         <div class="input-group mb-0">
-                            <a class="btn btn-outline-primary btn-lg btn-block"
-                                href="{{ route('register') }}">Register To
+                            <a class="btn btn-outline-primary btn-lg btn-block" href="{{ route('register') }}">Register
+                                To
                                 Create Account</a>
 
                         </div>
@@ -172,8 +206,6 @@
     <script src="{{ asset('js/script.min.js') }}"></script>
     <script src="{{ asset('js/process.js') }}"></script>
     <script src="{{ asset('js/layout-settings.js') }}"></script>
-
-
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>
