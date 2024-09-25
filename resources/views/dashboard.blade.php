@@ -200,12 +200,13 @@
                         <span class="user-icon">
                             <img src="images/photo1.jpg" alt="" />
                         </span>
-                        <span class="user-name">Ross C. Lopez</span>
+                        <span class="user-name">TEST</span>
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                            <a class="dropdown-item" href="profile.html"><i class="dw dw-user1"></i> Profile</a>
+                            <a class="dropdown-item" href="{{ route('users.show', Auth::id()) }}"><i
+                                    class="dw dw-user1"></i> Profile</a>
                             <a class="dropdown-item" href="profile.html"><i class="dw dw-settings2"></i> Setting</a>
                             <a class="dropdown-item" href="faq.html"><i class="dw dw-help"></i> Help</a>
                             <button class="dropdown-item"><i class="dw dw-logout"></i> Log Out</button>
@@ -407,13 +408,10 @@
                     <div class="col-md-8">
                         <h4 class="font-20 weight-500 mb-10 text-capitalize">
                             Welcome back
-                            <div class="weight-600 font-30 text-blue">Johnny Brown!</div>
+                            <div class="weight-600 font-30 text-blue">TEST</div>
                         </h4>
                         <p class="font-18 max-width-600">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Unde
-                            hic non repellendus debitis iure, doloremque assumenda. Autem
-                            modi, corrupti, nobis ea iure fugiat, veniam non quaerat
-                            mollitia animi error corporis.
+                            TEST
                         </p>
                     </div>
                 </div>

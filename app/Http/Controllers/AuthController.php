@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Http\Requests\RegisterUserRequest;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
@@ -9,6 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Vendor;
+use Illuminate\Support\Facades\Log;
+
+
 
 class AuthController extends Controller
 {
@@ -17,22 +23,67 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    public function store(RegisterUserRequest $request)
+    public function store(Request $request)
     {
-        // No need to call $request->validate() manually
-        $validated = $request->validated(); // Or directly use $request->only(['name', 'email', 'password'])
-
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'image' => 'profile/no_profilepic.png'
+        // Validate the incoming request data
+        $validator = Validator::make($request->all(), [
+            'companyName' => 'required|string|max:255',
+            'email' => 'required|email|unique:vendors,email',
+            'password' => 'required|string|min:8|confirmed',
+            'fullName' => 'required|string|max:255',
+            'gender' => 'required|string',
+            'city' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:255',
+            'business_registration' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'mayor_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'tin' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'proof_of_identity' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'terms' => 'required|accepted', // Ensure terms are accepted
         ]);
 
-        // Mail::to($user->email)->send(new WelcomeEmail($user));
+        if ($validator->fails()) {
+            Log::info($validator->errors()); // Log validation errors
+            return back()->withErrors($validator)->withInput();
+        }
 
-        return redirect()->route('login')->with('success', 'Account created Successfully!');
+        // If the terms checkbox is not checked, set a session variable
+        if (!$request->has('terms')) {
+            session()->flash('terms_error', true);
+            return back()->withInput();
+        }
+
+        // Store files and create a new vendor record
+        $vendor = new Vendor(); // Ensure you have a Vendor model
+        $vendor->company_name = $request->companyName;
+        $vendor->email = $request->email;
+        $vendor->password = Hash::make($request->password);
+        $vendor->full_name = $request->fullName;
+        $vendor->gender = $request->gender;
+        $vendor->city = $request->city;
+        $vendor->state = $request->state;
+
+        // Handle file uploads
+        if ($request->hasFile('business_registration')) {
+            $vendor->business_registration = $request->file('business_registration')->store('documents');
+        }
+        if ($request->hasFile('mayor_permit')) {
+            $vendor->mayor_permit = $request->file('mayor_permit')->store('documents');
+        }
+        if ($request->hasFile('tin')) {
+            $vendor->tin = $request->file('tin')->store('documents');
+        }
+        if ($request->hasFile('proof_of_identity')) {
+            $vendor->proof_of_identity = $request->file('proof_of_identity')->store('documents');
+        }
+
+        // Log before saving
+        Log::info('Attempting to save vendor: ', $vendor->toArray());
+        $vendor->save();
+        Log::info('Vendor saved successfully: ', $vendor->toArray());
+
+        return redirect()->route('login')->with('success', 'Vendor registered successfully.');
     }
+
 
 
     public function login()
@@ -41,33 +92,40 @@ class AuthController extends Controller
     }
     public function authenticate()
     {
+        // Validate the incoming request data
         $validated = request()->validate([
             'email' => 'required|email',
             'password' => 'required|min:8',
         ]);
 
-        // Check if the user exists
-        $user = \App\Models\User::where('email', $validated['email'])->first();
+        // Check if the vendor exists
+        $vendor = \App\Models\Vendor::where('email', $validated['email'])->first();
 
-        if (!$user) {
+        // If the vendor does not exist, return an error
+        if (!$vendor) {
             return redirect()->route('login')->withErrors([
-                'email' => 'No user found with this email.',
+                'email' => 'No vendor found with this email.',
             ])->withInput(request()->only('email'));
         }
 
-        // Attempt to log in with remember me
-        $remember = request()->has('remember'); // check if 'remember' is checked
+        // Attempt to log in with "remember me" functionality
+        $remember = request()->has('remember'); // Check if the "remember me" checkbox is checked
 
-        if (auth()->attempt($validated, $remember)) {
+        // Attempt to authenticate the vendor
+        if (auth()->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
+            // Regenerate session to prevent session fixation attacks
             request()->session()->regenerate();
+
+            // Redirect to the vendor dashboard with success message
             return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
         }
 
-        // If the email is valid but the password is incorrect, display the password error
+        // If the email is valid but the password is incorrect, return a password error
         return redirect()->route('login')->withErrors([
             'password' => 'The provided password is incorrect.',
         ])->withInput(request()->only('email'));
     }
+
 
 
 
