@@ -92,13 +92,13 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]);
 
-        // Check if the vendor exists
+        // Check if the vendor exists and is accepted
         $vendor = \App\Models\Vendor::where('email', $validated['email'])->first();
 
-        // If the vendor does not exist, return an error
-        if (!$vendor) {
+        // If the vendor does not exist or is not accepted, return an error
+        if (!$vendor || $vendor->status !== 'accepted') {
             return redirect()->route('login')->withErrors([
-                'email' => 'No vendor found with this email.',
+                'email' => 'Your application is still pending. Please wait for approval.',
             ])->withInput(request()->only('email'));
         }
 
