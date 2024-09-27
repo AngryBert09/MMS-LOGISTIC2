@@ -112,12 +112,11 @@ class AuthController extends Controller
     }
 
 
-
-
     public function login()
     {
         return view('auth.login');
     }
+
     public function authenticate()
     {
         // Validate the incoming request data

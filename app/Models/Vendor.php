@@ -19,10 +19,10 @@ class Vendor extends Model
         'city',
         'state',
         'status',
-        'business_registration_document',
+        'business_registration',
         'mayor_permit',
         'tax_identification_number',
-        'proof_of_identity',
+        'proof_of_identity'
     ];
 
     // Optionally, you can hide sensitive attributes
