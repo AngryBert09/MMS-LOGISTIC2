@@ -109,6 +109,11 @@
                         </div> --}}
                         <form action="{{ route('login') }}" method="post">
                             @csrf
+                            @if (session('confirmation_message'))
+                                <div class="alert alert-info mt-3">
+                                    {{ session('confirmation_message') }}
+                                </div>
+                            @endif
                             @if ($errors->has('email') || $errors->has('password'))
                                 <div class="alert alert-danger mt-3">
                                     <p>
@@ -122,6 +127,7 @@
                                     </p>
                                 </div>
                             @endif
+
 
                             <div class="input-group custom">
                                 {{-- {{ dd(session('remembered_email')) }} --}}

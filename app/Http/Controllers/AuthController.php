@@ -37,8 +37,7 @@ class AuthController extends Controller
             'business_registration' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'mayor_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'tin' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'proof_of_identity' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'terms' => 'required|accepted', // Ensure terms are accepted
+            'proof_of_identity' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048'
         ]);
 
         if ($validator->fails()) {
@@ -46,11 +45,6 @@ class AuthController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        // If the terms checkbox is not checked, set a session variable
-        if (!$request->has('terms')) {
-            session()->flash('terms_error', true);
-            return back()->withInput();
-        }
 
         // Store files and create a new vendor record
         $vendor = new Vendor(); // Ensure you have a Vendor model
@@ -81,7 +75,7 @@ class AuthController extends Controller
         $vendor->save();
         Log::info('Vendor saved successfully: ', $vendor->toArray());
 
-        return redirect()->route('login')->with('success', 'Vendor registered successfully.');
+        return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
     }
 
 
