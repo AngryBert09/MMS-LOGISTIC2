@@ -42,7 +42,7 @@ Route::get('lang/{lang}', function ($lang) {
     return redirect()->route('dashboard');
 })->name('lang');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+Route::get('', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 
 Route::resource('ideas', IdeaController::class)->except(['index', 'create', 'show'])->middleware('auth');
 
