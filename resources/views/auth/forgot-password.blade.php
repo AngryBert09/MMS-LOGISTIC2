@@ -4,7 +4,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>DeskApp - Bootstrap Admin Dashboard HTML Template</title>
+    <title>Forgot Password</title>
 
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
@@ -60,7 +60,7 @@
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <div class="brand-logo">
                 <a href="login.html">
-                    <img src="images/deskapp-logo.svg" alt="" />
+                    <img src="" alt="" />
                 </a>
             </div>
             <div class="login-menu">
