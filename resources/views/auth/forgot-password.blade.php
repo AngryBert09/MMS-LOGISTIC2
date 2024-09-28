@@ -4,7 +4,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>DeskApp - Bootstrap Admin Dashboard HTML Template</title>
+    <title>Forgot Password</title>
 
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
@@ -59,9 +59,9 @@
     <div class="login-header box-shadow">
         <div class="container-fluid d-flex justify-content-between align-items-center">
             <div class="brand-logo">
-                <a href="login.html">
-                    <img src="images/deskapp-logo.svg" alt="" />
-                </a>
+                <a href="{{ route('login') }}">
+                    <img src="images/greatwall-logo.png " style="height:90px" />
+                    <img src="images/greatwallarts-logo.svg " style="height:100px " />
             </div>
             <div class="login-menu">
                 <ul>
