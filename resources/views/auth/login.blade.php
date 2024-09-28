@@ -4,7 +4,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>Login to Great Wall</title>
+    <title>Login Vendor</title>
 
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
