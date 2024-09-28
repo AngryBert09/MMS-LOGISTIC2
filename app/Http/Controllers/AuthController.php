@@ -25,59 +25,26 @@ class AuthController extends Controller
 
     public function store(Request $request)
     {
+        // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'companyName' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                'unique:vendors,email',
-                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/',
-            ],
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed',
-                'max:255',
-                'regex:/[a-z]/', // Must contain at least one lowercase letter
-                'regex:/[A-Z]/', // Must contain at least one uppercase letter
-                'regex:/[0-9]/', // Must contain at least one digit
-                'regex:/[@$!%*?&#]/', // Must contain a special character
-            ],
+            'email' => 'required|email|unique:vendors,email',
+            'password' => 'required|string|min:8|confirmed',
             'fullName' => 'required|string|max:255',
-            'gender' => 'required|string|in:male,female,other',
+            'gender' => 'required|string',
             'city' => 'nullable|string|max:255',
             'state' => 'nullable|string|max:255',
             'business_registration' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'mayor_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'tin' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'proof_of_identity' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        ], [
-            'companyName.required' => 'Please enter your company name.',
-            'email.required' => 'An email address is required.',
-            'email.email' => 'Please provide a valid email address.',
-            'email.unique' => 'This email is already associated with another vendor.',
-            'email.regex' => 'Please provide a valid email format (e.g., example@domain.com).',
-            'password.required' => 'A password is required.',
-            'password.min' => 'Your password must be at least 8 characters long.',
-            'password.confirmed' => 'The password confirmation does not match.',
-            'password.regex' => 'Your password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
-            'fullName.required' => 'Please enter your full name.',
-            'gender.required' => 'Please select your gender.',
-            'gender.in' => 'Gender must be one of the following: male, female, or other.',
-            'business_registration.required' => 'A business registration document is required.',
-            'mayor_permit.required' => 'A mayor’s permit document is required.',
-            'tin.required' => 'A TIN document is required.',
-            'proof_of_identity.required' => 'A proof of identity document is required.',
-            'file.mimes' => 'The document must be a file of type: pdf, jpg, jpeg, png.',
-            'file.max' => 'The document may not be greater than 2048 kilobytes.',
+            'proof_of_identity' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048'
         ]);
 
         if ($validator->fails()) {
             Log::info($validator->errors()); // Log validation errors
             return back()->withErrors($validator)->withInput();
         }
+
 
         // Store files and create a new vendor record
         $vendor = new Vendor(); // Ensure you have a Vendor model
@@ -112,31 +79,17 @@ class AuthController extends Controller
     }
 
 
+
     public function login()
     {
         return view('auth.login');
     }
-
     public function authenticate()
     {
         // Validate the incoming request data
         $validated = request()->validate([
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', // Additional regex validation for email format
-            ],
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'max:255',
-                'regex:/[a-z]/', // must contain at least one lowercase letter
-                'regex:/[A-Z]/', // must contain at least one uppercase letter
-                'regex:/[0-9]/', // must contain at least one digit
-                'regex:/[@$!%*?&#]/', // must contain a special character
-            ],
+            'email' => 'required|email',
+            'password' => 'required|min:8',
         ]);
 
         // Check if the vendor exists
