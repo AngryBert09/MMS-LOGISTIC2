@@ -41,10 +41,7 @@ Route::get('lang/{lang}', function ($lang) {
 
     return redirect()->route('dashboard');
 })->name('lang');
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
 
 Route::resource('ideas', IdeaController::class)->except(['index', 'create', 'show'])->middleware('auth');
