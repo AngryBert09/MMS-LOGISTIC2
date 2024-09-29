@@ -65,9 +65,9 @@
                     An error ocurred and your request couldn’t be completed..<br />Either
                     check the URL
                 </p>
-                <div class="pt-20 mx-auto max-width-200">
-                    <a href="index.html" class="btn btn-primary btn-block btn-lg">Back To Home</a>
-                </div>
+                    <div class="pt-20 mx-auto max-width-200">
+                        <a href="{{ route('dashboard') }}" class="btn btn-primary btn-block btn-lg">Back To Home</a>
+                    </div>
             </div>
         </div>
     </div>
