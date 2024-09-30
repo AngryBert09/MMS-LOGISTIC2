@@ -124,99 +124,50 @@
                 <div class="dropdown">
                     <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
                         <i class="icon-copy dw dw-notification"></i>
-                        <span class="badge notification-active"></span>
+                        @if (auth()->user()->unreadNotifications->count())
+                            <span
+                                class="badge notification-active">{{ auth()->user()->unreadNotifications->count() }}</span>
+                        @endif
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
                         <div class="notification-list mx-h-350 customscroll">
                             <ul>
-                                <li>
-                                    <a href="#">
-                                        <img src="images/img.jpg" alt="" />
-                                        <h3>John Doe</h3>
-                                        <p>
-                                            Lorem ipsum dolor sit amet, consectetur adipisicing
-                                            elit, sed...
-                                        </p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="images/photo1.jpg" alt="" />
-                                        <h3>Lea R. Frith</h3>
-                                        <p>
-                                            Lorem ipsum dolor sit amet, consectetur adipisicing
-                                            elit, sed...
-                                        </p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="images/photo2.jpg" alt="" />
-                                        <h3>Erik L. Richards</h3>
-                                        <p>
-                                            Lorem ipsum dolor sit amet, consectetur adipisicing
-                                            elit, sed...
-                                        </p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="images/photo3.jpg" alt="" />
-                                        <h3>John Doe</h3>
-                                        <p>
-                                            Lorem ipsum dolor sit amet, consectetur adipisicing
-                                            elit, sed...
-                                        </p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="images/photo4.jpg" alt="" />
-                                        <h3>Renee I. Hansen</h3>
-                                        <p>
-                                            Lorem ipsum dolor sit amet, consectetur adipisicing
-                                            elit, sed...
-                                        </p>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <img src="images/img.jpg" alt="" />
-                                        <h3>Vicki M. Coleman</h3>
-                                        <p>
-                                            Lorem ipsum dolor sit amet, consectetur adipisicing
-                                            elit, sed...
-                                        </p>
-                                    </a>
-                                </li>
+                                @foreach (auth()->user()->unreadNotifications as $notification)
+                                    <li>
+                                        <a href="#">
+                                            <img src="images/img.jpg" alt="" />
+                                            <h3>Admin</h3>
+                                            <p>
+                                                {{ $notification->data['message'] }}
+                                            </p>
+                                        </a>
+                                    </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
+
+
             <div class="user-info-dropdown">
                 <div class="dropdown">
                     <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                         <span class="user-icon">
                             <img src="images/photo1.jpg" alt="" />
                         </span>
-                        <span class="user-name">TEST</span>
+                        <span class="user-name">{{ Auth::user()->full_name }}</span>
                     </a>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                            <a class="dropdown-item" href="{{ route('users.show', Auth::id()) }}"><i
-                                    class="dw dw-user1"></i> Profile</a>
+                            <a class="dropdown-item" href=""><i class="dw dw-user1"></i> Profile</a>
                             <a class="dropdown-item" href="profile.html"><i class="dw dw-settings2"></i> Setting</a>
                             <a class="dropdown-item" href="faq.html"><i class="dw dw-help"></i> Help</a>
                             <button class="dropdown-item"><i class="dw dw-logout"></i> Log Out</button>
                         </div>
                     </form>
                 </div>
-            </div>
-            <div class="github-link">
-                <a href="https://github.com/dropways/deskapp" target="_blank"><img src="images/github.svg"
-                        alt="" /></a>
             </div>
         </div>
     </div>
@@ -334,57 +285,17 @@
                             <span class="micon bi bi-house"></span><span class="mtext">Home</span>
                         </a>
                         <ul class="submenu">
-                            <li><a href="index.html">Dashboard style 1</a></li>
-                            <li><a href="index2.html">Dashboard style 2</a></li>
-                            <li><a href="index3.html">Dashboard style 3</a></li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="micon bi bi-textarea-resize"></span><span class="mtext">Forms</span>
-                        </a>
-                        <ul class="submenu">
-                            <li><a href="form-basic.html">Form Basic</a></li>
-                            <li>
-                                <a href="advanced-components.html">Advanced Components</a>
+                            <li><a href="{{ route('dashboard') }}"> Dashboard</a>
                             </li>
-                            <li><a href="form-wizard.html">Form Wizard</a></li>
-                            <li><a href="html5-editor.html">HTML5 Editor</a></li>
-                            <li><a href="form-pickers.html">Form Pickers</a></li>
-                            <li><a href="image-cropper.html">Image Cropper</a></li>
-                            <li><a href="image-dropzone.html">Image Dropzone</a></li>
+                            <li><a href="index2.html">Customers</a></li>
+                            <li><a href="index3.html">Credit Notes</a></li>
+                            <li><a href="index3.html">Payments</a></li>
+                            <li><a href="index3.html">Invoices</a></li>
+                            <li><a href="{{ route('customer_PO') }}">Customer PO</a></li>
+                            <li><a href="{{ route('customer_RN') }}">Customer RN</a></li>
                         </ul>
-                    </li>
-                    <li class="dropdown">
-                        <a href="javascript:;" class="dropdown-toggle">
-                            <span class="micon bi bi-table"></span><span class="mtext">Tables</span>
-                        </a>
-                        <ul class="submenu">
-                            <li><a href="basic-table.html">Basic Tables</a></li>
-                            <li><a href="datatable.html">DataTables</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="calendar.html" class="dropdown-toggle no-arrow">
-                            <span class="micon bi bi-calendar4-week"></span><span class="mtext">Calendar</span>
-                        </a>
                     </li>
 
-                    <li>
-                        <a href="sitemap.html" class="dropdown-toggle no-arrow">
-                            <span class="micon bi bi-diagram-3"></span><span class="mtext">Sitemap</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="chat.html" class="dropdown-toggle no-arrow">
-                            <span class="micon bi bi-chat-right-dots"></span><span class="mtext">Chat</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="invoice.html" class="dropdown-toggle no-arrow">
-                            <span class="micon bi bi-receipt-cutoff"></span><span class="mtext">Invoice</span>
-                        </a>
-                    </li>
                     <li>
                         <div class="dropdown-divider"></div>
                     </li>
@@ -408,7 +319,7 @@
                     <div class="col-md-8">
                         <h4 class="font-20 weight-500 mb-10 text-capitalize">
                             Welcome back
-                            <div class="weight-600 font-30 text-blue">TEST</div>
+                            <div class="weight-600 font-30 text-blue">{{ Auth::user()->company_name }}</div>
                         </h4>
                         <p class="font-18 max-width-600">
                             TEST

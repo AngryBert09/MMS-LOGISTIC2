@@ -14,13 +14,9 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $ideas = Idea::when(request()->has('search'), function ($query) {
-            $query->search(request('search', ''));
-        })->orderBy('created_at', 'DESC')->paginate(5);
+        // Assuming you have a relationship defined to fetch notifications
+        $notifications = auth()->user()->notifications; // Adjust this line if necessary
 
-
-        return view('dashboard', [
-            'ideas' => $ideas
-        ]);
+        return view('dashboard', compact('notifications'));
     }
 }

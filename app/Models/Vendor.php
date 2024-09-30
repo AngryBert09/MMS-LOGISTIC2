@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable; // Ensure this is the correct import
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract; // Interface import
+use Illuminate\Notifications\Notifiable;
 
-class Vendor extends Model
+class Vendor extends Authenticatable implements AuthenticatableContract
 {
-    use HasFactory;
-
+    use HasFactory, Notifiable; // Ensure Notifiable is used
 
     protected $fillable = [
         'company_name',
@@ -28,5 +29,15 @@ class Vendor extends Model
     // Optionally, you can hide sensitive attributes
     protected $hidden = [
         'password',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        // Add any other casts if needed
     ];
 }

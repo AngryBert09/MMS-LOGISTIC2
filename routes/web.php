@@ -42,7 +42,7 @@ Route::get('lang/{lang}', function ($lang) {
     return redirect()->route('dashboard');
 })->name('lang');
 
-Route::get('', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+Route::get('', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth:vendor');
 
 Route::resource('ideas', IdeaController::class)->except(['index', 'create', 'show'])->middleware('auth');
 
@@ -62,6 +62,16 @@ Route::post('ideas/{idea}/like', [IdeaLikeController::class, 'like'])->middlewar
 Route::post('ideas/{idea}/unlike', [IdeaLikeController::class, 'unlike'])->middleware('auth')->name('ideas.unlike');
 
 Route::get('/feed', FeedController::class)->middleware('auth')->name('feed');
+
+
+Route::get('/customer-po', function () {
+    return view('vendors.purchase-order');
+})->name('customer_PO');
+
+Route::get('/customer-rn', function () {
+    return view('vendors.purchase-receipt');
+})->name('customer_RN');
+
 
 Route::get('/terms', function () {
     return view('terms');

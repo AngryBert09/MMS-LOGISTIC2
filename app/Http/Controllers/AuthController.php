@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\VendorRegistered;
+use App\Notifications\WelcomeVendorNotification;
 
 
 
@@ -22,6 +24,7 @@ class AuthController extends Controller
     {
         return view('auth.register');
     }
+
 
     public function store(Request $request)
     {
@@ -44,7 +47,6 @@ class AuthController extends Controller
             Log::info($validator->errors()); // Log validation errors
             return back()->withErrors($validator)->withInput();
         }
-
 
         // Store files and create a new vendor record
         $vendor = new Vendor(); // Ensure you have a Vendor model
@@ -75,8 +77,12 @@ class AuthController extends Controller
         $vendor->save();
         Log::info('Vendor saved successfully: ', $vendor->toArray());
 
+        // Send the VendorRegistered notification
+        $vendor->notify(new WelcomeVendorNotification($vendor->full_name));
+
         return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
     }
+
 
 
 
@@ -102,29 +108,37 @@ class AuthController extends Controller
             ])->withInput(request()->only('email'));
         }
 
-        // Check if the vendor's application is pending
-        if ($vendor->status === 'Pending') {
-            return redirect()->route('login')->withErrors([
-                'email' => 'Your application is still pending. Please wait for approval.',
-            ])->withInput(request()->only('email'));
-        }
+        // Check vendor status and handle accordingly
+        switch ($vendor->status) {
+            case 'Pending':
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Your application is still pending. Please wait for approval.',
+                ])->withInput(request()->only('email'));
 
-        // Check if the vendor's application is rejected
-        if ($vendor->status !== 'Approved') {
-            return redirect()->route('login')->withErrors([
-                'email' => 'Your application has been rejected. Please contact support.',
-            ])->withInput(request()->only('email'));
+            case 'Rejected':
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Your application has been rejected. Please contact support.',
+                ])->withInput(request()->only('email'));
+
+            case 'Approved':
+                // Continue to authenticate if the vendor is approved
+                break;
+
+            default:
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Unexpected vendor status. Please contact support.',
+                ])->withInput(request()->only('email'));
         }
 
         // Attempt to log in with "remember me" functionality
         $remember = request()->has('remember'); // Check if the "remember me" checkbox is checked
 
         // Attempt to authenticate the vendor
-        if (auth()->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
+        if (auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
             // Regenerate session to prevent session fixation attacks
             request()->session()->regenerate();
 
-            // Redirect to the vendor dashboard with success message
+            // Redirect to the vendor dashboard with a success message
             return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
         }
 
@@ -133,6 +147,7 @@ class AuthController extends Controller
             'password' => 'The provided password is incorrect.',
         ])->withInput(request()->only('email'));
     }
+
 
 
 
