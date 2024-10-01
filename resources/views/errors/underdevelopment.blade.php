@@ -4,7 +4,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>400</title>
+    <title>OOPS!</title>
 
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
@@ -59,9 +59,9 @@
     <div class="error-page d-flex align-items-center flex-wrap justify-content-center pd-20">
         <div class="pd-10">
             <div class="error-page-wrap text-center">
-                <h1>400</h1>
-                <h3>Error: 400 PAGE NOT FOUND !</h3>
-                <p>You Seem To Be Trying To Find His Way Home</p>
+                <h1>OOPS!</h1>
+                <h3>THIS PAGE IS UNDER DEVELOPMENT</h3>
+                <p>Sorry! but this page currently under development you can check it later.</p>
                 <div class="pt-20 mx-auto max-width-200">
                     <a href="{{ route('dashboard') }}" class="btn btn-primary btn-block btn-lg">Back To Home</a>
                 </div>
