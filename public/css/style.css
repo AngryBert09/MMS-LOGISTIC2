@@ -824,7 +824,7 @@ textarea.form-control {
 .custom-select:focus,
 .form-control:focus {
     color             : #131e22;
-    border-color      : #1b00ff;
+    border-color      : #000;
     -webkit-box-shadow: 0 0 28px rgba(0, 0, 0, .1);
     box-shadow        : 0 0 28px rgba(0, 0, 0, .1)
 }
@@ -1066,7 +1066,8 @@ textarea.form-control {
     top             : 2px;
     left            : -30px;
     background-color: transparent;
-    border          : 2px solid #1b00ff
+    border          : 2px solid #000;
+    /* Dark border color */
 }
 
 .custom-control-label::after {
@@ -1074,32 +1075,47 @@ textarea.form-control {
     height         : 20px;
     left           : -30px;
     background-size: 60%;
-    top            : 2px
+    top            : 2px;
 }
 
 .custom-control-input:focus~.custom-control-label::before {
     -webkit-box-shadow: none;
     box-shadow        : none;
-    background-color  : none
+    border-color      : #000;
+    /* Keep border black on focus */
+    background-color  : transparent;
+    /* Ensure background remains transparent */
 }
 
 .custom-checkbox .custom-control-input:checked~.custom-control-label::before {
-    background-color: #1b00ff
+    background-color: #000;
+    /* Background color when checked */
+    border-color    : #000;
+    /* Ensure border remains black when checked */
 }
 
 .custom-checkbox .custom-control-input:checked~.custom-control-label::after {
     background-image   : url(../images/check-mark.png);
     background-repeat  : no-repeat;
-    background-position: center center
+    background-position: center center;
 }
 
 .custom-radio .custom-control-input:checked~.custom-control-label::before {
-    background-color: #1b00ff
+    background-color: #000;
+    /* Background color for radio checked state */
 }
 
 .custom-checkbox .custom-control-input:disabled:checked~.custom-control-label::before {
-    border: 2px solid transparent
+    border: 2px solid transparent;
+    /* Border style for disabled checked state */
 }
+
+/* Prevent blue outline on focus */
+.custom-control-input:focus {
+    outline: none;
+    /* Remove default outline */
+}
+
 
 .select2-container .select2-selection--single {
     height            : 45px;
@@ -2200,7 +2216,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th:first-child:before {
 .login-menu a {
     font-size  : 20px;
     font-weight: 600;
-    color      : #1b00ff
+    color      : #000
 }
 
 .login-wrap {
@@ -2371,7 +2387,7 @@ body.IE .register-page-wrap .container {
 }
 
 .register-page-wrap .wizard-content .wizard>.steps>ul>li.current .step {
-    border-color    : #1b00ff;
+    border-color    : #181f48;
     color           : #181f48;
     background-color: #fff
 }
@@ -4406,14 +4422,14 @@ body.IE .register-page-wrap .container {
 }
 
 .wizard-content .wizard>.actions>ul>li>a {
-    background-color: #1b00ff;
+    background-color: #1f1f22;
     font-weight     : 600
 }
 
 .wizard-content .wizard>.actions>ul>li>a[href="#previous"] {
-    border-color: #1b00ff;
+    border-color: #1f1f22;
     border-width: 2px;
-    color       : #1b00ff
+    color       : #1f1f22;
 }
 
 .wizard-content .wizard>.actions>ul>li.disabled>a[href="#previous"] {

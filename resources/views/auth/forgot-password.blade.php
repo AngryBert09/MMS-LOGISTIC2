@@ -79,7 +79,7 @@
                 <div class="col-md-6">
                     <div class="login-box bg-white box-shadow border-radius-10">
                         <div class="login-title">
-                            <h2 class="text-center text-primary">Forgot Password</h2>
+                            <h2 class="text-center text-dark">Forgot Password</h2>
                         </div>
                         <h6 class="mb-20">
                             Enter your email address to reset your password
@@ -99,7 +99,7 @@
            use code for form submit
            <input class="btn btn-primary btn-lg btn-block" type="submit" value="Submit">
           -->
-                                        <a class="btn btn-primary btn-lg btn-block" href="index.html">Submit</a>
+                                        <a class="btn btn-dark btn-lg btn-block" href="index.html">Submit</a>
                                     </div>
                                 </div>
                                 <div class="col-2">
@@ -109,7 +109,7 @@
                                 </div>
                                 <div class="col-5">
                                     <div class="input-group mb-0">
-                                        <a class="btn btn-outline-primary btn-lg btn-block" href="login.html">Login</a>
+                                        <a class="btn btn-outline-dark btn-lg btn-block" href="login.html">Login</a>
                                     </div>
                                 </div>
                             </div>
