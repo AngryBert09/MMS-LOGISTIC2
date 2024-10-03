@@ -310,7 +310,7 @@
                     </p>
                 </div>
                 <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-primary" id="termsAgreeBtn" disabled>Done</button>
+                    <button type="button" class="btn btn-dark" id="termsAgreeBtn" disabled>Done</button>
                 </div>
             </div>
         </div>

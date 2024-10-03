@@ -85,7 +85,7 @@
                 <div class="col-md-6 col-lg-5">
                     <div class="login-box bg-white box-shadow border-radius-10">
                         <div class="login-title">
-                            <h2 class="text-center text-primary">LOGIN TO GREATWALL</h2>
+                            <h2 class="text-center text-primary text-dark">LOGIN TO GREATWALL</h2>
                         </div>
                         {{-- <div class="select-role">
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -130,7 +130,6 @@
 
 
                             <div class="input-group custom">
-                                {{-- {{ dd(session('remembered_email')) }} --}}
                                 <input type="text"
                                     class="form-control form-control-lg {{ $errors->has('email') ? 'is-invalid' : '' }}"
                                     placeholder="Email" name="email" value="{{ old('email') }}"
@@ -209,7 +208,7 @@
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
-                                        <input class="btn btn-primary btn-lg btn-block" type="submit" value="Sign In">
+                                        <input class="btn btn-dark btn-lg btn-block " type="submit" value="Sign In">
                                         {{-- <a class="btn btn-primary btn-lg btn-block" href="index.html">Sigsn In</a> --}}
                                     </div>
                         </form>
@@ -217,7 +216,7 @@
                             OR
                         </div>
                         <div class="input-group mb-0">
-                            <a class="btn btn-outline-primary btn-lg btn-block" href="{{ route('register') }}">Register
+                            <a class="btn btn-outline-dark btn-lg btn-block" href="{{ route('register') }}">Register
                                 To
                                 Create Account</a>
 
