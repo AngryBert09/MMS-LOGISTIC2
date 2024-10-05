@@ -172,6 +172,8 @@
         </div>
     </div>
 
+    @include('layout.nav')
+
     <div class="right-sidebar">
         <div class="sidebar-title">
             <h3 class="weight-600 font-16 text-blue">
@@ -291,7 +293,7 @@
                             <li><a href="index3.html">Credit Notes</a></li>
                             <li><a href="index3.html">Payments</a></li>
                             <li><a href="index3.html">Invoices</a></li>
-                            <li><a href="{{ route('customer_PO') }}">Customer PO</a></li>
+                            <li><a href="{{ route('purchase-orders.index') }}">Customer PO</a></li>
                             <li><a href="{{ route('customer_RN') }}">Customer RN</a></li>
                         </ul>
                     </li>
