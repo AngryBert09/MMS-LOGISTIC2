@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\IdeaController as AdminIdeaController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PurchaseOrderController;
 
 
 /*
@@ -64,9 +65,8 @@ Route::post('ideas/{idea}/unlike', [IdeaLikeController::class, 'unlike'])->middl
 Route::get('/feed', FeedController::class)->middleware('auth')->name('feed');
 
 
-Route::get('/customer-po', function () {
-    return view('vendors.purchase-order');
-})->name('customer_PO');
+Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('auth:vendor');
+
 
 Route::get('/customer-rn', function () {
     return view('vendors.purchase-receipt');
