@@ -1066,7 +1066,7 @@ textarea.form-control {
     top             : 2px;
     left            : -30px;
     background-color: transparent;
-    border          : 2px solid #000;
+    border          : 2px solid #343A40;
     /* Dark border color */
 }
 
@@ -1081,16 +1081,16 @@ textarea.form-control {
 .custom-control-input:focus~.custom-control-label::before {
     -webkit-box-shadow: none;
     box-shadow        : none;
-    border-color      : #000;
+    border-color      : #343A40;
     /* Keep border black on focus */
     background-color  : transparent;
     /* Ensure background remains transparent */
 }
 
 .custom-checkbox .custom-control-input:checked~.custom-control-label::before {
-    background-color: #000;
+    background-color: #343A40;
     /* Background color when checked */
-    border-color    : #000;
+    border-color    : #343A40;
     /* Ensure border remains black when checked */
 }
 
@@ -1101,7 +1101,7 @@ textarea.form-control {
 }
 
 .custom-radio .custom-control-input:checked~.custom-control-label::before {
-    background-color: #000;
+    background-color: #343A40;
     /* Background color for radio checked state */
 }
 
@@ -2216,7 +2216,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th:first-child:before {
 .login-menu a {
     font-size  : 20px;
     font-weight: 600;
-    color      : #000
+    color      : #343A40
 }
 
 .login-wrap {
