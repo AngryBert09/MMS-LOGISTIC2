@@ -1,44 +1,100 @@
-<nav class="navbar navbar-expand-lg bg-dark border-bottom border-bottom-dark ticky-top bg-body-tertiary"
-    data-bs-theme="dark">
-    <div class="container">
-        <a class="navbar-brand fw-light" href="/"><span class="fas fa-brain me-1">
-            </span>{{ config('app.name') }}</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-            <ul class="navbar-nav">
-                @guest
-                    <li class="nav-item">
-                        <a class="{{ Route::is('login') ? 'active' : '' }} nav-link" aria-current="page"
-                            href="{{ route('login') }}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="{{ Route::is('register') ? 'active' : '' }} nav-link"
-                            href="{{ route('register') }}">Register</a>
-                    </li>
-                @endguest
-                @auth()
-                    @if (Auth::user()->is_admin)
-                        <li class="nav-item">
-                            <a class="{{ Route::is('admin.dashboard') ? 'active' : '' }} nav-link"
-                                href="{{ route('admin.dashboard') }}">
-                                Admin Dashboard </a>
-                        </li>
-                    @endif
-                    <li class="nav-item">
-                        <a class="{{ Route::is('profile') ? 'active' : '' }} nav-link"
-                            href="{{ route('profile') }}">{{ Auth::user()->name }} </a>
-                    </li>
-                    <li class="nav-item">
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button class="btn btn-danger btn-sm" type="submit"> Logout </button>
-                        </form>
-                    </li>
-                @endauth
-            </ul>
+<div class="header">
+    <div class="header-left">
+        <div class="menu-icon bi bi-list"></div>
+        <div class="search-toggle-icon bi bi-search" data-toggle="header_search"></div>
+        <div class="header-search">
+            <form>
+                <div class="form-group mb-0">
+                    <i class="dw dw-search2 search-icon"></i>
+                    <input type="text" class="form-control search-input" placeholder="Search Here" />
+                    <div class="dropdown">
+                        <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
+                            <i class="ion-arrow-down-c"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <div class="form-group row">
+                                <label class="col-sm-12 col-md-2 col-form-label">From</label>
+                                <div class="col-sm-12 col-md-10">
+                                    <input class="form-control form-control-sm form-control-line" type="text" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-12 col-md-2 col-form-label">To</label>
+                                <div class="col-sm-12 col-md-10">
+                                    <input class="form-control form-control-sm form-control-line" type="text" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-12 col-md-2 col-form-label">Subject</label>
+                                <div class="col-sm-12 col-md-10">
+                                    <input class="form-control form-control-sm form-control-line" type="text" />
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <button class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
-</nav>
+    <div class="header-right">
+        <div class="dashboard-setting user-notification">
+            <div class="dropdown">
+                <a class="dropdown-toggle no-arrow" href="javascript:;" data-toggle="right-sidebar">
+                    <i class="dw dw-settings2"></i>
+                </a>
+            </div>
+        </div>
+        <div class="user-notification">
+            <div class="dropdown">
+                <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
+                    <i class="icon-copy dw dw-notification"></i>
+                    @if (auth()->user()->unreadNotifications->count())
+                        <span
+                            class="badge notification-active">{{ auth()->user()->unreadNotifications->count() }}</span>
+                    @endif
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <div class="notification-list mx-h-350 customscroll">
+                        <ul>
+                            @foreach (auth()->user()->unreadNotifications as $notification)
+                                <li>
+                                    <a href="#">
+                                        <img src="images/img.jpg" alt="" />
+                                        <h3>Admin</h3>
+                                        <p>
+                                            {{ $notification->data['message'] }}
+                                        </p>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="user-info-dropdown">
+            <div class="dropdown">
+                <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
+                    <span class="user-icon">
+                        <img src="images/photo1.jpg" alt="" />
+                    </span>
+                    <span class="user-name">{{ Auth::user()->full_name }}</span>
+                </a>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                        <a class="dropdown-item" href=""><i class="dw dw-user1"></i> Profile</a>
+                        <a class="dropdown-item" href="profile.html"><i class="dw dw-settings2"></i> Setting</a>
+                        <a class="dropdown-item" href="faq.html"><i class="dw dw-help"></i> Help</a>
+                        <button class="dropdown-item"><i class="dw dw-logout"></i> Log Out</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

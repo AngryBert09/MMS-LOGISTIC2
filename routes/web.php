@@ -62,8 +62,6 @@ Route::post('users/{user}/unfollow', [FollowerController::class, 'unfollow'])->m
 Route::post('ideas/{idea}/like', [IdeaLikeController::class, 'like'])->middleware('auth')->name('ideas.like');
 Route::post('ideas/{idea}/unlike', [IdeaLikeController::class, 'unlike'])->middleware('auth')->name('ideas.unlike');
 
-Route::get('/feed', FeedController::class)->middleware('auth')->name('feed');
-
 
 Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('auth:vendor');
 
