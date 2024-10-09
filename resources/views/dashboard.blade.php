@@ -73,9 +73,9 @@
 
     @include('layout.nav')
 
-    @include('layout.left-sidebar')
-
     @include('layout.right-sidebar')
+
+    @include('layout.left-sidebar')
 
     <div class="mobile-menu-overlay"></div>
 

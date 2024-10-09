@@ -988,7 +988,7 @@ textarea.form-control {
 }
 
 .breadcrumb-item.active {
-    color      : #343A40;
+    color      : #343a41;
     font-weight: 500
 }
 
@@ -1360,7 +1360,7 @@ table.dataTable thead .sorting_desc_disabled:after {
 .fontawesome-icon-list .fa-hover:hover a,
 table.dataTable thead .sorting_asc:before,
 table.dataTable thead .sorting_desc:after {
-    color: #343A40;
+    color: #343a41;
 }
 
 table.dataTable>tbody>tr.child ul.dtr-details {
