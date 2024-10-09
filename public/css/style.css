@@ -3042,7 +3042,7 @@ body.IE .register-page-wrap .container {
     content   : "";
     width     : 3px;
     height    : 100%;
-    background: #1b00ff;
+    background: #FFD801;
     position  : absolute;
     left      : 150px
 }
@@ -3064,7 +3064,7 @@ body.IE .register-page-wrap .container {
     background        : #fff;
     border-radius     : 100%;
     -webkit-box-shadow: 0 0 0 3px #1b00ff;
-    box-shadow        : 0 0 0 3px #1b00ff
+    box-shadow        : 0 0 0 3px #FFD801
 }
 
 .timeline .timeline-date {
@@ -3072,7 +3072,7 @@ body.IE .register-page-wrap .container {
     left         : 0;
     top          : 20px;
     width        : 120px;
-    background   : #1b00ff;
+    background   : #142127;
     color        : #fff;
     font-size    : 16px;
     padding      : 6px 10px;

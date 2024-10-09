@@ -15,7 +15,6 @@ class PurchaseOrder extends Model
     protected $keyType = 'string'; // adjust this based on the data type of po_id
 
     protected $fillable = [
-        'customer_name',
         'order_date',
         'delivery_date',
         'order_status',
@@ -24,4 +23,15 @@ class PurchaseOrder extends Model
         'delivery_location',
         'notes_instructions',
     ];
+
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'po_id', 'po_id');
+    }
+
+    public function timelineEvents()
+    {
+        return $this->hasMany(TimelineEvent::class, 'purchase_order_id', 'po_id'); // Adjust 'po_id' if needed
+    }
 }

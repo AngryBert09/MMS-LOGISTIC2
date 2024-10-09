@@ -152,60 +152,7 @@
                                         <td>{{ $order->notes_instructions }}</td>
                                         <td>{{ $order->shipping_method }}</td>
                                         <td>
-                                            <div class="dropdown">
-                                                <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
-                                                    href="#" role="button" data-toggle="dropdown">
-                                                    <i class="dw dw-more"></i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                                                    <!-- View Action: Trigger Modal -->
-                                                    <a class="dropdown-item view-purchase-order" href="#"
-                                                        data-po-id="{{ $order->po_id }}" data-toggle="modal"
-                                                        data-target="#viewPurchaseOrderModal">
-                                                        <i class="dw dw-eye"></i> View
-                                                    </a>
-
-
-                                                    <!-- Edit Action: Display if order is in Draft status -->
-                                                    @if ($order->order_status === 'Draft')
-                                                        <a class="dropdown-item edit-purchase-order" href="#"
-                                                            data-order='{{ json_encode($order) }}' data-toggle="modal"
-                                                            data-target="#editPurchaseOrderModal">
-                                                            <i class="dw dw-edit2"></i> Edit
-                                                        </a>
-
-                                                        <a class="dropdown-item confirm-purchase-order" href="#"
-                                                            data-order='{"po_id": "{{ $order->po_id }}", "purchase_order_number": "{{ $order->purchase_order_number }}", "total_amount": {{ $order->total_amount }} }'
-                                                            data-toggle="modal"
-                                                            data-target="#confirmPurchaseOrderModal">
-                                                            <i class="dw dw-check"></i> Confirm
-                                                        </a>
-
-
-                                                        <a class="dropdown-item reject-purchase-order" href="#"
-                                                            data-order-id="{{ $order->po_id }}" data-toggle="modal"
-                                                            data-target="#rejectPurchaseOrderModal">
-                                                            <i class="dw dw-trash"></i> Reject
-                                                        </a>
-                                                    @elseif ($order->order_status === 'Confirmed')
-                                                        <a class="dropdown-item cancel-purchase-order" href="#"
-                                                            data-order-id="{{ $order->po_id }}" data-toggle="modal"
-                                                            data-target="#cancelPurchaseOrderModal">
-                                                            <i class="dw dw-cancel"></i> Cancel
-                                                        </a>
-                                                    @elseif ($order->order_status === 'Rejected')
-                                                        <a class="dropdown-item resubmit-purchase-order"
-                                                            href="#" data-order-id="{{ $order->po_id }}"
-                                                            data-toggle="modal"
-                                                            data-target="#resubmitPurchaseOrderModal">
-                                                            <i class="dw dw-refresh"></i> Re-submit
-                                                        </a>
-                                                    @endif
-
-                                                    <!-- Delete Action: Delete only if order is in a cancellable state -->
-                                                    @include('vendors.purchase-orders.destroy');
-                                                </div>
-                                            </div>
+                                            @include('vendors.purchase-orders.actions')
                                         </td>
                                     </tr>
                                 @endforeach
@@ -229,55 +176,6 @@
 
     <!-- VIEW MODAL -->
     @include('vendors.purchase-orders.show')
-
-    <!-- CANCEL MODAL -->
-    <div class="modal fade" id="cancelPurchaseOrderModal" tabindex="-1" role="dialog"
-        aria-labelledby="cancelPurchaseOrderModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cancelPurchaseOrderModalLabel">Cancel Purchase Order</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="cancelPurchaseOrderForm" method="POST" action="">
-                        @csrf
-                        @method('PUT')
-
-                        <!-- Hidden input to specify the action -->
-                        <input type="hidden" name="action" value="cancel">
-
-                        <!-- Hidden input to store order ID -->
-                        <input type="hidden" id="cancel_order_id" name="order_id">
-
-                        <p>Are you sure you want to cancel this purchase order?</p>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No, Keep Order</button>
-                    <button type="submit" form="cancelPurchaseOrderForm" class="btn btn-danger">Yes, Cancel
-                        Order</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        $(document).on('click', '.cancel-purchase-order', function() {
-            var orderId = $(this).data('order-id');
-
-            // Set the hidden input value for the order ID
-            $('#cancel_order_id').val(orderId);
-
-            // Set the form action URL for canceling the order
-            var actionUrl = "{{ route('purchase-orders.update', '') }}/" + orderId;
-            $('#cancelPurchaseOrderForm').attr('action', actionUrl);
-
-            console.log("Cancel action URL:", actionUrl);
-        });
-    </script>
-
 
 
     <!-- welcome modal end -->

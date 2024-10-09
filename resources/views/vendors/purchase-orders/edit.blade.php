@@ -90,7 +90,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
                     <button type="submit" form="confirmPurchaseOrderForm" class="btn btn-primary">Confirm</button>
                 </div>
             </div>
@@ -130,6 +130,14 @@
                         <p>Are you sure you want to reject this purchase order?</p>
                         <input type="hidden" id="reject_order_id" name="order_id">
                         <input type="hidden" name="action" value="reject"> <!-- Action field -->
+
+                        <div class="form-group">
+                            <label for="rejection-note">Rejection Note:</label>
+                            <textarea id="rejection-note" name="rejection_note" class="form-control" rows="3" required maxlength="50"></textarea>
+                            <small class="form-text text-muted">Please provide a reason for rejection (max 50
+                                characters).</small>
+                            <div class="character-count mt-2">0 / 50</div>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -148,7 +156,15 @@
             var actionUrl = "{{ route('purchase-orders.update', '') }}/" + orderId;
             $('#rejectPurchaseOrderForm').attr('action', actionUrl);
         });
+
+        // Update character count
+        $('#rejection-note').on('input', function() {
+            var charCount = $(this).val().length;
+            $('.character-count').text(charCount + ' / 50');
+        });
     </script>
+
+
 
     <!-- Re-submit Purchase Order Modal -->
     <div class="modal fade" id="resubmitPurchaseOrderModal" tabindex="-1" role="dialog"
@@ -186,5 +202,99 @@
             // Update the action URL to include the order ID
             var actionUrl = "{{ route('purchase-orders.update', '') }}/" + orderId;
             $('#resubmitPurchaseOrderForm').attr('action', actionUrl);
+        });
+    </script>
+
+    <!-- Initiate Fulfillment Modal -->
+    <div class="modal fade" id="initiateFulfillmentModal" tabindex="-1" role="dialog"
+        aria-labelledby="initiateFulfillmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="initiateFulfillmentModalLabel">Initiate Fulfillment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to initiate fulfillment for the following purchase order?</p>
+                    <strong>Purchase Order Number:</strong> <span id="fulfillment-po-number"></span><br>
+                    <strong>Total Amount:</strong> <span id="fulfillment-total-amount"></span>
+                    <form id="initiateFulfillmentForm" method="POST" action="">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="action" value="initiate_fulfillment">
+                        <input type="hidden" name="po_id" id="fulfillment-po-id" value="">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Initiate Fulfillment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).on('click', '.initiate-fulfillment', function() {
+            const poId = $(this).data('po-id');
+            const poNumber = $(this).data('po-number');
+            const totalAmount = $(this).data('total-amount');
+
+            // Set the values in the modal
+            $('#fulfillment-po-id').val(poId);
+            $('#fulfillment-po-number').text(poNumber);
+            $('#fulfillment-total-amount').text(totalAmount);
+
+            // Update the form action to include the correct purchase order ID
+            $('#initiateFulfillmentForm').attr('action', "{{ route('purchase-orders.update', '') }}" + '/' + poId);
+        });
+    </script>
+
+    <!-- Hold Purchase Order Modal -->
+    <div class="modal fade" id="holdPurchaseOrderModal" tabindex="-1" role="dialog"
+        aria-labelledby="holdPurchaseOrderModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="holdPurchaseOrderModalLabel">Put Purchase Order on Hold</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="holdPurchaseOrderForm" method="POST"
+                        action="{{ route('purchase-orders.update', '') }}">
+                        @csrf
+                        @method('PUT')
+                        <p>Are you sure you want to put this purchase order on hold?</p>
+
+                        <!-- Hidden field for order ID -->
+                        <input type="hidden" id="hold_order_id" name="order_id">
+                        <input type="hidden" name="action" value="hold"> <!-- Action field -->
+
+                        <!-- Optional note for placing order on hold -->
+                        <div class="form-group">
+                            <label for="hold_note">Reason for Hold (optional):</label>
+                            <textarea id="hold_note" name="hold_note" class="form-control" rows="3"
+                                placeholder="Enter a reason for putting the order on hold (optional)"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" form="holdPurchaseOrderForm" class="btn btn-warning">Put on Hold</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).on('click', '.hold-purchase-order', function() {
+            var orderId = $(this).data('order-id');
+            $('#hold_order_id').val(orderId);
+
+            // Update the action URL to include the order ID dynamically
+            var actionUrl = "{{ route('purchase-orders.update', '') }}/" + orderId;
+            $('#holdPurchaseOrderForm').attr('action', actionUrl);
         });
     </script>
