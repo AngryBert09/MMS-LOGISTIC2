@@ -23,7 +23,7 @@
             </a>
             <a class="dropdown-item hold-purchase-order" href="#" data-order-id="{{ $order->po_id }}"
                 data-toggle="modal" data-target="#holdPurchaseOrderModal">
-                <i class="dw dw-pause"></i> Put on Hold
+                <i class="dw dw-right-arrow-1"></i> Put on Hold
             </a>
         @elseif ($order->order_status === 'Approved')
             <a class="dropdown-item generate-invoice" href="#" data-order-id="{{ $order->po_id }}"
