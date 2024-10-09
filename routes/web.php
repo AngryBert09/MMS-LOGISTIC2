@@ -67,13 +67,18 @@ Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('
 
 
 Route::get('/customer-rn', function () {
-    return view('vendors.purchase-receipt');
+    return view('vendors.purchase-receipt.purchase-receipt');
 })->name('customer_RN');
 
 
 Route::get('/terms', function () {
     return view('terms');
 })->name('terms');
+
+Route::get('/invoice', function () {
+    return view('vendors.invoices.invoice');
+})->name('invoice')->middleware('auth:vendor');
+
 
 
 Route::middleware(['auth', 'can:admin'])->prefix('/admin')->as('admin.')->group(function () {
