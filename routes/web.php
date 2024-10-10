@@ -45,24 +45,6 @@ Route::get('lang/{lang}', function ($lang) {
 
 Route::get('', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth:vendor');
 
-Route::resource('ideas', IdeaController::class)->except(['index', 'create', 'show'])->middleware('auth');
-
-Route::resource('ideas', IdeaController::class)->only(['show']);
-
-Route::resource('ideas.comments', CommentController::class)->only(['store'])->middleware('auth');
-
-Route::resource('users', UserController::class)->only('show');
-Route::resource('users', UserController::class)->only('edit', 'update')->middleware('auth');
-
-Route::get('profile', [UserController::class, 'profile'])->middleware('auth')->name('profile');
-
-Route::post('users/{user}/follow', [FollowerController::class, 'follow'])->middleware('auth')->name('users.follow');
-Route::post('users/{user}/unfollow', [FollowerController::class, 'unfollow'])->middleware('auth')->name('users.unfollow');
-
-Route::post('ideas/{idea}/like', [IdeaLikeController::class, 'like'])->middleware('auth')->name('ideas.like');
-Route::post('ideas/{idea}/unlike', [IdeaLikeController::class, 'unlike'])->middleware('auth')->name('ideas.unlike');
-
-
 Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('auth:vendor');
 
 
@@ -70,17 +52,10 @@ Route::get('/customer-rn', function () {
     return view('vendors.purchase-receipt');
 })->name('customer_RN');
 
+Route::get('/invoices', function () {
+    return view('vendors.invoices.create-invoice');
+})->name('invoice')->middleware('auth:vendor');
 
 Route::get('/terms', function () {
     return view('terms');
 })->name('terms');
-
-
-Route::middleware(['auth', 'can:admin'])->prefix('/admin')->as('admin.')->group(function () {
-    Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('users', AdminUserController::class)->only('index');
-
-    Route::resource('ideas', AdminIdeaController::class)->only('index');
-
-    Route::resource('comments', AdminCommentController::class)->only('index', 'destroy');
-});
