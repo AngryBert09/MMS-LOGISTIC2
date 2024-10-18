@@ -46,15 +46,22 @@ Route::get('lang/{lang}', function ($lang) {
 Route::get('', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth:vendor');
 
 Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('auth:vendor');
+Route::resource('invoices', InvoiceController::class)->middleware('auth:vendor');
+Route::resource('profiles', ProfileController::class)->middleware('auth:vendor');
+
+Route::get('/invoices/preview', [InvoiceController::class, 'preview'])->name('invoices.preview');
+
 
 
 Route::get('/customer-rn', function () {
     return view('vendors.purchase-receipt');
 })->name('customer_RN');
 
-Route::get('/invoices', function () {
-    return view('vendors.invoices.create-invoice');
-})->name('invoice')->middleware('auth:vendor');
+Route::get('/thepreview', function () {
+    return view('vendors.invoices.preview-invoice');
+})->name('customer_RN')->middleware('auth:vendor');
+
+
 
 Route::get('/terms', function () {
     return view('terms');

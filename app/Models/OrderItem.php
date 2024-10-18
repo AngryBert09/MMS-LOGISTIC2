@@ -25,4 +25,9 @@ class OrderItem extends Model
     {
         return $this->belongsTo(PurchaseOrder::class, 'po_id', 'po_id');
     }
+
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class);
+    }
 }

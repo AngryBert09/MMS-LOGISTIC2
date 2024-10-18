@@ -4,7 +4,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>Purchase Orders</title>
+    <title>Invoices</title>
 
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
@@ -39,22 +39,22 @@
         gtag("config", "G-GBZ3SGGX85");
     </script>
     <!-- Google Tag Manager -->
-    <scrip>
+    <script>
         (function(w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
-        "gtm.start": new Date().getTime(),
-        event: "gtm.js"
-        });
-        var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != "dataLayer" ? "&l=" + l : "";
-        j.async = true;
-        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
+            w[l] = w[l] || [];
+            w[l].push({
+                "gtm.start": new Date().getTime(),
+                event: "gtm.js"
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != "dataLayer" ? "&l=" + l : "";
+            j.async = true;
+            j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+            f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", "GTM-NXZMQSS");
-        </script>
-        <!-- End Google Tag Manager -->
+    </script>
+    <!-- End Google Tag Manager -->
 </head>
 
 <body>
@@ -71,12 +71,11 @@
         </div>
     </div> --}}
 
-
     @include('layout.nav')
 
-    @include('layout.left-sidebar')
-
     @include('layout.right-sidebar')
+
+    @include('layout.left-sidebar')
 
     <div class="mobile-menu-overlay"></div>
 
@@ -87,15 +86,15 @@
                     <div class="row">
                         <div class="col-md-6 col-sm-12">
                             <div class="title">
-                                <h4>Purchase Orders</h4>
+                                <h4>Invoices</h4>
                             </div>
                             <nav aria-label="breadcrumb" role="navigation">
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item">
-                                        <a href="{{ route('dashboard') }}">Home</a>
+                                        <a href="index.html">Home</a>
                                     </li>
                                     <li class="breadcrumb-item active" aria-current="page">
-                                        Purchase Orders
+                                        Invoices
                                     </li>
                                 </ol>
                             </nav>
@@ -118,48 +117,50 @@
                 <!-- Simple Datatable start -->
                 <div class="card-box mb-30">
                     <div class="pd-20">
-                        <h4 class="text-dark h4">Purchase Orders</h4>
-                        <p class="text-muted">All purchase orders are for Great Wall Arts.</p>
+                        <h4 class="text-dark h4">Invoices</h4>
+                        <p class="text-muted">All invoices are for Great Wall Arts.</p>
                     </div>
                     <div class="pb-20">
                         <table class="data-table table stripe hover nowrap">
                             <thead>
                                 <tr>
-                                    <th class="table-plus">PO #</th>
-                                    <th>Invoice Number</th>
-                                    <th>Order Date</th>
-                                    <th>Delivery Date</th>
-                                    <th>Order Status</th>
+                                    <th class="table-plus datatable-nosort">Invoice #</th>
+                                    <th>Subtotal</th>
+                                    <th>Tax Amount</th>
+                                    <th>Discount Amount</th>
                                     <th>Total Amount</th>
-                                    <th>Payment Terms</th>
-                                    <th>Delivery Location</th>
-                                    <th>Notes/Instructions</th>
-                                    <th>Shipping Method</th>
-                                    <th>Action</th>
+                                    <th>Invoice Date</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th class="datatable-nosort">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($purchaseOrders as $order)
+                                @foreach ($invoices as $invoice)
                                     <tr>
-                                        <td class="table-plus">{{ $order->purchase_order_number }}</td>
+                                        <td class="table-plus">{{ $invoice->invoice_number }}</td>
+                                        <td>${{ number_format($invoice->subtotal, 2) }}</td>
+                                        <td>${{ number_format($invoice->tax_amount, 2) }}</td>
+                                        <td>${{ number_format($invoice->discount_amount, 2) }}</td>
+                                        <td>${{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}</td>
+                                        <td>{{ $invoice->status }}</td>
                                         <td>
-                                            @if ($order->invoices->isNotEmpty())
-                                                <!-- Check if the invoices collection is not empty -->
-                                                {{ $order->invoices->first()->invoice_number }}
-                                                <!-- Use the correct property name -->
-                                            @else
-                                            @endif
-                                        </td>
-                                        <td>{{ $order->order_date }}</td>
-                                        <td>{{ $order->delivery_date }}</td>
-                                        <td>{{ $order->order_status }}</td>
-                                        <td>{{ number_format($order->orderItems->sum('total_price'), 2) }}</td>
-                                        <td>{{ $order->payment_terms }}</td>
-                                        <td>{{ $order->delivery_location }}</td>
-                                        <td>{{ $order->notes_instructions }}</td>
-                                        <td>{{ $order->shipping_method }}</td>
-                                        <td>
-                                            @include('vendors.purchase-orders.actions')
+                                            <div class="dropdown">
+                                                <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+                                                    href="#" role="button" data-toggle="dropdown">
+                                                    <i class="dw dw-more"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                                    <a class="dropdown-item" href="#"><i class="dw dw-eye"></i>
+                                                        View</a>
+                                                    <a class="dropdown-item" href="#"><i class="dw dw-edit2"></i>
+                                                        Edit</a>
+                                                    <a class="dropdown-item" href="#"><i
+                                                            class="dw dw-delete-3"></i> Delete</a>
+                                                </div>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -167,27 +168,23 @@
                         </table>
                     </div>
                 </div>
+
+
                 <!-- Simple Datatable End -->
+                <!-- multiple select row Datatable start -->
+
+                <!-- multiple select row Datatable End -->
+                <!-- Checkbox select Datatable start -->
+
+                <!-- Checkbox select Datatable End -->
+                <!-- Export Datatable start -->
+
+                <!-- Export Datatable End -->
             </div>
         </div>
     </div>
-
-    <!-- Ensure jQuery is loaded before this script -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Edit Purchase Order Modal
-         Confirm Purchase Order Modal
-         Reject Purchase Order Modal
-         Resubmission Purchase Order Modal -->
-    @include('vendors.purchase-orders.edit')
-
-    <!-- VIEW MODAL -->
-    @include('vendors.purchase-orders.show')
-
-
     <!-- welcome modal end -->
     <!-- js -->
-    <!-- jQuery -->
     <script src="js/core.js"></script>
     <script src="js/script.min.js"></script>
     <script src="js/process.js"></script>
@@ -204,13 +201,11 @@
     <script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
     <script src="src/plugins/datatables/js/pdfmake.min.js"></script>
     <script src="src/plugins/datatables/js/vfs_fonts.js"></script>
-
-
-
     <!-- Datatable Setting js -->
     <script src="js/datatable-setting.js"></script>
     <!-- Google Tag Manager (noscript) -->
-
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS" height="0" width="0"
+            style="display: none; visibility: hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 </body>
 

@@ -40,4 +40,9 @@ class Vendor extends Authenticatable implements AuthenticatableContract
         'email_verified_at' => 'datetime',
         // Add any other casts if needed
     ];
+
+    public function purchaseOrders()
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
 }
