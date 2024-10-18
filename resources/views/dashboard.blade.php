@@ -18,11 +18,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
     <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="css/core.css" />
-    <link rel="stylesheet" type="text/css" href="css/icon-font.min.css" />
-    <link rel="stylesheet" type="text/css" href="src/plugins/datatables/css/dataTables.bootstrap4.min.css" />
-    <link rel="stylesheet" type="text/css" href="src/plugins/datatables/css/responsive.bootstrap4.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/core.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/icon-font.min.css') }}" />
+    <link rel="stylesheet" type="text/css"
+        href="{{ asset('src/plugins/datatables/css/dataTables.bootstrap4.min.css') }}" />
+    <link rel="stylesheet" type="text/css"
+        href="{{ asset('src/plugins/datatables/css/responsive.bootstrap4.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
+
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GBZ3SGGX85"></script>
@@ -324,16 +327,17 @@
 
     <!-- welcome modal end -->
     <!-- js -->
-    <script src="js/core.js"></script>
-    <script src="js/script.min.js"></script>
-    <script src="js/process.js"></script>
-    <script src="js/layout-settings.js"></script>
-    <script src="src/plugins/apexcharts/apexcharts.min.js"></script>
-    <script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
-    <script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
-    <script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="{{ asset('js/core.js') }}"></script>
+    <script src="{{ asset('js/script.min.js') }}"></script>
+    <script src="{{ asset('js/process.js') }}"></script>
+    <script src="{{ asset('js/layout-settings.js') }}"></script>
+    <script src="{{ asset('src/plugins/apexcharts/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('src/plugins/datatables/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('src/plugins/datatables/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('src/plugins/datatables/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('js/dashboard.js') }}"></script>
+
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS" height="0" width="0"
             style="display: none; visibility: hidden"></iframe></noscript>

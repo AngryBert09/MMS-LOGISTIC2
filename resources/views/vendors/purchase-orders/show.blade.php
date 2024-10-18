@@ -24,7 +24,6 @@
                             aria-controls="timeline" aria-selected="false">Timeline</a>
                     </li>
                 </ul>
-
                 <div class="tab-content mt-3" id="purchaseOrderTabContent">
                     <div class="tab-pane fade show active" id="po-info" role="tabpanel" aria-labelledby="po-info-tab">
                         <div class="table-responsive">
@@ -32,43 +31,43 @@
                                 <tbody>
                                     <tr>
                                         <th scope="row">PO #</th>
-                                        <td id="modal-po-number">PO000011</td>
+                                        <td id="modal-po-number"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Invoice Number</th>
-                                        <td id="modal-invoice-number">INV123456</td>
+                                        <td id="modal-invoice-number"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Order Date</th>
-                                        <td id="modal-order-date">10/01/2023</td>
+                                        <td id="modal-order-date"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Delivery Date</th>
-                                        <td id="modal-delivery-date">10/11/2023</td>
+                                        <td id="modal-delivery-date"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Order Status</th>
-                                        <td id="modal-order-status">Approved</td>
+                                        <td id="modal-order-status"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Total Amount</th>
-                                        <td id="modal-total-amount">IDR 35,000,000</td>
+                                        <td id="modal-total-amount"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Payment Terms</th>
-                                        <td id="modal-payment-terms">Net 30</td>
+                                        <td id="modal-payment-terms"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Delivery Location</th>
-                                        <td id="modal-delivery-location">Jakarta, Indonesia</td>
+                                        <td id="modal-delivery-location"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Notes/Instructions</th>
-                                        <td id="modal-notes">Handle with care</td>
+                                        <td id="modal-notes"></td>
                                     </tr>
                                     <tr>
                                         <th scope="row">Shipping Method</th>
-                                        <td id="modal-shipping-method">Express Delivery</td>
+                                        <td id="modal-shipping-method"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -100,24 +99,35 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
+            <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success">Create Invoice</button>
+                <form id="viewInvoiceForm" action="{{ route('invoices.create') }}" method="GET"
+                    style="display:inline;">
+                    @csrf
+                    <!-- Hidden fields for PO ID and Vendor ID -->
+                    <input type="hidden" id="modal-po-id" name="po_id">
+                    <input type="hidden" id="modal-vendor-id" name="vendor_id">
+                    <button type="button" class="btn btn-success" id="createInvoiceButton">Create Invoice</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
+
 <script>
     $(document).ready(function() {
+        // Handle the purchase order modal display
         $('#viewPurchaseOrderModal').on('show.bs.modal', function(event) {
             var button = $(event.relatedTarget); // Button that triggered the modal
             var po_id = button.data('po-id'); // Get the PO ID from the data attribute
+            var vendorId = button.data('vendor-id'); // Extract Vendor ID from data-* attributes
 
             console.log("PO ID:", po_id); // Debugging line to check PO ID
+            console.log("Form Vendor ID:", vendorId);
 
             // AJAX request to get purchase order details
             $.ajax({
@@ -125,25 +135,34 @@
                 type: 'GET',
                 success: function(data) {
                     console.log("Data received:",
-                        data); // Debugging line to check received data
+                    data); // Debugging line to check received data
 
                     // Fill modal fields with data
-                    $('#modal-po-number').text(data.purchase_order_number);
-                    $('#modal-invoice-number').text(data.invoice_number);
-                    $('#modal-order-date').text(data.order_date);
-                    $('#modal-delivery-date').text(data.delivery_date);
-                    $('#modal-order-status').text(data.order_status);
-                    $('#modal-total-amount').text(data.total_amount);
-                    $('#modal-payment-terms').text(data.payment_terms);
-                    $('#modal-delivery-location').text(data.delivery_location);
-                    $('#modal-notes').text(data.notes_instructions);
-                    $('#modal-shipping-method').text(data.shipping_method);
+                    $('#modal-po-id').val(po_id); // Set PO ID as value
+                    $('#modal-vendor-id').val(vendorId); // Set Vendor ID
 
-                    // Disable "Create Invoice" button if the status is "Rejected"
-                    if (data.order_status === 'Rejected') {
-                        $('.btn-success').prop('disabled', true); // Disable button
+                    // Populate modal fields
+                    $('#modal-po-number').text(data.purchase_order_number || 'N/A');
+                    $('#modal-invoice-number').text(data.invoice_number || 'N/A');
+                    $('#modal-order-date').text(data.order_date || 'N/A');
+                    $('#modal-delivery-date').text(data.delivery_date || 'N/A');
+                    $('#modal-order-status').text(data.order_status || 'N/A');
+                    $('#modal-total-amount').text(data.total_amount || 'N/A');
+                    $('#modal-payment-terms').text(data.payment_terms || 'N/A');
+                    $('#modal-delivery-location').text(data.delivery_location || 'N/A');
+                    $('#modal-notes').text(data.notes_instructions || 'N/A');
+                    $('#modal-shipping-method').text(data.shipping_method || 'N/A');
+
+                    // Disable "Create Invoice" button if the status is "Rejected" or an invoice already exists
+                    if (data.order_status === 'Rejected' || data.invoice_number) {
+                        $('#createInvoiceButton').prop('disabled',
+                        true); // Disable button by ID
+                        $('#invoiceStatusMessage').text(
+                        'Invoice has already been issued.'); // Display message
                     } else {
-                        $('.btn-success').prop('disabled', false); // Enable button
+                        $('#createInvoiceButton').prop('disabled',
+                        false); // Enable button by ID
+                        $('#invoiceStatusMessage').text(''); // Clear message
                     }
 
                     // Populate order items
@@ -170,7 +189,6 @@
                     $('#modal-timeline-events').empty(); // Clear previous events
                     if (data.timeline_events && data.timeline_events.length > 0) {
                         console.log("Timeline Events:", data.timeline_events);
-
                         data.timeline_events.forEach(function(event) {
                             // Format the event date
                             var eventDate = new Date(event.event_date);
@@ -208,10 +226,27 @@
                 error: function(xhr, status, error) {
                     console.error("Error fetching data:", error);
                     alert(
-                        'An error occurred while fetching the purchase order details. Please check the console for more details.'
-                        );
+                        'An error occurred while fetching the purchase order details. Please check the console for more details.');
                 }
             });
+        });
+
+        // Handle create invoice button click
+        $('#createInvoiceButton').on('click', function() {
+            // Get PO ID and Vendor ID from modal hidden inputs
+            var poId = $('#modal-po-id').val(); // Use .val() to get the value from the hidden input
+            var vendorId = $('#modal-vendor-id').val(); // This is already correct
+
+            // Debugging: Log the values to the console
+            console.log("PO ID: " + poId);
+            console.log("Vendor ID: " + vendorId);
+
+            // Check if both values exist before submitting the form
+            if (poId && vendorId) {
+                $('#viewInvoiceForm').submit(); // Submit the form to the preview route
+            } else {
+                alert('Error: PO ID or Vendor ID is missing!');
+            }
         });
     });
 </script>

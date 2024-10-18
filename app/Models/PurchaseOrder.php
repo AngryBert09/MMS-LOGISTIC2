@@ -34,4 +34,13 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany(TimelineEvent::class, 'purchase_order_id', 'po_id'); // Adjust 'po_id' if needed
     }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class, 'po_id', 'po_id');
+    }
 }
