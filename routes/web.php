@@ -49,7 +49,6 @@ Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('
 Route::resource('invoices', InvoiceController::class)->middleware('auth:vendor');
 Route::resource('profiles', ProfileController::class)->middleware('auth:vendor');
 
-Route::get('/invoices/preview', [InvoiceController::class, 'preview'])->name('invoices.preview');
 
 
 
@@ -57,9 +56,6 @@ Route::get('/customer-rn', function () {
     return view('vendors.purchase-receipt.purchase-receipt');
 })->name('customer_RN');
 
-Route::get('/thepreview', function () {
-    return view('vendors.invoices.preview-invoice');
-})->name('customer_RN')->middleware('auth:vendor');
 
 
 
