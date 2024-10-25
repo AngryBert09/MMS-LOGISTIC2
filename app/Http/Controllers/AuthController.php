@@ -35,8 +35,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'fullName' => 'required|string|max:255',
             'gender' => 'required|string',
-            'city' => 'nullable|string|max:255',
-            'state' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255', // Consolidated address field
             'business_registration' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'mayor_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'tin' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -48,17 +47,16 @@ class AuthController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        // Store files and create a new vendor record
-        $vendor = new Vendor(); // Ensure you have a Vendor model
+        // Create a new vendor record and set properties
+        $vendor = new Vendor();
         $vendor->company_name = $request->companyName;
         $vendor->email = $request->email;
         $vendor->password = Hash::make($request->password);
         $vendor->full_name = $request->fullName;
         $vendor->gender = $request->gender;
-        $vendor->city = $request->city;
-        $vendor->state = $request->state;
+        $vendor->address = $request->address; // Use new consolidated address field
 
-        // Handle file uploads
+        // Handle file uploads with storage path management
         if ($request->hasFile('business_registration')) {
             $vendor->business_registration = $request->file('business_registration')->store('documents');
         }
@@ -72,7 +70,7 @@ class AuthController extends Controller
             $vendor->proof_of_identity = $request->file('proof_of_identity')->store('documents');
         }
 
-        // Log before saving
+        // Log vendor data before saving
         Log::info('Attempting to save vendor: ', $vendor->toArray());
         $vendor->save();
         Log::info('Vendor saved successfully: ', $vendor->toArray());
@@ -80,8 +78,10 @@ class AuthController extends Controller
         // Send the VendorRegistered notification
         $vendor->notify(new WelcomeVendorNotification($vendor->full_name));
 
+        // Redirect to login with a confirmation message
         return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
     }
+
 
 
 

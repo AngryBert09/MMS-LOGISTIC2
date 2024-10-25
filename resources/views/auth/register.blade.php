@@ -160,21 +160,11 @@
                                             </div>
                                         </div>
                                         <div class="form-group row">
-                                            <label class="col-sm-4 col-form-label">City</label>
+                                            <label class="col-sm-4 col-form-label">Address</label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="city" class="form-control"
-                                                    value="{{ old('city') }}" />
-                                                @error('city')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="form-group row">
-                                            <label class="col-sm-4 col-form-label">State</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="state" class="form-control"
-                                                    value="{{ old('state') }}" />
-                                                @error('state')
+                                                <input type="text" name="address" class="form-control"
+                                                    value="{{ old('address') }}" />
+                                                @error('address')
                                                     <div class="text-danger">{{ $message }}</div>
                                                 @enderror
                                             </div>

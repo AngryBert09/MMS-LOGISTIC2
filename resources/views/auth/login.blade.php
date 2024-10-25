@@ -178,18 +178,7 @@
                                     }
                                 });
                             </script>
-
-                            <!-- Ensure Themify Icons are included -->
-                            <link rel="stylesheet"
-                                href="https://cdnjs.cloudflare.com/ajax/libs/themify-icons/0.1.2/css/themify-icons.css">
-
-
-                            <!-- Include Bootstrap Icons CSS -->
-                            <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
-                                rel="stylesheet">
-
-
-
+                    
 
                             <div class="row pb-30">
                                 <div class="col-6">
@@ -219,7 +208,6 @@
                             <a class="btn btn-outline-dark btn-lg btn-block" href="{{ route('register') }}">Register
                                 To
                                 Create Account</a>
-
                         </div>
                     </div>
                 </div>

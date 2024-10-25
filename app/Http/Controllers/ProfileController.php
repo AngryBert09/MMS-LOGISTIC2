@@ -11,8 +11,13 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        return view('users.show');
+        // Fetch vendor details, assuming the logged-in user is associated with a vendor
+        $vendor = auth()->user()->vendor; // Adjust this based on your relationship setup
+
+        // Pass the vendor details to the view
+        return view('profiles.show', compact('vendor'));
     }
+
 
     /**
      * Show the form for creating a new resource.
