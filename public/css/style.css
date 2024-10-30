@@ -2985,9 +2985,9 @@ body.IE .register-page-wrap .container {
 
 .nav-tabs.customtab .nav-item.show .nav-link,
 .nav-tabs.customtab .nav-link.active {
-    color        : #1b00ff;
+    color        : #FFC11E;
     border       : 0;
-    border-bottom: 2px solid #1b00ff
+    border-bottom: 2px solid #FFC11E;
 }
 
 .nav-tabs.customtab .nav-item {
@@ -3004,9 +3004,9 @@ body.IE .register-page-wrap .container {
 
 .nav-tabs.customtab .nav-link:focus,
 .nav-tabs.customtab .nav-link:hover {
-    color        : #1b00ff;
+    color        : #FFC11E;
     border       : 0;
-    border-bottom: 2px solid #1b00ff
+    border-bottom: 2px solid #FFC11E;
 }
 
 .nav.vtabs {
@@ -3697,7 +3697,7 @@ body.IE .register-page-wrap .container {
 .profile-info ul li span {
     display       : block;
     font-size     : 14px;
-    color         : #1b00ff;
+    color         : #FFC11E;
     font-weight   : 500;
     padding-bottom: 5px
 }

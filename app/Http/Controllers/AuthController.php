@@ -15,6 +15,7 @@ use App\Models\Vendor;
 use Illuminate\Support\Facades\Log;
 use App\Notifications\VendorRegistered;
 use App\Notifications\WelcomeVendorNotification;
+use App\Models\VerifiedVendor;
 
 
 
@@ -24,7 +25,6 @@ class AuthController extends Controller
     {
         return view('auth.register');
     }
-
 
     public function store(Request $request)
     {
@@ -75,6 +75,13 @@ class AuthController extends Controller
         $vendor->save();
         Log::info('Vendor saved successfully: ', $vendor->toArray());
 
+        // Use the VerifiedVendor model to insert into verified_vendors table
+        VerifiedVendor::create([
+            'vendor_id' => $vendor->id, // Use the newly created vendor's ID
+            'is_verified' => false, // Set to false as per requirement
+            'verified_at' => null, // Initially null, as the vendor is not verified yet
+        ]);
+
         // Send the VendorRegistered notification
         $vendor->notify(new WelcomeVendorNotification($vendor->full_name));
 
@@ -82,14 +89,11 @@ class AuthController extends Controller
         return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
     }
 
-
-
-
-
     public function login()
     {
         return view('auth.login');
     }
+
     public function authenticate()
     {
         // Validate the incoming request data
@@ -138,8 +142,26 @@ class AuthController extends Controller
             // Regenerate session to prevent session fixation attacks
             request()->session()->regenerate();
 
-            // Redirect to the vendor dashboard with a success message
-            return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
+            // Log successful login attempt
+            Log::info('Vendor login attempt successful', ['vendor_id' => $vendor->id]);
+
+            // Check the verification status in the VerifiedVendor table
+            $verifiedVendor = \App\Models\VerifiedVendor::where('vendor_id', $vendor->id)->first();
+
+            if ($verifiedVendor && $verifiedVendor->is_verified) {
+                // Log vendor logged in successfully
+                Log::info('Vendor logged in successfully', ['vendor_id' => $vendor->id]);
+                return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
+            } else {
+                // Flash message for unverified vendors
+                Log::warning('Vendor is not verified', ['vendor_id' => $vendor->id]);
+                return redirect()->route('profiles.show', $vendor->id)
+                    ->with('message', 'Please complete your profile information below to proceed.');
+            }
+        } else {
+            // Log failed login attempt
+            Log::warning('Vendor login attempt failed', ['email' => $vendor->email]);
+            return redirect()->back()->withErrors(['email' => 'Invalid credentials.']);
         }
 
         // If the email is valid but the password is incorrect, return a password error
@@ -147,6 +169,9 @@ class AuthController extends Controller
             'password' => 'The provided password is incorrect.',
         ])->withInput(request()->only('email'));
     }
+
+
+
 
 
 

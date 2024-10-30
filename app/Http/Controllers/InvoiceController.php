@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
-
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
@@ -19,8 +19,10 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        // Fetch all invoices and return to view
-        $invoices = Invoice::all();
+        // Fetch invoices that belong to the authenticated vendor
+        $vendorId = Auth::guard('vendor')->id(); // Get the authenticated vendor ID
+        $invoices = Invoice::where('vendor_id', $vendorId)->get(); // Filter invoices by vendor_id
+
         return view('vendors.invoices.index-invoice', compact('invoices'));
     }
 

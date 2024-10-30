@@ -9,8 +9,6 @@
             data-vendor-id="{{ $order->vendor->id }}" data-toggle="modal" data-target="#viewPurchaseOrderModal">
             <i class="dw dw-eye"></i> View
         </a>
-
-
         <!-- Actions based on order status -->
         @if ($order->order_status === 'Pending Approval')
             <a class="dropdown-item confirm-purchase-order" href="#"
@@ -27,10 +25,11 @@
                 <i class="dw dw-right-arrow-1"></i> Put on Hold
             </a>
         @elseif ($order->order_status === 'Approved')
-            <a class="dropdown-item generate-invoice"
-                href="{{ route('invoices.create', ['order_id' => $order->po_id]) }}">
+            <a class="dropdown-item view-purchase-order" href="#" data-po-id="{{ $order->po_id }}"
+                data-vendor-id="{{ $order->vendor->id }}" data-toggle="modal" data-target="#viewPurchaseOrderModal">
                 <i class="dw dw-invoice"></i> Generate Invoice
             </a>
+
 
             <a class="dropdown-item initiate-fulfillment" href="#" data-po-id="{{ $order->po_id }}"
                 data-po-number="{{ $order->purchase_order_number }}" data-total-amount="{{ $order->total_amount }}"
@@ -47,6 +46,11 @@
             <a class="dropdown-item hold-purchase-order" href="#" data-order-id="{{ $order->po_id }}"
                 data-toggle="modal" data-target="#holdPurchaseOrderModal">
                 <i class="dw dw-right-arrow-1"></i> Put on Hold
+            </a>
+        @elseif ($order->order_status === 'In Progress' || $order->order_status === 'On Hold')
+            <a class="dropdown-item view-purchase-order" href="#" data-po-id="{{ $order->po_id }}"
+                data-vendor-id="{{ $order->vendor->id }}" data-toggle="modal" data-target="#viewPurchaseOrderModal">
+                <i class="dw dw-invoice"></i> Generate Invoice
             </a>
         @elseif ($order->order_status === 'In Progress' || $order->order_status === 'On Hold')
             <span class="dropdown-item disabled">No actions available</span>

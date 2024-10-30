@@ -135,7 +135,7 @@
                 type: 'GET',
                 success: function(data) {
                     console.log("Data received:",
-                    data); // Debugging line to check received data
+                        data); // Debugging line to check received data
 
                     // Fill modal fields with data
                     $('#modal-po-id').val(po_id); // Set PO ID as value
@@ -153,15 +153,16 @@
                     $('#modal-notes').text(data.notes_instructions || 'N/A');
                     $('#modal-shipping-method').text(data.shipping_method || 'N/A');
 
+
                     // Disable "Create Invoice" button if the status is "Rejected" or an invoice already exists
                     if (data.order_status === 'Rejected' || data.invoice_number) {
                         $('#createInvoiceButton').prop('disabled',
-                        true); // Disable button by ID
+                            true); // Disable button by ID
                         $('#invoiceStatusMessage').text(
-                        'Invoice has already been issued.'); // Display message
+                            'Invoice has already been issued.'); // Display message
                     } else {
                         $('#createInvoiceButton').prop('disabled',
-                        false); // Enable button by ID
+                            false); // Enable button by ID
                         $('#invoiceStatusMessage').text(''); // Clear message
                     }
 
@@ -226,7 +227,8 @@
                 error: function(xhr, status, error) {
                     console.error("Error fetching data:", error);
                     alert(
-                        'An error occurred while fetching the purchase order details. Please check the console for more details.');
+                        'An error occurred while fetching the purchase order details. Please check the console for more details.'
+                    );
                 }
             });
         });
