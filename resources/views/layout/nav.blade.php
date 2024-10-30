@@ -81,7 +81,8 @@
             <div class="dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                     <span class="user-icon">
-                        <img src="{{ asset('images/img1.jpg') }}" alt="" />
+                        <img src="{{ asset(Auth::user()->profile_pic ? Auth::user()->profile_pic : 'images/default-profile.png') }}"
+                            alt="Profile Picture" />
                     </span>
                     <span class="user-name">{{ Auth::user()->full_name }}</span>
                 </a>

@@ -14,9 +14,16 @@ class DashboardController extends Controller
 
     public function index()
     {
-        // Assuming you have a relationship defined to fetch notifications
-        $notifications = auth()->user()->notifications; // Adjust this line if necessary
+        // Retrieve the authenticated vendor
+        $vendor = auth()->user(); // Get the authenticated user (vendor)
 
-        return view('dashboard', compact('notifications'));
+        // Fetch notifications associated with the authenticated vendor
+        $notifications = $vendor->notifications; // Adjust this line if necessary
+
+        // Pass both the notifications and the vendor's profile picture to the view
+        return view('dashboard', [
+            'notifications' => $notifications,
+            'profile_pic' => $vendor->profile_pic // Include the profile picture
+        ]);
     }
 }
