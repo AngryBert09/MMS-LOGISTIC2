@@ -160,6 +160,12 @@
                             true); // Disable button by ID
                         $('#invoiceStatusMessage').text(
                             'Invoice has already been issued.'); // Display message
+                    } else if (data.order_status === 'Pending Approval' || data
+                        .invoice_number) {
+                        $('#createInvoiceButton').prop('disabled',
+                            true); // Disable button by ID
+                        $('#invoiceStatusMessage').text(
+                            'Invoice has already been issued.'); // Display message
                     } else {
                         $('#createInvoiceButton').prop('disabled',
                             false); // Enable button by ID

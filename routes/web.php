@@ -49,9 +49,7 @@ Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('
 Route::resource('invoices', InvoiceController::class)->middleware('auth:vendor');
 Route::resource('profiles', ProfileController::class)->middleware('auth:vendor');
 
-Route::get('/customer-rn', function () {
-    return view('vendors.purchase-receipts.purchase-receipt');
-})->name('customer_RN')->middleware('auth:vendor');
+Route::resource('receipts', PurchaseReceiptController::class)->middleware('auth:vendor');
 
 Route::get('/Chats', function () {
     return view('vendors.Chats.chats');

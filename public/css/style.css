@@ -763,7 +763,7 @@ p {
 .dropdown-item:focus,
 .dropdown-item:hover {
     background: #ecf0f4;
-    color     : #1b00ff
+    color     : #FFC11E;
 }
 
 .form-group {

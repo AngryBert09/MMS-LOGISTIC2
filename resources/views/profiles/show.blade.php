@@ -111,7 +111,7 @@
                             <div class="profile-photo">
                                 <a href="modal" data-toggle="modal" data-target="#modal" class="edit-avatar"><i
                                         class="fa fa-pencil"></i></a>
-                                <img src="{{ $vendor->profile_pic ? asset($vendor->profile_pic) : asset('images/default-profile.jpg') }}"
+                                <img src="{{ $vendor->profile_pic ? asset($vendor->profile_pic) : asset('images/photo1.jpg') }}"
                                     alt="Vendor Profile Picture" class="avatar-photo" />
 
                                 <!-- Modal for Picture Update -->

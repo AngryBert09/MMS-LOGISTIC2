@@ -28,7 +28,7 @@
                                 <li><a href="index3.html">Payments</a></li>
                                 <li><a href="{{ route('invoices.index') }}">Invoices</a></li>
                                 <li><a href="{{ route('purchase-orders.index') }}">Customer PO</a></li>
-                                <li><a href="{{ route('customer_RN') }}">Customer RN</a></li>
+                                <li><a href="{{ route('receipts.index') }}">Customer RN</a></li>
                             @else
                                 <li><a href="{{ route('profiles.show', $vendorId) }}">Complete Profile</a></li>
                             @endif

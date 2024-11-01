@@ -91,7 +91,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
-                    <button type="submit" form="confirmPurchaseOrderForm" class="btn btn-primary">Confirm</button>
+                    <button type="submit" form="confirmPurchaseOrderForm" class="btn btn-warning">Confirm</button>
                 </div>
             </div>
         </div>
@@ -165,7 +165,6 @@
     </script>
 
 
-
     <!-- Re-submit Purchase Order Modal -->
     <div class="modal fade" id="resubmitPurchaseOrderModal" tabindex="-1" role="dialog"
         aria-labelledby="resubmitPurchaseOrderModalLabel" aria-hidden="true">
@@ -227,7 +226,7 @@
                         <input type="hidden" name="po_id" id="fulfillment-po-id" value="">
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Initiate Fulfillment</button>
+                            <button type="submit" class="btn btn-warning">Initiate Fulfillment</button>
                         </div>
                     </form>
                 </div>
