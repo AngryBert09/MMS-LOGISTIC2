@@ -12,6 +12,10 @@ class PurchaseReceipt extends Model
     // Define the table name if it's not the plural form of the model name
     protected $table = 'purchase_receipts';
 
+    protected $casts = [
+        'receipt_date' => 'date',
+    ];
+
     // Fillable attributes for mass assignment
     protected $fillable = [
         'receipt_id',      // Unique receipt number
@@ -29,7 +33,7 @@ class PurchaseReceipt extends Model
         'updated_at',      // Timestamp for updates
     ];
 
- 
+
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');

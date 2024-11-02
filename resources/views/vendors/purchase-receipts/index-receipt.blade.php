@@ -137,13 +137,14 @@
                             <tbody>
                                 @foreach ($receipts as $receipt)
                                     <tr>
-                                        <td class="table-plus">{{ $receipt->receipt_id }}</td>
+                                        <td class="table-plus">{{ $receipt->receipt_number }}</td>
                                         <!-- Displaying the receipt_id -->
                                         <td>{{ $receipt->vendor->company_name ?? 'N/A' }}</td>
                                         <!-- Displaying vendor name -->
                                         <td>{{ $receipt->po_id }}</td> <!-- Displaying PO ID -->
                                         <td>${{ number_format($receipt->total_amount, 2) }}</td>
-                                        <td>{{ $receipt->receipt_date->format('Y-m-d') }}</td> <!-- Format date -->
+                                        <td>{{ date('Y-m-d', strtotime($receipt->receipt_date)) }}</td>
+
                                         <td>{{ ucfirst($receipt->status) }}</td> <!-- Displaying status -->
                                         <td>
                                             <div class="dropdown">

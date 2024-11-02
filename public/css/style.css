@@ -31,7 +31,7 @@ body {
     font-weight: 400;
     min-height : 100%;
     color      : #031e23;
-    background : #ecf0f4
+    background : #142127
 }
 
 a {
@@ -539,7 +539,7 @@ p {
 }
 
 .bg-blue {
-    background-color: #1b00ff
+    background-color: #FFC107
 }
 
 .text-blue {
@@ -1322,7 +1322,7 @@ table.dataTable.hover tbody tr:hover.selected {
 
 table.dataTable.display tbody tr.odd.selected,
 table.dataTable.stripe tbody tr.odd.selected {
-    background-color: #1b00ff !important
+    background-color: #FFC107 !important
 }
 
 table.dataTable thead .sorting:after,
@@ -1419,7 +1419,7 @@ div.dataTables_wrapper div.dataTables_paginate {
 }
 
 .dt-checkbox input:checked~span {
-    background  : #1b00ff;
+    background  : #FFC107;
     border-color: #1b00ff;
     color       : #fff
 }
@@ -2025,7 +2025,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th:first-child:before {
     top        : 0;
     display    : none;
     background : 0 0;
-    border-left: 2px dashed #1b00ff
+    border-left: 2px dashed #FFC107
 }
 
 .sidebar-menu .submenu li {
@@ -2289,7 +2289,7 @@ body.IE .register-page-wrap .container {
 .select-role .btn-group .btn.focus.active {
     background-color: rgba(27, 0, 255, .05);
     border-color    : rgba(27, 0, 255, .5);
-    color           : #1b00ff
+    color           : #FFC107
 }
 
 .select-role .btn-group .btn .icon {
@@ -3023,7 +3023,7 @@ body.IE .register-page-wrap .container {
 .nav.vtabs .nav-link.active {
     border-right: 0;
     border-color: #dee2e6;
-    color       : #1b00ff
+    color       : #FFC107
 }
 
 .nav.vtabs.nav-pills .nav-item.show .nav-link,
@@ -3919,12 +3919,12 @@ body.IE .register-page-wrap .container {
     content      : "";
     width        : 12px;
     height       : 12px;
-    border       : 2px solid #1b00ff;
+    border       : 2px solid #FFC107;
     border-radius: 22px;
     position     : absolute;
     left         : -16px;
     top          : 15px;
-    background   : #1b00ff
+    background   : #FFC107
 }
 
 .profile-timeline-list .date {
