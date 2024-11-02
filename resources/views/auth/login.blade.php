@@ -6,6 +6,7 @@
     <meta charset="utf-8" />
     <title>Login Vendor</title>
 
+    
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
     <link rel="icon" type="image/png" sizes="32x32" href="images/gwa-favicon-32x32.png" />
@@ -178,7 +179,7 @@
                                     }
                                 });
                             </script>
-                    
+
 
                             <div class="row pb-30">
                                 <div class="col-6">
