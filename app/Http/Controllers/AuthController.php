@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 use App\Notifications\VendorRegistered;
 use App\Notifications\WelcomeVendorNotification;
 use App\Models\VerifiedVendor;
+use App\Events\VendorStatusUpdated;
 
 
 
@@ -145,6 +146,11 @@ class AuthController extends Controller
             // Log successful login attempt
             Log::info('Vendor login attempt successful', ['vendor_id' => $vendor->id]);
 
+            // Update the vendor's 'is_online' status to true
+            $vendor->is_online = true;
+            $vendor->save(); // Save the updated vendor status
+            // Broadcast the updated status
+            broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
             // Check the verification status in the VerifiedVendor table
             $verifiedVendor = \App\Models\VerifiedVendor::where('vendor_id', $vendor->id)->first();
 
@@ -171,21 +177,33 @@ class AuthController extends Controller
     }
 
 
-
-
-
-
-
-
     public function logout()
     {
+        // Get the authenticated vendor
+        $vendor = auth()->user();
+
+        if ($vendor) {
+            // Update the vendor's 'is_online' status to false
+            $vendor->is_online = false;
+            $vendor->save();
+
+            // Broadcast the vendor's offline status
+            broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
+        }
+
+        // Perform the logout
         auth()->logout();
 
+        // Invalidate the session
         request()->session()->invalidate();
+
+        // Regenerate CSRF token for security
         request()->session()->regenerateToken();
 
+        // Redirect to the login page with a success message
         return redirect()->route('login')->with('success', 'Logged out successfully');
     }
+
 
 
     public function forgotpassword()

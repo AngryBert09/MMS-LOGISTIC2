@@ -77,38 +77,7 @@
     <div class="main-container">
         <div class="pd-ltr-20 xs-pd-20-10">
             <div class="min-height-200px">
-                <div class="page-header">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="title">
-                                <h4>Create Invoice</h4>
-                            </div>
-                            <nav aria-label="breadcrumb" role="navigation">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="{{ route('dashboard') }}">Home</a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">
-                                        Create Invoice
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="col-md-6 col-sm-12 text-right">
-                            <div class="dropdown">
-                                <a class="btn btn-primary dropdown-toggle" href="#" role="button"
-                                    data-toggle="dropdown">
-                                    January 2018
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#">Export List</a>
-                                    <a class="dropdown-item" href="#">Policies</a>
-                                    <a class="dropdown-item" href="#">View Assets</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @include('layout.breadcrumb')
                 <div class="invoice-wrap">
                     <div class="invoice-box">
                         <div class="invoice-header">
@@ -121,7 +90,8 @@
                             <div class="col-md-6">
                                 <h5 class="mb-15">Great Wall Arts</h5>
                                 <p class="font-14 mb-5">
-                                    Date Issued: <strong class="weight-600">{{ $purchaseOrder->created_at }}</strong>
+                                    Date Issued: <strong
+                                        class="weight-600">{{ $purchaseOrder->created_at->format('F j, Y') }}</strong>
                                 </p>
                                 <p class="font-14 mb-5">
                                     Invoice No: <strong class="weight-600">{{ $purchaseOrder->invoice_id }}</strong>
@@ -188,16 +158,22 @@
                                 </div>
                             </div>
                         </div>
-                        <h4 class="text-center pb-20">Thank You!!</h4>
+                        <h4 class="text-center pb-20">INVOICE GENERATED</h4>
                         <div class="text-center">
-                            <button id="download-btn" class="btn btn-primary" onclick="printInvoice()">Download
-                                Invoice</button>
+                            <!-- Add margin to the Download Invoice button for spacing -->
+                            <button id="download-btn" class="btn btn-warning" onclick="printInvoice()"
+                                style="margin-bottom: 15px;">Download Invoice</button>
+
                             <form action="{{ route('invoices.store') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="purchase_order_id" value="{{ $purchaseOrder->po_id }}">
-                                <button type="submit" class="btn btn-success">Create Invoice</button>
+
+                                <!-- Create Invoice button -->
+                                <button id="create-invoice-btn" type="submit" class="btn btn-success">Create
+                                    Invoice</button>
                             </form>
                         </div>
+
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
@@ -207,76 +183,64 @@
                                 </ul>
                             </div>
                         @endif
+
+                        <script>
+                            function printInvoice() {
+                                window.print();
+                            }
+                        </script>
+
+                        <style>
+                            @media print {
+
+                                /* Hide everything except the invoice */
+                                body * {
+                                    visibility: hidden;
+                                }
+
+                                .invoice-wrap,
+                                .invoice-wrap * {
+                                    visibility: visible;
+                                }
+
+                                #download-btn,
+                                #create-invoice-btn {
+                                    display: none;
+                                }
+
+                                .invoice-wrap {
+                                    position: absolute;
+                                    left: 0;
+                                    top: 0;
+                                    width: 100%;
+                                    text-align: center;
+                                    margin-left: -38px;
+                                    margin-top: 100px;
+                                }
+
+                                .invoice-box {
+                                    display: inline-block;
+                                    margin: 0 auto;
+                                }
+                            }
+                        </style>
+
+
                     </div>
                 </div>
-
-
-
-
-
-
-
-                <script>
-                    function printInvoice() {
-                        window.print();
-                    }
-                </script>
-
-                <style>
-                    @media print {
-
-                        /* Hide everything except the invoice */
-                        body * {
-                            visibility: hidden;
-                        }
-
-                        .invoice-wrap,
-                        .invoice-wrap * {
-                            visibility: visible;
-                        }
-
-                        #download-btn,
-                        #create-invoice-btn {
-                            display: none;
-                        }
-
-                        .invoice-wrap {
-                            position: absolute;
-                            left: 0;
-                            top: 0;
-                            width: 100%;
-                            /* Full width for centering */
-                            text-align: center;
-                            /* Center the text */
-                            margin-left: -38px;
-                            margin-top: 100px
-                                /* Center the content */
-                        }
-
-                        .invoice-box {
-                            display: inline-block;
-                            /* Center the invoice box */
-                            margin: 0 auto;
-                            /* Center the box */
-                        }
-                    }
-                </style>
-
             </div>
-        </div>
-    </div>
 
 
-    <!-- js -->
-    <script src="{{ asset('js/core.js') }}"></script>
-    <script src="{{ asset('js/script.min.js') }}"></script>
-    <script src="{{ asset('js/process.js') }}"></script>
-    <script src="{{ asset('js/layout-settings.js') }}"></script>
+            <!-- js -->
+            <script src="{{ asset('js/core.js') }}"></script>
+            <script src="{{ asset('js/script.min.js') }}"></script>
+            <script src="{{ asset('js/process.js') }}"></script>
+            <script src="{{ asset('js/layout-settings.js') }}"></script>
 
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS" height="0" width="0"
-            style="display: none; visibility: hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
+            <!-- Google Tag Manager (noscript) -->
+            <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS" height="0"
+                    width="0" style="display: none; visibility: hidden"></iframe></noscript>
+            <!-- End Google Tag Manager (noscript) -->
 </body>
 
 </html>

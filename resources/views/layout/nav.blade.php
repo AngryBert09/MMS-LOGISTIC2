@@ -75,13 +75,12 @@
                 </div>
             </div>
         </div>
-
-
+        
         <div class="user-info-dropdown">
             <div class="dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                     <span class="user-icon">
-                        <img src="{{ asset(Auth::user()->profile_pic ? Auth::user()->profile_pic : 'images/photo1.jpg') }}"
+                        <img src="{{ asset(Auth::user()->profile_pic ? Auth::user()->profile_pic : 'images/default.jpg') }}"
                             alt="Profile Picture" />
                     </span>
                     <span class="user-name">{{ Auth::user()->full_name }}</span>
@@ -94,7 +93,7 @@
                         </a>
                         <a class="dropdown-item" href="profile.html"><i class="dw dw-settings2"></i> Setting</a>
                         <a class="dropdown-item" href="faq.html"><i class="dw dw-help"></i> Help</a>
-                        <button class="dropdown-item"><i class="dw dw-logout"></i> Log Out</button>
+                        <button class="dropdown-item" type="submit"><i class="dw dw-logout"></i> Log Out</button>
                     </div>
                 </form>
             </div>

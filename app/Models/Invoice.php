@@ -9,6 +9,10 @@ class Invoice extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'invoice_id'; // Replace with your actual primary key column name
+
+
+
     protected $fillable = [
         'invoice_number',     // Invoice number (the unique generated invoice number)
         'po_id',              // Foreign key for purchase order
@@ -47,6 +51,6 @@ class Invoice extends Model
 
     public function orderItems()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'invoice_id'); // Specify 'invoice_id' if it's the correct foreign key
     }
 }

@@ -16,7 +16,7 @@
                         <span class="micon bi bi-house"></span><span class="mtext">Home</span>
                     </a>
                     <ul class="submenu">
-                        <li><a href="{{ route('dashboard') }}"> Dashboard</a></li>
+                        <li><a href="{{ route('dashboard') }}">Dashboard</a></li>
 
                         @if (Auth::guard('vendor')->check())
                             @php
@@ -29,17 +29,27 @@
                                 <li><a href="{{ route('invoices.index') }}">Invoices</a></li>
                                 <li><a href="{{ route('purchase-orders.index') }}">Customer PO</a></li>
                                 <li><a href="{{ route('receipts.index') }}">Customer RN</a></li>
+                                <li><a href="#">Returns</a></li>
                             @else
                                 <li><a href="{{ route('profiles.show', $vendorId) }}">Complete Profile</a></li>
                             @endif
                         @endif
                     </ul>
                 </li>
-                <li>
-                    <a href="{{ route('Chat') }}" class="dropdown-toggle no-arrow">
-                        <span class="micon bi bi-chat-right-dots"></span><span class="mtext">Chat</span>
-                    </a>
-                </li>
+
+                @if (Auth::guard('vendor')->check() && $verifiedVendor && $verifiedVendor->is_verified)
+                    <li>
+                        <a href="{{ route('bidding') }}" class="dropdown-toggle no-arrow">
+                            <span class="micon bi bi-globe"></span><span class="mtext">Biddings</span>
+                        </a>
+
+                    </li>
+                    <li>
+                        <a href="{{ route('chat') }}" class="dropdown-toggle no-arrow">
+                            <span class="micon bi bi-chat-right-dots"></span><span class="mtext">Chat</span>
+                        </a>
+                    </li>
+                @endif
                 <li>
                     <div class="dropdown-divider"></div>
                 </li>
