@@ -57,6 +57,12 @@ img {
     height        : auto
 }
 
+.small-error {
+    font-size: 0.85rem;
+
+}
+
+
 input,
 select,
 textarea {
@@ -227,6 +233,39 @@ p {
 .pd-ltr-20 {
     padding: 20px 20px 0
 }
+
+.unread-count {
+    background-color: #ff5252;
+    color           : white;
+    border-radius   : 20%;
+    font-size       : 12px;
+    padding         : 2px 8px;
+    margin-left     : 10px;
+    display         : inline-block;
+}
+
+/* Styling for suggestions dropdown */
+#suggestionsDropdown {
+    max-height      : 200px;
+    overflow-y      : auto;
+    position        : absolute;
+    top             : 100%;
+    left            : 4%;
+    width           : 46%;
+    background-color: #fff;
+    box-shadow      : 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index         : 1000;
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    cursor : pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
 
 .pd-30 {
     padding: 30px
@@ -988,7 +1027,7 @@ textarea.form-control {
     padding   : .75rem 0
 }
 
-.breadcrumb-item.active {
+.breadcrumb-item.active a {
     color      : #FFC107;
     font-weight: 500
 }
@@ -1068,7 +1107,7 @@ textarea.form-control {
     top             : 2px;
     left            : -30px;
     background-color: transparent;
-    border          : 2px solid #343A40;
+    border          : 2px solid #FFC107;
     /* Dark border color */
 }
 
@@ -1083,16 +1122,16 @@ textarea.form-control {
 .custom-control-input:focus~.custom-control-label::before {
     -webkit-box-shadow: none;
     box-shadow        : none;
-    border-color      : #343A40;
+
     /* Keep border black on focus */
-    background-color  : transparent;
+    background-color: transparent;
     /* Ensure background remains transparent */
 }
 
 .custom-checkbox .custom-control-input:checked~.custom-control-label::before {
-    background-color: #343A40;
+    background-color: #FFC107;
     /* Background color when checked */
-    border-color    : #343A40;
+    border-color    : #FFC107;
     /* Ensure border remains black when checked */
 }
 
@@ -1103,7 +1142,8 @@ textarea.form-control {
 }
 
 .custom-radio .custom-control-input:checked~.custom-control-label::before {
-    background-color: #343A40;
+    background-color: #FFC107;
+    border-color    : #FFC107;
     /* Background color for radio checked state */
 }
 
@@ -1142,9 +1182,9 @@ textarea.form-control {
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: #1b00ff;
+    background-color: #FFC107;
     color           : #fff;
-    border-color    : #1b00ff
+    border-color    : #FFC107;
 }
 
 .select2-container--default .select2-selection--multiple {
@@ -1175,12 +1215,12 @@ textarea.form-control {
 
 .bootstrap-select .dropdown-menu li .dropdown-item.active:hover,
 .select2-container--default .select2-results__option[aria-selected=true] {
-    background-color: #1b00ff;
+    background-color: #FFC107;
     color           : #fff
 }
 
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #1b00ff
+    background-color: #FFC107
 }
 
 .bootstrap-select.btn-group .dropdown-menu.inner,
@@ -1199,7 +1239,7 @@ table.dataTable>tbody>tr.child ul.dtr-details .dtr-title {
 }
 
 .bootstrap-select .dropdown-menu li .dropdown-item:hover {
-    color: #1b00ff
+    color: #FFC107
 }
 
 .bootstrap-select.show-tick .dropdown-menu .selected span.check-mark {
@@ -1803,7 +1843,8 @@ table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th:first-child:before {
 .brand-logo {
     width        : 280px;
     height       : 70px;
-    border-bottom: 1px solid rgba(0, 0, 0, .1)
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+    margin-left  : -10px;
 }
 
 .brand-logo a {
@@ -2389,9 +2430,9 @@ body.IE .register-page-wrap .container {
 }
 
 .register-page-wrap .wizard-content .wizard>.steps>ul>li.current .step {
-    border-color    : #181f48;
-    color           : #181f48;
-    background-color: #fff
+    border-color    : #FFC107;
+    color           : black;
+    background-color: #fff;
 }
 
 .register-page-wrap .wizard-content .wizard>.steps .info {
@@ -3746,7 +3787,7 @@ body.IE .register-page-wrap .container {
 }
 
 .profile-setting .profile-edit-list {
-    padding: 30px 0;
+    padding: 10px 0;
     margin : 0
 }
 
@@ -4512,19 +4553,19 @@ body.IE .register-page-wrap .container {
 }
 
 .wizard-content .wizard>.actions>ul>li>a {
-    background-color: #1f1f22;
+    background-color: #FFC107;
     font-weight     : 600
 }
 
 .wizard-content .wizard>.actions>ul>li>a[href="#previous"] {
-    border-color: #1f1f22;
+    border-color: #FFC107;
     border-width: 2px;
-    color       : #1f1f22;
+    color       : #FFC107;
 }
 
 .wizard-content .wizard>.actions>ul>li.disabled>a[href="#previous"] {
     display     : none;
-    border-color: #1b00ff
+    border-color: #FFC107
 }
 
 .widget-style1 {
@@ -4997,130 +5038,164 @@ body.IE .register-page-wrap .container {
     }
 }
 
-@media (max-width:767px) {
+@media (max-width: 767px) {
     .header {
         position          : fixed;
         left              : 0;
         top               : 0;
         -webkit-box-shadow: 0 5px 25px rgba(0, 0, 0, .1);
-        box-shadow        : 0 5px 25px rgba(0, 0, 0, .1)
+        box-shadow        : 0 5px 25px rgba(0, 0, 0, .1);
     }
 
+
+
     .main-container {
-        padding-top: 80px
+        padding-top: 80px;
     }
 
     .login-box {
-        padding: 40px 15px
+        padding    : 40px 15px;
+        margin-top : 20px;
+        /* Optional: add some top margin for better spacing */
     }
 
     .login-header .brand-logo a img {
-        max-width: 150px
+        max-width: 150px;
+        width    : 100%;
+        /* Ensures the logo resizes well */
+        height   : auto;
+        /* Maintains aspect ratio */
     }
 
     .pre-loader {
-        background-size: 43%
+        background-size: 43%;
     }
 
     .xs-pd-20-10 {
-        padding: 20px 10px
+        padding: 20px 10px;
     }
 
     .xs-mb-20 {
-        margin-bottom: 20px
+        margin-bottom: 20px;
     }
 
     .h1,
     h1 {
-        font-size: 2rem
+        font-size: 2rem;
     }
 
     .h2,
     h2 {
-        font-size: 1.6rem
+        font-size: 1.6rem;
     }
 
     .h4,
     h4 {
-        font-size: 1.4rem
+        font-size: 1.4rem;
     }
 
     .main-container,
     .timeline ul li {
-        padding-bottom: 0
+        padding-bottom: 0;
     }
 
     .footer-wrap {
         position: relative;
-        height  : auto
+        height  : auto;
     }
 
     .user-notification {
-        margin-right: 5px
+        margin-right: 5px;
     }
 
     .user-notification .dropdown-menu {
         width    : 100%;
-        min-width: 300px
+        min-width: 300px;
     }
 
     .user-info-dropdown .dropdown-toggle .user-name {
-        display: none
+        display: none;
     }
 
     .page-header {
-        margin-bottom: 30px
+        margin-bottom: 30px;
     }
 
     .forgot-password {
-        text-align: center
+        text-align: center;
     }
 
     .ionicons-list li {
-        width: 16.6%
+        width: 16.6%;
     }
 
     .timeline .timeline-date {
         position     : relative;
         top          : 0;
         margin-bottom: 20px;
-        left         : 35px
+        left         : 35px;
     }
 
     .timeline ul:before {
-        left: 10px
+        left: 10px;
     }
 
     .timeline ul li {
-        padding-left: 0
+        padding-left: 0;
     }
 
     .timeline ul li:before {
         left: 2px;
-        top : 28px
+        top : 28px;
     }
 
     .fc-toolbar .fc-left,
     .fc-toolbar .fc-right {
         float         : none !important;
-        padding-bottom: 10px
+        padding-bottom: 10px;
     }
 
     .fc-toolbar .fc-left:after,
     .fc-toolbar .fc-right:after {
         content: "";
         clear  : both;
-        display: table
+        display: table;
     }
 
     .faq-wrap .card-header .btn {
-        font-size: 17px
+        font-size: 17px;
     }
 
     .error-page h1 {
-        font-size: 150px
+        font-size: 150px;
+    }
+
+    /* Adjust the login form section for small screens */
+    .login-box {
+        width      : 100%;
+        /* Ensures the login box takes up full width on smaller screens */
+        max-width  : 500px;
+        /* Optional: Set a max-width for a more consistent layout */
+        margin     : 0 auto;
+        /* Centers the login box */
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+        /* Adds spacing between form inputs */
+    }
+
+    .btn-lg {
+        width: 100%;
+        /* Makes the submit button span full width */
+    }
+
+    /* Optional: Adjust heading styles for mobile */
+    .login-title h2 {
+        font-size: 1.5rem;
     }
 }
+
 
 @media (max-width:660px) {
     .docs-buttons .btn-group-crop {
@@ -5159,5 +5234,18 @@ body.IE .register-page-wrap .container {
 
     .register-page-wrap .wizard-content .wizard .steps {
         display: none
+    }
+
+    #logo_name {
+        display: none;
+    }
+
+    .brand-logo {
+        margin-left: -30px;
+    }
+
+    .forgot-password {
+        text-align : center;
+        margin-left: 80px
     }
 }

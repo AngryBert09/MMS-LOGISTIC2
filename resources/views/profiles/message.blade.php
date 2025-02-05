@@ -1,10 +1,15 @@
-@if (session('message'))
-<div class="alert alert-warning" role="alert">
-    {{ session('message') }}
-</div>
+@if (session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Success!</strong> {{ session('success') }}
+    </div>
 @endif
-@if (session('verified_message'))
-<div class="alert alert-success">
-    {{ session('verified_message') }}
-</div>
+
+@if ($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
 @endif

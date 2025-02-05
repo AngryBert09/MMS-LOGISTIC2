@@ -8,13 +8,17 @@
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">
                         @if (Request::is('purchase-orders*'))
-                            Purchase Orders
+                            <a href="{{ route('purchase-orders.index') }}">Purchase Orders</a>
                         @elseif (Request::is('receipts*'))
-                            Purchase Receipts
-                        @elseif (Request::is('invoices'))
+                            <a href="{{ route('receipts.index') }}">Purchase Receipts</a>
+                        @elseif (Request::is('invoices*'))
                             <a href="{{ route('invoices.index') }}">Invoices</a>
                         @elseif (Request::is('chat*'))
                             <a href="{{ route('chat') }}">Chats</a>
+                        @elseif (Request::is('Biddings*'))
+                            <a href="{{ route('chat') }}">Biddings</a>
+                        @elseif (Request::is('returns*'))
+                            <a href="{{ route('returns.index') }}">Return Management</a>
                         @else
                             {{ $breadcrumbTitle ?? 'Page' }}
                         @endif

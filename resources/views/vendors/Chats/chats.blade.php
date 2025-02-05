@@ -108,12 +108,16 @@
                                                             :class="vendor.is_online ? 'fa fa-circle text-light-green' :
                                                                 'fa fa-circle text-warning'"></i>
                                                         <span x-text="vendor.is_online ? 'Online' : 'Offline'"></span>
+                                                        <span x-text="vendor.unread_messages_count || 0"
+                                                            class="unread-count"></span>
                                                     </p>
+
                                                 </a>
                                             </li>
                                         </template>
                                     </ul>
                                 </div>
+
                             </div>
                         </div>
 
@@ -250,12 +254,14 @@
                     this.currentVendor = null;
                     this.messages = [];
                     this.listenForOnlineStatusChanges();
+                    this.fetchVendors();
                 },
 
                 selectVendor(vendor) {
                     this.currentVendor = vendor;
                     this.messages = [];
                     this.loadMessages(vendor.id);
+                    this.markAsRead(vendor.id);
 
                     if (this.channel) {
                         this.pusher.unsubscribe(this.channel.name); // Unsubscribe from the old channel
@@ -265,8 +271,62 @@
                     this.$nextTick(() => {
                         this.scrollToBottom();
                     });
+
                 },
 
+                fetchVendors() {
+                    console.log('Fetching vendors...'); // Log when the fetch starts
+
+                    fetch('{{ route('vendors.unread') }}')
+                        .then(response => {
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Vendors data:', data); // Log the data you received
+                            this.vendors = data;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching vendors:', error); // Log any error that occurs
+                        });
+                },
+
+
+                markAsRead(vendorId) {
+                    fetch(`/mark-as-read/${vendorId}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return response.json();
+                            } else {
+                                throw new Error('Unexpected response type, expected JSON');
+                            }
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                console.log('Messages marked as read successfully:', data);
+                                this.vendors = this.vendors.map(vendor => {
+                                    if (vendor.id === vendorId) {
+                                        vendor.unread_messages_count = 0;
+                                    }
+                                    return vendor;
+                                });
+                            } else {
+                                console.error('Failed to mark messages as read:', data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error marking messages as read:', error);
+                        });
+                },
 
                 listenForOnlineStatusChanges() {
                     const channel = this.pusher.subscribe('vendor-status');
@@ -398,15 +458,10 @@
                             const scrollHeight = container.scrollHeight;
                             const clientHeight = container.clientHeight;
 
-                            console.log('Chat Container:', container);
-                            console.log('Scroll Height:', scrollHeight);
-                            console.log('Client Height:', clientHeight);
 
                             if (scrollHeight > clientHeight) {
-                                console.log('Scrolling to the bottom...');
+
                                 container.scrollTop = scrollHeight - clientHeight;
-                            } else {
-                                console.log('Content is not overflowing, no scrolling needed.');
                             }
                         }
                     });
@@ -414,13 +469,6 @@
 
 
                 }
-
-
-
-
-
-
-
 
             };
         }

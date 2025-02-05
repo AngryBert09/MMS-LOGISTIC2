@@ -36,7 +36,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'fullName' => 'required|string|max:255',
             'gender' => 'required|string',
-            'address' => 'nullable|string|max:255', // Consolidated address field
+            'address' => 'nullable|string|max:255',
             'business_registration' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'mayor_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'tin' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
@@ -44,7 +44,6 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            Log::info($validator->errors()); // Log validation errors
             return back()->withErrors($validator)->withInput();
         }
 
@@ -55,40 +54,73 @@ class AuthController extends Controller
         $vendor->password = Hash::make($request->password);
         $vendor->full_name = $request->fullName;
         $vendor->gender = $request->gender;
-        $vendor->address = $request->address; // Use new consolidated address field
+        $vendor->address = $request->address;
 
         // Handle file uploads with storage path management
-        if ($request->hasFile('business_registration')) {
-            $vendor->business_registration = $request->file('business_registration')->store('documents');
-        }
-        if ($request->hasFile('mayor_permit')) {
-            $vendor->mayor_permit = $request->file('mayor_permit')->store('documents');
-        }
-        if ($request->hasFile('tin')) {
-            $vendor->tin = $request->file('tin')->store('documents');
-        }
-        if ($request->hasFile('proof_of_identity')) {
-            $vendor->proof_of_identity = $request->file('proof_of_identity')->store('documents');
+        $errorMessages = [];
+        try {
+            // Check and upload business registration
+            if ($request->hasFile('business_registration')) {
+                if ($request->file('business_registration')->getSize() > 2048000) {
+                    $errorMessages[] = 'Business registration file is too large. Max size allowed is 2MB.';
+                } else {
+                    $vendor->business_registration = $request->file('business_registration')->store('documents');
+                }
+            }
+
+            // Check and upload mayor permit
+            if ($request->hasFile('mayor_permit')) {
+                if ($request->file('mayor_permit')->getSize() > 2048000) {
+                    $errorMessages[] = 'Mayor permit file is too large. Max size allowed is 2MB.';
+                } else {
+                    $vendor->mayor_permit = $request->file('mayor_permit')->store('documents');
+                }
+            }
+
+            // Check and upload tin
+            if ($request->hasFile('tin')) {
+                if ($request->file('tin')->getSize() > 2048000) {
+                    $errorMessages[] = 'TIN file is too large. Max size allowed is 2MB.';
+                } else {
+                    $vendor->tin = $request->file('tin')->store('documents');
+                }
+            }
+
+            // Check and upload proof of identity
+            if ($request->hasFile('proof_of_identity')) {
+                if ($request->file('proof_of_identity')->getSize() > 2048000) {
+                    $errorMessages[] = 'Proof of identity file is too large. Max size allowed is 2MB.';
+                } else {
+                    $vendor->proof_of_identity = $request->file('proof_of_identity')->store('documents');
+                }
+            }
+        } catch (\Exception $e) {
+            // If an unexpected exception occurs, return an error
+            $errorMessages[] = 'An unexpected error occurred during file upload.';
         }
 
-        // Log vendor data before saving
-        Log::info('Attempting to save vendor: ', $vendor->toArray());
+        // If any file was too large, return the user back with the error messages
+        if (!empty($errorMessages)) {
+            return back()->withErrors(['error' => $errorMessages])->withInput();
+        }
+
+        // Save vendor data
         $vendor->save();
-        Log::info('Vendor saved successfully: ', $vendor->toArray());
 
-        // Use the VerifiedVendor model to insert into verified_vendors table
+        // Create VerifiedVendor record
         VerifiedVendor::create([
             'vendor_id' => $vendor->id, // Use the newly created vendor's ID
             'is_verified' => false, // Set to false as per requirement
             'verified_at' => null, // Initially null, as the vendor is not verified yet
         ]);
 
-        // Send the VendorRegistered notification
+        // Send notification to the vendor
         $vendor->notify(new WelcomeVendorNotification($vendor->full_name));
 
         // Redirect to login with a confirmation message
         return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
     }
+
 
     public function login()
     {
@@ -97,83 +129,66 @@ class AuthController extends Controller
 
     public function authenticate()
     {
-        // Validate the incoming request data
         $validated = request()->validate([
             'email' => 'required|email',
             'password' => 'required|min:8',
         ]);
 
-        // Check if the vendor exists
+        // Check if the vendor exists by email
         $vendor = \App\Models\Vendor::where('email', $validated['email'])->first();
 
-        // If the vendor does not exist, return an error
+        // If vendor doesn't exist, return email error
         if (!$vendor) {
-            return redirect()->route('login')->withErrors([
-                'email' => 'No vendor found with this email.',
-            ])->withInput(request()->only('email'));
+            return redirect()->route('login')->withErrors(['email' => 'No vendor found with this email.'])
+                ->withInput(request()->only('email'));
         }
 
-        // Check vendor status and handle accordingly
-        switch ($vendor->status) {
-            case 'Pending':
-                return redirect()->route('login')->withErrors([
-                    'email' => 'Your application is still pending. Please wait for approval.',
-                ])->withInput(request()->only('email'));
+        // Check if the vendor's status is 'Approved'
+        if ($vendor->status !== 'Approved') {
+            $statusMessage = match ($vendor->status) {
+                'Pending' => 'Your application is still pending. Please wait for approval.',
+                'Rejected' => 'Your application has been rejected. Please contact support.',
+                default => 'Unexpected vendor status. Please contact support.',
+            };
 
-            case 'Rejected':
-                return redirect()->route('login')->withErrors([
-                    'email' => 'Your application has been rejected. Please contact support.',
-                ])->withInput(request()->only('email'));
-
-            case 'Approved':
-                // Continue to authenticate if the vendor is approved
-                break;
-
-            default:
-                return redirect()->route('login')->withErrors([
-                    'email' => 'Unexpected vendor status. Please contact support.',
-                ])->withInput(request()->only('email'));
+            return redirect()->route('login')->withErrors(['email' => $statusMessage])
+                ->withInput(request()->only('email'));
         }
 
-        // Attempt to log in with "remember me" functionality
-        $remember = request()->has('remember'); // Check if the "remember me" checkbox is checked
+        // Attempt to login using the provided email and password
+        $remember = request()->has('remember');
 
-        // Attempt to authenticate the vendor
         if (auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
-            // Regenerate session to prevent session fixation attacks
             request()->session()->regenerate();
 
-            // Log successful login attempt
-            Log::info('Vendor login attempt successful', ['vendor_id' => $vendor->id]);
+            Log::info('Vendor login attempt successful', ['vendor_id' => $vendor->id, 'remember_me' => $remember]);
 
-            // Update the vendor's 'is_online' status to true
-            $vendor->is_online = true;
-            $vendor->save(); // Save the updated vendor status
-            // Broadcast the updated status
+            // Update the vendor's online status
+            $vendor->update(['is_online' => true]);
             broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
-            // Check the verification status in the VerifiedVendor table
+
+            // Check if the vendor is verified
             $verifiedVendor = \App\Models\VerifiedVendor::where('vendor_id', $vendor->id)->first();
 
             if ($verifiedVendor && $verifiedVendor->is_verified) {
-                // Log vendor logged in successfully
-                Log::info('Vendor logged in successfully', ['vendor_id' => $vendor->id]);
                 return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
             } else {
-                // Flash message for unverified vendors
-                Log::warning('Vendor is not verified', ['vendor_id' => $vendor->id]);
                 return redirect()->route('profiles.show', $vendor->id)
                     ->with('message', 'Please complete your profile information below to proceed.');
             }
-        } else {
-            // Log failed login attempt
-            Log::warning('Vendor login attempt failed', ['email' => $vendor->email]);
-            return redirect()->back()->withErrors(['email' => 'Invalid credentials.']);
         }
 
-        // If the email is valid but the password is incorrect, return a password error
-        return redirect()->route('login')->withErrors([
-            'password' => 'The provided password is incorrect.',
-        ])->withInput(request()->only('email'));
+        // Check if the password is incorrect (fails after email is verified)
+        if (\App\Models\Vendor::where('email', $validated['email'])->exists()) {
+            Log::warning('Vendor login attempt failed due to wrong password', ['email' => $vendor->email]);
+            return redirect()->back()->withErrors(['password' => 'Invalid password.'])
+                ->withInput(request()->only('email'));
+        }
+
+        // If no vendor found, return email error
+        Log::warning('Vendor login attempt failed due to invalid email', ['email' => $validated['email']]);
+        return redirect()->back()->withErrors(['email' => 'No vendor found with this email.'])
+            ->withInput(request()->only('email'));
     }
 
 
@@ -202,12 +217,5 @@ class AuthController extends Controller
 
         // Redirect to the login page with a success message
         return redirect()->route('login')->with('success', 'Logged out successfully');
-    }
-
-
-
-    public function forgotpassword()
-    {
-        return view('auth.forgot-password');
     }
 }

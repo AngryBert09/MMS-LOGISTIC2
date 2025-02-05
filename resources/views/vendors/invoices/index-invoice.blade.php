@@ -112,13 +112,26 @@
                                         <td>${{ number_format($invoice->total_amount, 2) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}</td>
-                                        <td>{{ $invoice->status }}</td>
+                                        <td>
+                                            <!-- Status Badge for Invoices -->
+                                            @if ($invoice->status === 'paid')
+                                                <span class="badge badge-success">{{ ucfirst($invoice->status) }}</span>
+                                            @elseif ($invoice->status === 'unpaid')
+                                                <span class="badge badge-danger">{{ ucfirst($invoice->status) }}</span>
+                                            @elseif ($invoice->status === 'overdue')
+                                                <span class="badge badge-warning">{{ ucfirst($invoice->status) }}</span>
+                                            @else
+                                                <span
+                                                    class="badge badge-secondary">{{ ucfirst($invoice->status) }}</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             @include('vendors.invoices.actions-invoice')
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
+
                         </table>
                     </div>
                 </div>

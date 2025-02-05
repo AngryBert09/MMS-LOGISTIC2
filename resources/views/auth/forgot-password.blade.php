@@ -7,8 +7,8 @@
     <title>Forgot Password</title>
 
     <!-- Site favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
-    <link rel="icon" type="image/png" sizes="32x32" href="images/gwa-favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/gwa-touch-icon') }}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/gwa-favicon-32x32.png') }}" />
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png" />
 
     <!-- Mobile Specific Metas -->
@@ -56,20 +56,7 @@
 </head>
 
 <body>
-    <div class="login-header box-shadow">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <div class="brand-logo">
-                <a href="{{ route('login') }}">
-                    <img src="images/greatwall-logo.png " style="height:90px" />
-                    <img src="images/greatwallarts-logo.svg " style="height:100px " />
-            </div>
-            <div class="login-menu">
-                <ul>
-                    <li><a href="{{ route('login') }}">Login</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    @include('layout.login-header')
     <div class="login-wrap d-flex align-items-center flex-wrap justify-content-center">
         <div class="container">
             <div class="row align-items-center">
@@ -84,22 +71,32 @@
                         <h6 class="mb-20">
                             Enter your email address to reset your password
                         </h6>
-                        <form>
+                        <form method="POST" action="{{ route('forgot.password.send') }}">
+                            @csrf
+
                             <div class="input-group custom">
-                                <input type="text" class="form-control form-control-lg" placeholder="Email" />
+                                <input type="email" name="email"
+                                    class="form-control form-control-lg {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                                    placeholder="Email" required />
                                 <div class="input-group-append custom">
-                                    <span class="input-group-text"><i class="fa fa-envelope-o"
-                                            aria-hidden="true"></i></span>
+                                    <span class="input-group-text">
+                                        @if ($errors->has('email'))
+                                            <i class="fa fa-exclamation-circle" aria-hidden="true"
+                                                style="color: red; "></i>
+                                        @else
+                                            <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                                        @endif
+                                    </span>
                                 </div>
+
                             </div>
+                            @if ($errors->has('email'))
+                                <div class="text-danger small-error mt-n4 mb-2">{{ $errors->first('email') }}</div>
+                            @endif
                             <div class="row align-items-center">
                                 <div class="col-5">
                                     <div class="input-group mb-0">
-                                        <!--
-           use code for form submit
-           <input class="btn btn-primary btn-lg btn-block" type="submit" value="Submit">
-          -->
-                                        <a class="btn btn-dark btn-lg btn-block" href="index.html">Submit</a>
+                                        <button type="submit" class="btn btn-warning btn-lg btn-block">Submit</button>
                                     </div>
                                 </div>
                                 <div class="col-2">
@@ -109,16 +106,19 @@
                                 </div>
                                 <div class="col-5">
                                     <div class="input-group mb-0">
-                                        <a class="btn btn-outline-dark btn-lg btn-block" href="login.html">Login</a>
+                                        <a class="btn btn-outline-warning btn-lg btn-block"
+                                            href="{{ route('login') }}">Login</a>
                                     </div>
                                 </div>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <!-- welcome modal start -->
     <!-- welcome modal end -->
     <!-- js -->

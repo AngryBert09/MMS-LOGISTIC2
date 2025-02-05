@@ -2,7 +2,6 @@
     <div class="brand-logo">
         <a href="{{ route('dashboard') }}">
             <img src="{{ asset('images/greatwall-logo.png') }}" style="height:90px" />
-            <img src="{{ asset('images/greatwallarts-logo.svg') }}" style="width:150px" />
         </a>
         <div class="close-sidebar" data-toggle="left-sidebar-close">
             <i class="ion-close-round"></i>
@@ -25,11 +24,10 @@
                             @endphp
 
                             @if ($verifiedVendor && $verifiedVendor->is_verified)
-                                <li><a href="index3.html">Payments</a></li>
                                 <li><a href="{{ route('invoices.index') }}">Invoices</a></li>
                                 <li><a href="{{ route('purchase-orders.index') }}">Customer PO</a></li>
                                 <li><a href="{{ route('receipts.index') }}">Customer RN</a></li>
-                                <li><a href="#">Returns</a></li>
+                                <li><a href="{{ route('returns.index') }}">Returns</a></li>
                             @else
                                 <li><a href="{{ route('profiles.show', $vendorId) }}">Complete Profile</a></li>
                             @endif
@@ -39,7 +37,7 @@
 
                 @if (Auth::guard('vendor')->check() && $verifiedVendor && $verifiedVendor->is_verified)
                     <li>
-                        <a href="{{ route('bidding') }}" class="dropdown-toggle no-arrow">
+                        <a href="{{ route('biddings.index') }}" class="dropdown-toggle no-arrow">
                             <span class="micon bi bi-globe"></span><span class="mtext">Biddings</span>
                         </a>
 

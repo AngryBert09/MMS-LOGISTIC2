@@ -9,21 +9,32 @@
             <!-- Full Name (Always readonly) -->
             <div class="form-group">
                 <label>Full Name</label>
-                <input class="form-control form-control-lg" type="text" value="{{ $vendor->full_name }}" readonly />
+                <input class="form-control form-control-lg" type="text" value="{{ $vendor->full_name }}" disabled />
             </div>
 
             <!-- Company Name (Always readonly) -->
             <div class="form-group">
                 <label>Company Name</label>
                 <input class="form-control form-control-lg" type="text" value="{{ $vendor->company_name }}"
-                    readonly />
+                    disabled />
             </div>
 
             <!-- Email (Always readonly) -->
             <div class="form-group">
                 <label>Email</label>
-                <input class="form-control form-control-lg" type="email" value="{{ $vendor->email }}" readonly />
+                <input class="form-control form-control-lg" type="email" value="{{ $vendor->email }}" disabled />
             </div>
+
+            <!-- Email Verification Section -->
+            @if (!$vendor->verifiedVendor || $vendor->verifiedVendor->verification_token === null)
+                <div class="form-group mb-3">
+                    <p>If you haven't verified your email yet, please click the button below to send the verification
+                        email.</p>
+                    <button id="resend-verification-btn" class="btn btn-success">Send Verification Email</button>
+                </div>
+            @endif
+
+
 
             <!-- Postal Code -->
             <div class="form-group">
@@ -60,13 +71,13 @@
             <div class="form-group">
                 <label>Visa Card Number</label>
                 <input class="form-control form-control-lg" type="text" value="{{ $vendor->visa_card_number }}"
-                    readonly />
+                    disabled />
             </div>
 
             <!-- Paypal ID (Always readonly) -->
             <div class="form-group">
                 <label>Paypal ID</label>
-                <input class="form-control form-control-lg" type="text" value="{{ $vendor->paypal_id }}" readonly />
+                <input class="form-control form-control-lg" type="text" value="{{ $vendor->paypal_id }}" disabled />
             </div>
 
             <!-- Notifications Checkbox -->
@@ -101,3 +112,21 @@
         </li>
     </ul>
 </form>
+
+<script>
+    document.getElementById('resend-verification-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+
+        // Send the request to resend the email via AJAX or redirect with the form
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ route('profiles.verifyEmail', $vendor->id) }}";
+        var csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+    });
+</script>

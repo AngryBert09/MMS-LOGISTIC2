@@ -119,12 +119,60 @@ class MessageController extends Controller
             ]);
         }
 
-        // Log the messages for debugging
-        Log::info('Fetched messages:', $messages->toArray());
-
         // Return the messages as a JSON response
         return response()->json([
             'messages' => $messages
         ]);
+    }
+
+    public function markAsRead(Vendor $vendor)
+    {
+        Log::info('Mark as read request received', [
+            'auth_user_id' => auth()->id(),
+            'vendor_id' => $vendor->id,
+        ]);
+
+        try {
+            $authUserId = auth()->id();
+            $updatedRows = Message::where('receiver_id', $authUserId)
+                ->where('sender_id', $vendor->id)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            Log::info('Messages marked as read', [
+                'updated_rows' => $updatedRows,
+            ]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            Log::error('Error in markAsRead', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json(['success' => false], 500);
+        }
+    }
+
+
+
+    public function getVendorsWithUnreadCount()
+    {
+        $authVendorId = auth()->id();  // Get the authenticated vendor's ID
+
+        // Get all vendors with unread message count for the authenticated vendor
+        $vendors = Vendor::all()->map(function ($vendor) use ($authVendorId) {
+            // Count unread messages for the current vendor
+            $unreadMessagesCount = Message::where('receiver_id', $authVendorId)
+                ->where('sender_id', $vendor->id)
+                ->where('is_read', false)
+                ->count(); // Count only unread messages
+
+            // Add unread message count to vendor data
+            $vendor->unread_messages_count = $unreadMessagesCount;
+
+            return $vendor;
+        });
+
+        return response()->json($vendors);  // Return vendors with unread message count
     }
 }

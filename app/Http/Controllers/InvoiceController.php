@@ -31,7 +31,6 @@ class InvoiceController extends Controller
      */
     public function create(Request $request)
     {
-        // Retrieve PO ID and Vendor ID from the form
         $poId = $request->input('po_id');
         $vendorId = $request->input('vendor_id');
 
@@ -40,9 +39,18 @@ class InvoiceController extends Controller
         $vendor = Vendor::findOrFail($vendorId);
         $orderItems = $purchaseOrder->orderItems;
 
-        // Redirect to the invoice creation page or preview, with data
+        // Check if an invoice number already exists for the given purchase order
+        $existingInvoice = Invoice::where('po_id', $poId)->first();
+
+        if ($existingInvoice) {
+            return redirect()->route('purchase-orders.index')
+                ->with('error_message', 'An invoice has already been generated for this purchase order.');
+        }
+
         return view('vendors.invoices.create-invoice', compact('purchaseOrder', 'vendor', 'orderItems'));
     }
+
+
     /**
      * Store a newly created resource in storage.
      */

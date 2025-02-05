@@ -9,6 +9,7 @@
             data-vendor-id="{{ $order->vendor->id }}" data-toggle="modal" data-target="#viewPurchaseOrderModal">
             <i class="dw dw-eye"></i> View
         </a>
+
         <!-- Actions based on order status -->
         @if ($order->order_status === 'Pending Approval')
             <a class="dropdown-item confirm-purchase-order" href="#"
@@ -25,8 +26,8 @@
                 <i class="dw dw-right-arrow-1"></i> Put on Hold
             </a>
         @elseif ($order->order_status === 'Approved')
-            <a class="dropdown-item view-purchase-order" href="#" data-po-id="{{ $order->po_id }}"
-                data-vendor-id="{{ $order->vendor->id }}" data-toggle="modal" data-target="#viewPurchaseOrderModal">
+            <a class="dropdown-item generate-invoice"
+                href="{{ route('invoices.create', ['po_id' => $order->po_id, 'vendor_id' => $order->vendor->id]) }}">
                 <i class="dw dw-invoice"></i> Generate Invoice
             </a>
 
@@ -37,22 +38,34 @@
                 <i class="dw dw-check"></i> Initiate Fulfillment
             </a>
 
-            <a class="dropdown-item view-shipment-details" href="#" data-order-id="{{ $order->po_id }}"
-                data-toggle="modal" data-target="#viewShipmentDetailsModal">
-                <i class="dw dw-truck"></i> View Shipment Details
-            </a>
 
-            <!-- Adding option to put the order on hold -->
+
             <a class="dropdown-item hold-purchase-order" href="#" data-order-id="{{ $order->po_id }}"
                 data-toggle="modal" data-target="#holdPurchaseOrderModal">
                 <i class="dw dw-right-arrow-1"></i> Put on Hold
             </a>
         @elseif ($order->order_status === 'In Progress' || $order->order_status === 'On Hold')
-            <a class="dropdown-item view-purchase-order" href="#" data-po-id="{{ $order->po_id }}"
-                data-vendor-id="{{ $order->vendor->id }}" data-toggle="modal" data-target="#viewPurchaseOrderModal">
+            <a class="dropdown-item generate-invoice"
+                href="{{ route('invoices.create', ['po_id' => $order->po_id, 'vendor_id' => $order->vendor->id]) }}">
                 <i class="dw dw-invoice"></i> Generate Invoice
             </a>
-        @elseif ($order->order_status === 'In Progress' || $order->order_status === 'On Hold')
+
+            <!-- New Action: Mark as In Transit -->
+            <a class="dropdown-item mark-in-transit" href="#" data-order-id="{{ $order->po_id }}"
+                data-toggle="modal" data-target="#markInTransitModal">
+                <i class="dw dw-delivery-truck"></i> Mark as In Transit
+            </a>
+        @elseif ($order->order_status === 'In Transit')
+            <!-- New Action: Fill Delivery Details -->
+            <a class="dropdown-item view-shipment-details" href="#" data-order-id="{{ $order->po_id }}"
+                data-toggle="modal" data-target="#viewShipmentDetailsModal">
+                <i class="dw dw-truck"></i> Shipment Details
+            </a>
+            <a class="dropdown-item generate-invoice"
+                href="{{ route('invoices.create', ['po_id' => $order->po_id, 'vendor_id' => $order->vendor->id]) }}">
+                <i class="dw dw-invoice"></i> Generate Invoice
+            </a>
+        @else
             <span class="dropdown-item disabled">No actions available</span>
         @endif
 

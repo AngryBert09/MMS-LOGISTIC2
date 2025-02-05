@@ -80,45 +80,41 @@
     <div class="main-container">
         <div class="pd-ltr-20 xs-pd-20-10">
             <div class="min-height-200px">
-                <div class="page-header">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="title">
-                                <h4>blank</h4>
-                            </div>
-                            <nav aria-label="breadcrumb" role="navigation">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="index.html">Home</a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">
-                                        blank
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="col-md-6 col-sm-12 text-right">
-                            <div class="dropdown">
-                                <a class="btn btn-primary dropdown-toggle" href="#" role="button"
-                                    data-toggle="dropdown">
-                                    January 2018
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#">Export List</a>
-                                    <a class="dropdown-item" href="#">Policies</a>
-                                    <a class="dropdown-item" href="#">View Assets</a>
-                                </div>
-                            </div>
-                        </div>
+                @include('layout.breadcrumb')
+
+                <!-- Bidding Items Section -->
+                <div class="pd-20 bg-light border-radius-10 box-shadow mb-30">
+                    <h4 class="font-weight-bold mb-20">Available Biddings</h4>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Starting Price</th>
+                                    <th>Deadline</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($biddings as $bidding)
+                                    <tr>
+                                        <td>{{ $bidding->item_name }}</td>
+                                        <td>${{ number_format($bidding->starting_price, 2) }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($bidding->deadline)->format('Y-m-d') }}</td>
+                                        <td>
+                                            <a href="{{ route('biddings.edit', $bidding->id) }}"
+                                                class="btn btn-info">View</a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="pd-20 bg-white border-radius- box-shadow mb-30">
-                    <h2 class="h4 font-weight-bold">TAENA</h2>
-                    <!-- Title, using Bootstrap's h4 class and font-weight -->
-                    <p class="text-muted">This is the description of the TAENA section. Here you can provide more
-                        details about the content, purpose, or any other relevant information related to TAENA.</p>
-                    <!-- Description with muted text style -->
-                </div>
+
+
+
+
 
 
 

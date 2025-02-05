@@ -1,6 +1,6 @@
 <div class="right-sidebar">
     <div class="sidebar-title">
-        <h3 class="weight-600 font-16 text-blue">
+        <h3 class="weight-600 font-16 text-warning">
             Layout Settings
             <span class="btn-block font-weight-400 font-12">User Interface Settings</span>
         </h3>

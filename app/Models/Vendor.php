@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable; // Ensure this is the correct import
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract; // Interface import
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\CustomResetPassword;
+use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Facades\Mail;
 
 class Vendor extends Authenticatable implements AuthenticatableContract
 {
@@ -24,6 +27,7 @@ class Vendor extends Authenticatable implements AuthenticatableContract
         'business_registration',
         'mayor_permit',
         'tax_identification_number',
+        'verification_token',
         'proof_of_identity',
         'postal_code',
         'profile_pic',
@@ -72,5 +76,17 @@ class Vendor extends Authenticatable implements AuthenticatableContract
         $timeout = now()->subMinutes(5); // Consider active if last activity is within 5 minutes
 
         return $lastActive && $lastActive >= $timeout;
+    }
+
+    public function unreadMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id')
+            ->where('is_read', false);  // Only count unread messages
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $resetUrl = url(route('password.reset', ['token' => $token, 'email' => $this->email], false));
+        Mail::to($this->email)->send(new ResetPasswordMail($resetUrl));
     }
 }

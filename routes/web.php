@@ -6,9 +6,13 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\HereMapController;
+use App\Http\Controllers\LalamoveController;
+use App\Http\Controllers\ReturnsController;
 
 
 /*
@@ -28,27 +32,23 @@ use App\Http\Controllers\MessageController;
 // Language route
 
 
-Route::get('lang/{lang}', function ($lang) {
 
-    app()->setLocale($lang);
-    session()->put('locale', $lang);
-
-    return redirect()->route('dashboard');
-})->name('lang');
 
 Route::get('', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth:vendor');
 
 Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('auth:vendor');
 Route::resource('invoices', InvoiceController::class)->middleware('auth:vendor');
 Route::resource('profiles', ProfileController::class)->middleware('auth:vendor');
-
 Route::resource('receipts', PurchaseReceiptController::class)->middleware('auth:vendor');
+Route::resource('returns', ReturnsController::class)->middleware('auth:vendor');
+Route::resource('biddings', BiddingController::class)->middleware('auth:vendor');
+Route::get('/verify-email/{vendor}/{token}', [ProfileController::class, 'verifyEmail'])->name('verify.email');
+Route::post('/profiles/{vendor}/verify-email', [ProfileController::class, 'resendVerificationEmail'])->name('profiles.verifyEmail');
 
 
 
-Route::get('/Biddings', function () {
-    return view('vendors.Biddings.index');
-})->name('bidding')->middleware('auth:vendor');
+
+
 
 
 Route::get('/terms', function () {
@@ -64,3 +64,39 @@ Route::get('paypal/cancel', function () {
 Route::post('/send-message', [MessageController::class, 'store'])->name('messages.send')->middleware('auth:vendor');
 Route::get('/chat', [MessageController::class, 'showChat'])->name('chat')->middleware('auth:vendor');
 Route::get('/messages/{vendorId}', [MessageController::class, 'getMessages'])->name('messages.get')->middleware('auth:vendor');
+Route::get('/vendors-with-unread', [MessageController::class, 'getVendorsWithUnreadCount'])->name('vendors.unread')->middleware('auth:vendor');
+Route::post('/mark-as-read/{vendor}', [MessageController::class, 'markAsRead'])->middleware('auth:vendor')->name('markAsRead');
+
+
+
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('forgot.password.form');
+Route::post('/send-forgot-password', [ForgotPasswordController::class, 'sendResetLink'])->name('forgot.password.send');
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('password.reset');
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('reset.password.update');
+
+
+// Add this to your web.php or routes file
+Route::get('/shipment-details/{orderId}', [ShipmentController::class, 'getShipmentDetails']);
+
+
+// TESTING PURPOSES
+
+
+// Render the Blade view
+// Route::get('/delivery', [DeliveryController::class, 'showDeliveryPage']);
+
+// AJAX endpoints
+// Route::get('/api/current-delivery-time', [DeliveryController::class, 'getCurrentDeliveryTime']);
+// Route::post('/api/adjust-delivery-time', [DeliveryController::class, 'adjustDeliveryTime']);
+
+
+
+
+// Route::get('/lalamove/create-order', [LalamoveController::class, 'createOrderForm'])->name('lalamove.create.order');
+// Route::post('/lalamove/create-order', [LalamoveController::class, 'createOrder'])->name('lalamove.create.order.submit');
+// Route::get('/lalamove/order-status/{orderId}', [LalamoveController::class, 'getOrderStatus'])->name('lalamove.order.status');
+
+
+
+
+Route::get('/here-map', [HereMapController::class, 'showMap'])->name('here.map');

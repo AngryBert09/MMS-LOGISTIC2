@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Vendor;
 use Illuminate\Support\Facades\Log;
 use App\Models\VerifiedVendor;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EmailVerificationMail;
+
 
 class ProfileController extends Controller
 {
@@ -45,11 +49,7 @@ class ProfileController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
-    {
-        $vendor = Vendor::findOrFail($id); // Retrieve the vendor by ID
-        // return view('profiles.edit', compact('vendor'));
-    }
+    public function edit($id) {}
 
     /**
      * Update the specified resource in storage.
@@ -58,15 +58,27 @@ class ProfileController extends Controller
     {
         Log::info('Update request received for vendor ID: ' . $id, $request->all());
 
+        // Fetch the vendor
+        $vendor = Vendor::findOrFail($id);
+        Log::info('Current vendor data before update:', $vendor->toArray());
+
+        // Check if the vendor is verified by ensuring the verification_token is null
+        $verifiedVendor = VerifiedVendor::where('vendor_id', $vendor->id)->first();
+
+        if ($verifiedVendor && $verifiedVendor->verification_token !== 'verified') {
+            Log::warning("Vendor ID: $id attempted to update profile but is not verified.");
+            return redirect()->route('profiles.show', $vendor->id)->withErrors([
+                'error' => 'You must verify your email before updating your profile.',
+            ]);
+        }
+
+        // Validate request data
         $validatedData = $request->validate([
             'postal_code' => 'nullable|string|max:10',
             'phone_number' => 'nullable|string|max:15',
             'notifications_enabled' => 'nullable|boolean',
-            'profile_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validate profile picture
+            'profile_pic' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
-        $vendor = Vendor::findOrFail($id);
-        Log::info('Current vendor data before update:', $vendor->toArray());
 
         if ($request->filled('postal_code')) {
             $vendor->postal_code = $validatedData['postal_code'];
@@ -80,18 +92,14 @@ class ProfileController extends Controller
 
         // Handle profile picture upload
         if ($request->hasFile('profile_pic')) {
-            // Delete the old profile picture if it exists
             if ($vendor->profile_pic && file_exists(public_path($vendor->profile_pic))) {
                 unlink(public_path($vendor->profile_pic));
                 Log::info('Deleted old profile picture for vendor ID: ' . $id);
             }
 
-            // Generate a unique file name for the new profile picture
             $profilePic = $request->file('profile_pic');
             $fileName = uniqid() . '_' . time() . '.' . $profilePic->getClientOriginalExtension();
             $profilePic->move(public_path('profile_pics'), $fileName);
-
-            // Store the file path in the database
             $vendor->profile_pic = 'profile_pics/' . $fileName;
             Log::info('Profile picture updated for vendor ID: ' . $id . ', file path: ' . $vendor->profile_pic);
         }
@@ -99,17 +107,16 @@ class ProfileController extends Controller
         try {
             Log::info('Attempting to save updated vendor data:', $vendor->toArray());
 
+            // Save the vendor data first
             if ($vendor->save()) {
                 Log::info('Vendor data after update:', $vendor->toArray());
 
-                // Update is_verified to true in VerifiedVendor table if needed
-                $verifiedVendor = VerifiedVendor::where('vendor_id', $vendor->id)->first();
+                // Update VerifiedVendor's is_verified to true and verified_at timestamp
                 if ($verifiedVendor) {
                     $verifiedVendor->is_verified = true;
+                    $verifiedVendor->verified_at = now();
                     $verifiedVendor->save();
-                    Log::info('VerifiedVendor is_verified set to true for vendor ID: ' . $vendor->id);
-
-                    session()->flash('verified_message', 'You are now VERIFIED! You can now access the additional tabs.');
+                    Log::info('VerifiedVendor is_verified set to true and verified_at updated for vendor ID: ' . $vendor->id);
                 }
 
                 return redirect()->route('profiles.show', $vendor->id)->with('success', 'Profile updated successfully.');
@@ -129,13 +136,74 @@ class ProfileController extends Controller
 
 
 
-
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
     {
         // Optional: Delete profile if needed
+    }
+
+    public function resendVerificationEmail($id)
+    {
+        Log::info("Attempting to resend verification email for vendor ID: $id");
+
+        // Find the vendor
+        $vendor = Vendor::findOrFail($id);
+
+        // Check if the vendor is already verified
+        if ($vendor->verifiedVendor && $vendor->verifiedVendor->is_verified) {
+            Log::info("Vendor ID: $id is already verified.");
+            return redirect()->route('profiles.show', $vendor->id)->with('message', 'You are already verified.');
+        }
+
+        // Get the VerifiedVendor model instance
+        $verifiedVendor = $vendor->verifiedVendor;
+
+        // If there is no VerifiedVendor record, create a new one
+        if (!$verifiedVendor) {
+            $verifiedVendor = new VerifiedVendor();
+            $verifiedVendor->vendor_id = $vendor->id;
+        }
+
+        // Generate a new verification token
+        $token = Str::random(60);
+
+        // Debug the token before saving
+        Log::info("Generated verification token for vendor ID: $id", ['token' => $token]);
+
+        // Save the token in the VerifiedVendor model
+        $verifiedVendor->verification_token = $token;
+        $verifiedVendor->save();
+
+        // Send the email with the verification link
+        try {
+            Log::info("Sending verification email to: " . $vendor->email);
+            Mail::to($vendor->email)->send(new EmailVerificationMail($vendor, $token));
+            Log::info("Verification email sent successfully to: " . $vendor->email);
+        } catch (\Exception $e) {
+            Log::error("Failed to send verification email for vendor ID: $id", ['error' => $e->getMessage()]);
+            return back()->withErrors(['error' => 'Failed to send verification email.']);
+        }
+
+        // Return a success message
+        return back()->with('success', 'Verification email sent successfully.');
+    }
+
+    public function verifyEmail($vendorId, $token)
+    {
+        // Find the VerifiedVendor entry for the given vendor
+        $verifiedVendor = VerifiedVendor::where('vendor_id', $vendorId)->firstOrFail();
+
+        // Check if the token matches
+        if ($verifiedVendor->verification_token === $token) {
+            // Mark the vendor as verifieds
+            $verifiedVendor->verification_token = "verified";  // Clear the token after successful verification
+            $verifiedVendor->save();
+
+            return redirect()->route('profiles.show', $vendorId)->with('success', 'Email successfully verified!');
+        }
+
+        return redirect()->route('profiles.show', $vendorId)->with('error', 'Invalid verification token.');
     }
 }

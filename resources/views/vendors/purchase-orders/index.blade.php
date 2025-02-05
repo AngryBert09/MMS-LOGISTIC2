@@ -39,22 +39,22 @@
         gtag("config", "G-GBZ3SGGX85");
     </script>
     <!-- Google Tag Manager -->
-    <scrip>
+    <script>
         (function(w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
-        "gtm.start": new Date().getTime(),
-        event: "gtm.js"
-        });
-        var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != "dataLayer" ? "&l=" + l : "";
-        j.async = true;
-        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
+            w[l] = w[l] || [];
+            w[l].push({
+                "gtm.start": new Date().getTime(),
+                event: "gtm.js"
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != "dataLayer" ? "&l=" + l : "";
+            j.async = true;
+            j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+            f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", "GTM-NXZMQSS");
-        </script>
-        <!-- End Google Tag Manager -->
+    </script>
+    <!-- End Google Tag Manager -->
 </head>
 
 <body>
@@ -101,9 +101,9 @@
                                     <th>Order Status</th>
                                     <th>Total Amount</th>
                                     <th>Payment Terms</th>
-                                    <th>Delivery Location</th>
+                                    {{-- <th>Delivery Location</th>
                                     <th>Notes/Instructions</th>
-                                    <th>Shipping Method</th>
+                                    <th>Shipping Method</th> --}}
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -113,26 +113,44 @@
                                         <td class="table-plus">{{ $order->purchase_order_number }}</td>
                                         <td>
                                             @if ($order->invoices->isNotEmpty())
-                                                <!-- Check if the invoices collection is not empty -->
                                                 {{ $order->invoices->first()->invoice_number }}
-                                                <!-- Use the correct property name -->
-                                            @else
                                             @endif
                                         </td>
                                         <td>{{ $order->order_date }}</td>
                                         <td>{{ $order->delivery_date }}</td>
-                                        <td>{{ $order->order_status }}</td>
+                                        <td>
+                                            <!-- Status Badge -->
+                                            @if ($order->order_status === 'Pending Approval')
+                                                <span class="badge badge-warning">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'Approved')
+                                                <span class="badge badge-success">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'Rejected')
+                                                <span class="badge badge-danger">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'On hold')
+                                                <span class="badge badge-secondary">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'In Transit')
+                                                <span class="badge badge-primary">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'Completed')
+                                                <span class="badge badge-info">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'In Progress')
+                                                <span class="badge badge-light">{{ $order->order_status }}</span>
+                                            @else
+                                                <span class="badge badge-dark">{{ $order->order_status }}</span>
+                                            @endif
+                                        </td>
                                         <td>{{ number_format($order->orderItems->sum('total_price'), 2) }}</td>
                                         <td>{{ $order->payment_terms }}</td>
-                                        <td>{{ $order->delivery_location }}</td>
+                                        {{-- <td>{{ $order->delivery_location }}</td>
                                         <td>{{ $order->notes_instructions }}</td>
-                                        <td>{{ $order->shipping_method }}</td>
+                                        <td>{{ $order->shipping_method }}</td> --}}
                                         <td>
                                             @include('vendors.purchase-orders.actions')
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
+
+
                         </table>
                     </div>
                 </div>
@@ -152,6 +170,9 @@
 
     <!-- VIEW MODAL -->
     @include('vendors.purchase-orders.show')
+
+
+
 
 
     <!-- welcome modal end -->

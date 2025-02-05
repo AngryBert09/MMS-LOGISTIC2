@@ -11,8 +11,6 @@ Route::group(['middleware' => 'guest'], function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
 
     Route::post('/login', [AuthController::class, 'authenticate']);
-
-    Route::get('/forgot-password', [AuthController::class, 'forgotpassword'])->name('forgot-password');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:vendor')->name('logout');

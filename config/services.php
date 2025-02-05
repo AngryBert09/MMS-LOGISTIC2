@@ -31,6 +31,12 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    
+    'lalamove' => [
+        'api_key' => env('LALAMOVE_API_KEY'),
+        'api_secret' => env('LALAMOVE_API_SECRET'),
+        'base_url' => env('LALAMOVE_BASE_URL'),
+    ],
+
+
 
 ];

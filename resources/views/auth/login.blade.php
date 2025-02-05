@@ -4,27 +4,23 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>Login Vendor</title>
+    <title>{{ config('app.name') }}</title>
 
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
     <link rel="icon" type="image/png" sizes="32x32" href="images/gwa-favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16"
-        href="images/greatwall-logo.ico />
+    <link rel="icon" type="image/png" sizes="16x16" href="vendors/images/favicon-16x16.png" />
 
     <!-- Mobile Specific Metas -->
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
     <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/core.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/icon-font.min.css') }}" />
-    <!-- Fix the broken link tag by closing the quotes properly -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
-
+    <link rel="stylesheet" type="text/css" href="css/core.css" />
+    <link rel="stylesheet" type="text/css" href="css/icon-font.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GBZ3SGGX85"></script>
@@ -60,53 +56,19 @@
 </head>
 
 <body class="login-page">
-    <div class="login-header box-shadow">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <div class="brand-logo">
-                <a href="{{ route('login') }}">
-                    <img src="images/greatwall-logo.png " style="height:90px" />
-                    <img src="images/greatwallarts-logo.svg " style="height:100px " />
-                </a>
-            </div>
-            <div class="login-menu">
-                <ul>
-                    <li><a href="{{ route('register') }}">Register</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    @include('layout.login-header')
+
     <div class="login-wrap d-flex align-items-center flex-wrap justify-content-center">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6 col-lg-7">
                     <img src="{{ asset('images/login-page-img.png') }}" alt="try" />
-
                 </div>
                 <div class="col-md-6 col-lg-5">
                     <div class="login-box bg-white box-shadow border-radius-10">
                         <div class="login-title">
                             <h2 class="text-center text-primary text-dark">LOGIN TO GREATWALL</h2>
                         </div>
-                        {{-- <div class="select-role">
-                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                <label class="btn active">
-                                    <input type="radio" name="options" id="admin" />
-                                    <div class="icon">
-                                        <img src="{{ asset('images/briefcase.svg') }}" class="svg" alt="" />
-                                    </div>
-                                    <span>I'm</span>
-                                    Supplier
-                                </label>
-                                <label class="btn">
-                                    <input type="radio" name="options" id="user" />
-                                    <div class="icon">
-                                        <img src="{{ asset('images/person.svg') }}" class="svg" alt="" />
-                                    </div>
-                                    <span>I'm</span>
-                                    Employee
-                                </label>
-                            </div>
-                        </div> --}}
                         <form action="{{ route('login') }}" method="post">
                             @csrf
                             @if (session('confirmation_message'))
@@ -114,17 +76,10 @@
                                     {{ session('confirmation_message') }}
                                 </div>
                             @endif
-                            @if ($errors->has('email') || $errors->has('password'))
-                                <div class="alert alert-danger mt-3">
-                                    <p>
-                                        @if ($errors->has('email'))
-                                            {{ $errors->first('email') }}
-                                        @endif
 
-                                        @if ($errors->has('password'))
-                                            {{ $errors->first('password') }}
-                                        @endif
-                                    </p>
+                            @if ($errors->any())
+                                <div class="alert alert-danger mt-3">
+                                    <p>{{ $errors->all() ? implode(' | ', $errors->all()) : '' }}</p>
                                 </div>
                             @endif
 
@@ -134,8 +89,6 @@
                                     class="form-control form-control-lg {{ $errors->has('email') ? 'is-invalid' : '' }}"
                                     placeholder="Email" name="email" value="{{ old('email') }}"
                                     title="{{ $errors->has('email') ? $errors->first('email') : '' }}" />
-
-
                                 {{-- Show user icon only if there is no error --}}
                                 @if (!$errors->has('email'))
                                     <div class="input-group-append custom">
@@ -179,7 +132,6 @@
                                 });
                             </script>
 
-
                             <div class="row pb-30">
                                 <div class="col-6">
                                     <div class="custom-control custom-checkbox">
@@ -189,8 +141,9 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <div class="forgot-password">
-                                        <a href="{{ route('forgot-password') }}">Forgot Password</a>
+                                    <div class="forgot-password ">
+                                        <a href="{{ route('forgot.password.form') }}">Forgot
+                                            Password</a>
                                     </div>
                                 </div>
                             </div>
@@ -198,14 +151,13 @@
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
                                         <input class="btn btn-warning btn-lg btn-block " type="submit" value="Sign In">
-                                        {{-- <a class="btn btn-primary btn-lg btn-block" href="index.html">Sigsn In</a> --}}
                                     </div>
                         </form>
                         <div class="font-16 weight-600 pt-10 pb-10 text-center" data-color="#707373">
                             OR
                         </div>
                         <div class="input-group mb-0">
-                            <a class="btn btn-outline-dark btn-lg btn-block" href="{{ route('register') }}">Register
+                            <a class="btn btn-outline-warning btn-lg btn-block" href="{{ route('register') }}">Register
                                 To
                                 Create Account</a>
                         </div>

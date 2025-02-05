@@ -3,40 +3,72 @@
         <div class="menu-icon bi bi-list"></div>
         <div class="search-toggle-icon bi bi-search" data-toggle="header_search"></div>
         <div class="header-search">
-            <form>
+            <form id="searchForm">
                 <div class="form-group mb-0">
-                    <i class="dw dw-search2 search-icon"></i>
-                    <input type="text" class="form-control search-input" placeholder="Search Here" />
-                    <div class="dropdown">
-                        <a class="dropdown-toggle no-arrow" href="#" role="button" data-toggle="dropdown">
-                            <i class="ion-arrow-down-c"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <div class="form-group row">
-                                <label class="col-sm-12 col-md-2 col-form-label">From</label>
-                                <div class="col-sm-12 col-md-10">
-                                    <input class="form-control form-control-sm form-control-line" type="text" />
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-12 col-md-2 col-form-label">To</label>
-                                <div class="col-sm-12 col-md-10">
-                                    <input class="form-control form-control-sm form-control-line" type="text" />
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-12 col-md-2 col-form-label">Subject</label>
-                                <div class="col-sm-12 col-md-10">
-                                    <input class="form-control form-control-sm form-control-line" type="text" />
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <button class="btn btn-primary">Search</button>
-                            </div>
-                        </div>
-                    </div>
+                    <i class="dw dw-search2 search-icon" onclick="searchRedirect()"></i> <!-- Search Icon -->
+                    <input type="text" id="searchInput" class="form-control search-input" placeholder="Search Here"
+                        onkeyup="showSuggestions(this.value)" />
+                </div>
+
+                <!-- Dropdown suggestions -->
+                <div id="suggestionsDropdown" class="dropdown-menu" style="display:none;">
+                    <ul id="suggestionsList" class="list-unstyled"></ul>
                 </div>
             </form>
+            <script>
+                // Keywords that might be typed
+                const suggestions = [
+                    'purchase orders', 'dashboard', 'invoices', 'receipts', 'chat', 'bidding',
+                    'purchase receipt', 'purchase order'
+                ];
+
+                // Show suggestions based on input
+                function showSuggestions(query) {
+                    const suggestionsDropdown = document.getElementById('suggestionsDropdown');
+                    const suggestionsList = document.getElementById('suggestionsList');
+                    suggestionsList.innerHTML = '';
+
+                    if (query.trim()) {
+                        // Case-insensitive matching
+                        const filtered = suggestions.filter(s => s.toLowerCase().includes(query.toLowerCase()));
+                        if (filtered.length) {
+                            suggestionsDropdown.style.display = 'block';
+                            filtered.forEach(s => {
+                                const item = document.createElement('li');
+                                item.textContent = s;
+                                item.classList.add('dropdown-item');
+                                item.onclick = () => searchRedirect(s);
+                                suggestionsList.appendChild(item);
+                            });
+                        } else {
+                            suggestionsDropdown.style.display = 'block';
+                            const noResultItem = document.createElement('li');
+                            noResultItem.textContent = 'No Result Found';
+                            noResultItem.classList.add('dropdown-item', 'text-muted');
+                            suggestionsList.appendChild(noResultItem);
+                        }
+                    } else {
+                        suggestionsDropdown.style.display = 'none';
+                    }
+                }
+
+                // Redirect based on the selected suggestion
+                function searchRedirect(query = document.getElementById('searchInput').value) {
+                    const pages = {
+                        'chat': '/chat',
+                        'purchase orders': '/purchase-orders',
+                        'dashboard': '/',
+                        'invoices': '/invoices',
+                        'receipts': '/receipts',
+                        'bidding': '/Biddings',
+                        'purchase receipt': '/purchase-receipt',
+                        'purchase order': '/purchase-order'
+                    };
+                    const url = pages[query.toLowerCase()];
+                    if (url) window.location.href = url;
+                    document.getElementById('suggestionsDropdown').style.display = 'none';
+                }
+            </script>
         </div>
     </div>
     <div class="header-right">
@@ -75,7 +107,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="user-info-dropdown">
             <div class="dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-toggle="dropdown">
