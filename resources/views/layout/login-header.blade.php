@@ -8,7 +8,11 @@
         </div>
         <div class="login-menu">
             <ul>
-                <li><a href="{{ route('register') }}">Register</a></li>
+                @if (Route::is('register'))
+                    <li><a href="{{ route('login') }}">Login</a></li>
+                @elseif(Route::is('login'))
+                    <li><a href="{{ route('register') }}">Register</a></li>
+                @endif
             </ul>
         </div>
     </div>

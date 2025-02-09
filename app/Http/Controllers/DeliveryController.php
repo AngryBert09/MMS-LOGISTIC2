@@ -2,46 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\HereMapsService;
+use App\Services\DeepSeekAIService;
 use Illuminate\Http\Request;
-use App\Services\DeepSeekService;
 
 class DeliveryController extends Controller
 {
-    protected $deepSeekService;
+    protected $hereMapsService;
+    protected $deepSeekAIService;
 
-    public function __construct(DeepSeekService $deepSeekService)
+    public function __construct(HereMapsService $hereMapsService, DeepSeekAIService $deepSeekAIService)
     {
-        $this->deepSeekService = $deepSeekService;
+        $this->hereMapsService = $hereMapsService;
+        $this->deepSeekAIService = $deepSeekAIService;
     }
 
-    // Render the Blade view
-    public function showDeliveryPage()
-    {
-        return view('deliver'); // Render the Blade view
-    }
-
-    // Adjust delivery time (for AJAX)
     public function adjustDeliveryTime(Request $request)
     {
-        // Get user input
-        $distance = $request->input('distance');
-        $trafficConditions = $request->input('traffic_conditions');
-        $weatherConditions = $request->input('weather_conditions');
+        // Get origin and destination from the request
+        $origin = $request->input('origin');
+        $destination = $request->input('destination');
 
-        // Simulate DeepSeek AI integration
-        $deliveryData = [
-            'distance' => $distance,
-            'traffic_conditions' => $trafficConditions,
-            'weather_conditions' => $weatherConditions,
+        // Calculate route using HERE Maps
+        $route = $this->hereMapsService->calculateRoute($origin, $destination);
+
+        // Extract travel time from HERE Maps response
+        $travelTime = $route['routes'][0]['sections'][0]['travelSummary']['duration'] ?? 0;
+
+        // Prepare data for DeepSeek AI prediction
+        $data = [
+            'travel_time' => $travelTime,
+            'traffic_conditions' => $request->input('traffic_conditions'),
+            'weather_conditions' => $request->input('weather_conditions'),
         ];
 
-        // Get adjusted delivery time from DeepSeek AI (or dummy data)
-        $adjustedTime = $this->deepSeekService->getAdjustedDeliveryTime($deliveryData);
+        // Predict adjusted delivery time using DeepSeek AI
+        $prediction = $this->deepSeekAIService->predictDeliveryTime($data);
 
-        if ($adjustedTime) {
-            return response()->json(['adjusted_time' => $adjustedTime]);
-        } else {
-            return response()->json(['error' => 'Failed to adjust delivery time'], 500);
-        }
+        // Return the adjusted delivery time
+        return response()->json([
+            'original_travel_time' => $travelTime,
+            'adjusted_delivery_time' => $prediction['predicted_time'],
+        ]);
     }
 }

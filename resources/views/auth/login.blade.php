@@ -57,6 +57,23 @@
 
 <body class="login-page">
     @include('layout.login-header')
+    <div class="pre-loader">
+        <div class="pre-loader-box">
+            <!-- Welcome Message -->
+            <div class="welcome-message">
+                <div class="loader-logo">
+                    <img src="images/greatwall-logo.png" alt="Great Wall Logo" />
+                </div>
+                <h2>Welcome to Great Wall Arts</h2>
+                <p class="text-muted">Bringing creativity and craftsmanship together.</p>
+            </div>
+            <!-- Progress Bar -->
+            <div class="loader-progress" id="progress_div">
+                <div class="bar" id="bar1"></div>
+            </div>
+        </div>
+    </div>
+
 
     <div class="login-wrap d-flex align-items-center flex-wrap justify-content-center">
         <div class="container">
@@ -163,7 +180,7 @@
                         </div>
                     </div>
                 </div>
-                </form>
+
             </div>
         </div>
     </div>

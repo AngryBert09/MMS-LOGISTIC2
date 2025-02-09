@@ -51,9 +51,9 @@ Route::post('/profiles/{vendor}/verify-email', [ProfileController::class, 'resen
 
 
 
-Route::get('/terms', function () {
-    return view('terms');
-})->name('terms');
+Route::get('/Faqs', function () {
+    return view('vendors.faqs');
+})->name('faqs')->middleware('auth:vendor');
 
 Route::get('paypal/checkout', [PayPalController::class, 'checkout'])->name('paypal.checkout');
 Route::get('paypal/confirm', [PayPalController::class, 'confirm'])->name('paypal.confirm');
@@ -85,18 +85,19 @@ Route::get('/shipment-details/{orderId}', [ShipmentController::class, 'getShipme
 // Render the Blade view
 // Route::get('/delivery', [DeliveryController::class, 'showDeliveryPage']);
 
-// AJAX endpoints
-// Route::get('/api/current-delivery-time', [DeliveryController::class, 'getCurrentDeliveryTime']);
-// Route::post('/api/adjust-delivery-time', [DeliveryController::class, 'adjustDeliveryTime']);
+
+
+
+Route::get('/getMyPerformance', [DashboardController::class, 'getMyPerformance'])->middleware('auth:vendor');
+Route::get('/getTopSuppliers', [DashboardController::class, 'getTopSuppliers'])->middleware('auth:vendor');
 
 
 
 
-// Route::get('/lalamove/create-order', [LalamoveController::class, 'createOrderForm'])->name('lalamove.create.order');
-// Route::post('/lalamove/create-order', [LalamoveController::class, 'createOrder'])->name('lalamove.create.order.submit');
-// Route::get('/lalamove/order-status/{orderId}', [LalamoveController::class, 'getOrderStatus'])->name('lalamove.order.status');
+use App\Http\Controllers\SupplierController;
 
+Route::get('/dashboard/suppliers', function () {
+    return view('supplier_dashboard');
+})->name('supplier.dashboard');
 
-
-
-Route::get('/here-map', [HereMapController::class, 'showMap'])->name('here.map');
+Route::get('/api/supplier-analysis', [SupplierController::class, 'analyzeSuppliers'])->name('supplier.analysis')->middleware('auth:vendor');

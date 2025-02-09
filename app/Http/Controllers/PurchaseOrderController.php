@@ -256,13 +256,13 @@ class PurchaseOrderController extends Controller
                         'weight' => 'required|numeric|min:0',
                     ]);
 
-                    $updateData['estimated_delivery_date'] = $request->estimated_delivery_date;
+
                     $updateData['shipment_method'] = $request->shipment_method; // Updated column name here
                     $updateData['shipping_cost'] = $request->shipping_cost;
                     $updateData['weight'] = $request->weight;
 
                     // Store shipment details
-                    $shipmentData['estimated_delivery_date'] = $request->estimated_delivery_date;
+                    $shipmentData['actual_delivery_date'] = $purchaseOrder->delivery_date;
                     $shipmentData['shipment_method'] = $request->shipment_method; // Updated column name here
                     $shipmentData['shipping_cost'] = $request->shipping_cost;
                     $shipmentData['weight'] = $request->weight;

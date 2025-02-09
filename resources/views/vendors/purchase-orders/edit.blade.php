@@ -429,13 +429,12 @@
                                         <p>Carrier: <span id="carrier">USPS</span></p>
                                         <p>Tracking #: <span class="font-weight-bold"
                                                 id="trackingNumberModal">234094567242423422898</span></p>
-                                        <p><strong>Estimated Delivery Date:</strong> <span
-                                                id="estimatedDeliveryDate"></span></p>
+
                                         <p><strong>Shipment Method:</strong> <span id="shipmentMethod"></span></p>
                                         <p><strong>Shipping Cost:</strong> <span id="shippingCost"></span></p>
                                         <p><strong>Weight:</strong> <span id="weight"></span> kg</p>
                                         <p><strong>Shipping Address:</strong> <span id="shippingAddress"></span></p>
-                                        <p><strong>Actual Delivery Date:</strong> <span id="actualDeliveryDate"></span>
+                                        <p><strong>Delivery Date:</strong> <span id="actualDeliveryDate"></span>
                                         </p>
                                     </div>
                                 </div>

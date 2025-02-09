@@ -57,18 +57,7 @@
 </head>
 
 <body>
-    {{-- <div class="pre-loader">
-        <div class="pre-loader-box">
-            <div class="loader-logo">
-                <img src="vendors/images/deskapp-logo.svg" alt="" />
-            </div>
-            <div class="loader-progress" id="progress_div">
-                <div class="bar" id="bar1"></div>
-            </div>
-            <div class="percent" id="percent1">0%</div>
-            <div class="loading-text">Loading...</div>
-        </div>
-    </div> --}}
+
 
     @include('layout.nav')
 
@@ -81,30 +70,7 @@
     <div class="main-container">
         <div class="pd-ltr-20 xs-pd-20-10">
             <div class="min-height-200px">
-                <div class="page-header">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="title">
-                                <h4>Profile</h4>
-                            </div>
-                            <nav aria-label="breadcrumb" role="navigation">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="{{ route('dashboard') }}">Home</a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">
-                                        Profile
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="col-md-6 col-sm-12 text-right">
-                            <a class="btn btn-dark" href="#send-request" role="button">
-                                Send Request
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                @include('layout.breadcrumb')
                 <div class="row">
                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-30">
                         <div class="pd-20 card-box height-100-p">
@@ -136,8 +102,8 @@
                                                 </div>
 
                                                 <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-primary">Update</button>
-                                                    <button type="button" class="btn btn-default"
+                                                    <button type="submit" class="btn btn-warning">Update</button>
+                                                    <button type="button" class="btn btn-default="
                                                         data-dismiss="modal">Close</button>
                                                 </div>
                                             </form>
@@ -193,141 +159,70 @@
                                 <div class="tab height-100-p">
                                     <ul class="nav nav-tabs customtab" role="tablist">
                                         <li class="nav-item">
-                                            <a class="nav-link active" data-toggle="tab" href="#timeline"
-                                                role="tab">Timeline</a>
+
+                                            <a class="nav-link active" data-toggle="tab" href="#account"
+                                                role="tab">Account Information</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#billing-info"
-                                                role="tab">Billing Information</a>
+                                            <a class="nav-link" data-toggle="tab" href="#security"
+                                                role="tab">Security</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#setting"
-                                                role="tab">Settings</a>
+                                            <a class="nav-link" data-toggle="tab" href="#personal"
+                                                role="tab">Personal</a>
                                         </li>
                                     </ul>
 
                                     <div class="tab-content">
-                                        <!-- Timeline Tab start -->
-                                        <div class="tab-pane fade show active" id="timeline" role="tabpanel">
-                                            <h1 style="margin-left: 50px; margin-top:50px"> UNDER DEVELOPMENT </h1>
+                                        <div class="tab-pane fade show active" id="account" role="tabpanel">
+                                            <!-- Flash message for success or error -->
+                                            @include('profiles.message')
+                                            @include('profiles.update')
                                         </div>
-                                        <!-- Timeline Tab End -->
-                                        <!-- Tasks Tab start -->
-                                        <div class="tab-pane fade" id="billing-info" role="tabpanel">
+
+                                        <!-- Security Tab start -->
+                                        <div class="tab-pane fade" id="security" role="tabpanel">
+                                            @include('profiles.security')
+                                        </div>
+
+
+                                        <!-- Setting Tab start -->
+                                        <div class="tab-pane fade height-100-p" id="personal" role="tabpanel">
                                             <div class="pd-20 profile-task-wrap">
                                                 <div class="container pd-0">
-                                                    <!-- Billing Information start -->
+                                                    <!-- Personal Details Section Start -->
                                                     <div class="billing-title row align-items-center">
                                                         <div class="col-md-8 col-sm-12">
-                                                            UNDER DEVELOPMENT
-                                                            <h5>Billing Information</h5>
-                                                        </div>
-                                                        <div class="col-md-4 col-sm-12 text-right">
-                                                            <a href="billing-add" data-toggle="modal"
-                                                                data-target="#billing-add"
-                                                                class="bg-light-blue btn text-blue weight-500"><i
-                                                                    class="ion-plus-round"></i> Add Billing Info</a>
+                                                            <h5>Personal Details</h5>
+                                                            <p class="text-muted small">
+                                                                View and manage your personal details. Some information
+                                                                may be non-editable for security reasons.
+                                                            </p>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Billing Information End -->
-                                                    <!-- add billing popup start -->
-                                                    {{-- <div class="modal fade customscroll" id="billing-add"
-                                                        tabindex="-1" role="dialog">
-                                                        <div class="modal-dialog modal-dialog-centered"
-                                                            role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title"
-                                                                        id="exampleModalLongTitle">
-                                                                        Add Billing Information
-                                                                    </h5>
-                                                                    <button type="button" class="close"
-                                                                        data-dismiss="modal" aria-label="Close"
-                                                                        data-toggle="tooltip" data-placement="bottom"
-                                                                        title=""
-                                                                        data-original-title="Close Modal">
-                                                                        <span aria-hidden="true">&times;</span>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body pd-0">
-                                                                    <div class="billing-list-form">
-                                                                        <form>
-                                                                            <div class="form-group row">
-                                                                                <label class="col-md-4">PayPal
-                                                                                    Email</label>
-                                                                                <div class="col-md-8">
-                                                                                    <input type="email"
-                                                                                        class="form-control"
-                                                                                        placeholder="Enter your PayPal email"
-                                                                                        required />
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="form-group row">
-                                                                                <label class="col-md-4">Full
-                                                                                    Name</label>
-                                                                                <div class="col-md-8">
-                                                                                    <input type="text"
-                                                                                        class="form-control"
-                                                                                        placeholder="Enter your full name"
-                                                                                        required />
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="form-group row">
-                                                                                <label class="col-md-4">Billing
-                                                                                    Address</label>
-                                                                                <div class="col-md-8">
-                                                                                    <textarea class="form-control" placeholder="Enter your billing address" required></textarea>
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="form-group row mb-0">
-                                                                                <label class="col-md-4">Phone
-                                                                                    Number</label>
-                                                                                <div class="col-md-8">
-                                                                                    <input type="text"
-                                                                                        class="form-control"
-                                                                                        placeholder="Enter your phone number"
-                                                                                        required />
-                                                                                </div>
-                                                                            </div>
-                                                                            <div class="form-group row mb-0">
-                                                                                <label class="col-md-4">Due
-                                                                                    Date</label>
-                                                                                <div class="col-md-8">
-                                                                                    <input type="text"
-                                                                                        class="form-control date-picker"
-                                                                                        placeholder="Select due date" />
-                                                                                </div>
-                                                                            </div>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-primary">
-                                                                        Add Billing Info
-                                                                    </button>
-                                                                    <button type="button" class="btn btn-secondary"
-                                                                        data-dismiss="modal">
-                                                                        Close
-                                                                    </button>
-                                                                </div>
-                                                            </div>
+                                                    <div class="card-body">
+                                                        <!-- Account Owner -->
+                                                        <div class="form-group">
+                                                            <label>Account Owner</label>
+                                                            <input type="text" class="form-control"
+                                                                value="{{ $vendor->full_name }}" disabled>
                                                         </div>
-                                                    </div> --}}
-                                                    <!-- add billing popup End -->
+
+                                                        <!-- Gender -->
+                                                        <div class="form-group">
+                                                            <label>Gender</label>
+                                                            <input type="text" class="form-control"
+                                                                value="{{ $vendor->gender }}" disabled>
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                                <!-- Personal Details Section End -->
                                             </div>
                                         </div>
 
-                                        <!-- Tasks Tab End -->
-                                        <!-- Setting Tab start -->
-                                        <div class="tab-pane fade height-100-p" id="setting" role="tabpanel">
-                                            <div class="profile-setting">
-                                                <!-- Flash message for success or error -->
-                                                @include('profiles.message')
-                                                @include('profiles.update')
-                                            </div>
-                                        </div>
+
+
                                         <!-- Setting Tab End -->
                                     </div>
                                 </div>

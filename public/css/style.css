@@ -144,7 +144,14 @@ p {
 }
 
 .pre-loader .loader-logo {
-    padding-bottom: 15px
+    padding-bottom: 15px;
+    text-align    : center;
+    margin-bottom : -30px;
+}
+
+.pre-loader .loader-logo img {
+    max-width: 150px;
+    height   : auto;
 }
 
 .pre-loader .loader-progress {
@@ -161,7 +168,7 @@ p {
     width     : 0%;
     height    : 8px;
     display   : block;
-    background: #1b00ff
+    background: #ffc107;
 }
 
 .pre-loader .percent {
@@ -3787,8 +3794,7 @@ body.IE .register-page-wrap .container {
 }
 
 .profile-setting .profile-edit-list {
-    padding: 10px 0;
-    margin : 0
+    margin: 0
 }
 
 .profile-setting .btn-outline-secondary {

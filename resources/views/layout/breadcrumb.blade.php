@@ -15,10 +15,12 @@
                             <a href="{{ route('invoices.index') }}">Invoices</a>
                         @elseif (Request::is('chat*'))
                             <a href="{{ route('chat') }}">Chats</a>
-                        @elseif (Request::is('Biddings*'))
-                            <a href="{{ route('chat') }}">Biddings</a>
+                        @elseif (Request::is('biddings*'))
+                            <a href="{{ route('biddings.index') }}">Biddings</a>
                         @elseif (Request::is('returns*'))
                             <a href="{{ route('returns.index') }}">Return Management</a>
+                        @elseif (Request::is('profiles/*'))
+                            <a href="{{ route('profiles.show', $vendor->id) }}">My Profile</a>
                         @else
                             {{ $breadcrumbTitle ?? 'Page' }}
                         @endif
@@ -31,12 +33,16 @@
                         <li class="breadcrumb-item active" aria-current="page">
                             Show Invoice
                         </li>
+                    @elseif (Request::is('biddings/*/edit'))
+                        <li class="breadcrumb-item active" aria-current="page">
+                            Bid submission
+                        </li>
                     @endif
                 </ol>
 
             </nav>
         </div>
-        <div class="col-md-6 col-sm-12 text-right">
+        {{-- <div class="col-md-6 col-sm-12 text-right">
             <div class="dropdown">
                 <a class="btn btn-warning dropdown-toggle" href="#" role="button" data-toggle="dropdown">
                     January 2018
@@ -47,6 +53,6 @@
                     <a class="dropdown-item" href="#">View Assets</a>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </div>
 </div>
