@@ -18,19 +18,18 @@ class SupplierAIService
         $this->baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'; // Correct Gemini API URL
     }
 
-    public function analyzeSupplierPerformance($supplierData)
+    public function analyzeSupplierPerformance($supplierData, $customPrompt)
     {
-        // Prepare the request payload for Gemini AI
+        // Construct the AI request with the custom prompt
         $payload = [
             'contents' => [
                 [
                     'parts' => [
-                        ['text' => 'Please analyze the following data about our suppliers and provide any insights or recommendations for improving their performance summarize each vendor: ' . json_encode($supplierData)]
+                        ['text' => $customPrompt . ' ' . json_encode($supplierData)]
                     ]
                 ]
             ]
         ];
-
 
         // Log the request payload for debugging
         Log::debug('Sending request to Gemini AI:', ['payload' => $payload]);
@@ -64,4 +63,5 @@ class SupplierAIService
             return 'Error: ' . $e->getMessage();
         }
     }
+
 }

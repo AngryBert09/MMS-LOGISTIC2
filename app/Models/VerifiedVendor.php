@@ -12,6 +12,11 @@ class VerifiedVendor extends Model
     // Disable timestamps
     public $timestamps = false;
 
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
+
     protected $fillable = [
         'vendor_id',
         'is_verified',

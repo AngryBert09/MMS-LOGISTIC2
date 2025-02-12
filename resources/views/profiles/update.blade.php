@@ -30,8 +30,19 @@
                 <!-- Email (Always readonly) -->
                 <div class="form-group">
                     <label>Email</label>
-                    <input class="form-control form-control-lg" type="email" value="{{ $vendor->email }}" disabled />
+                    <div class="d-flex align-items-center position-relative">
+                        <input
+                            class="form-control form-control-lg @if ($vendor->verifiedVendor && $vendor->verifiedVendor->verification_token === 'verified') border-success @endif"
+                            type="email" value="{{ $vendor->email }}" disabled />
+                        @if ($vendor->verifiedVendor && $vendor->verifiedVendor->verification_token === 'verified')
+                            <span class="position-absolute text-success"
+                                style="right: 10px; top: 50%; transform: translateY(-50%);">
+                                ✔️
+                            </span>
+                        @endif
+                    </div>
                 </div>
+
 
                 <!-- Email Verification Section -->
                 @if (!$vendor->verifiedVendor || $vendor->verifiedVendor->verification_token === null)
@@ -41,6 +52,7 @@
                         <button id="resend-verification-btn" class="btn btn-success">Send Verification Email</button>
                     </div>
                 @endif
+
 
                 <!-- Postal Code -->
                 <div class="form-group">

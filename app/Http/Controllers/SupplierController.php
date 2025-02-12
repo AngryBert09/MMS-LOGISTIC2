@@ -18,39 +18,60 @@ class SupplierController extends Controller
 
     public function analyzeSuppliers()
     {
-        // Retrieve supplier performance data from the database
-        $suppliers = DB::table('supplier_performance')
-            ->select('vendor_id', 'on_time_delivery_rate', 'avg_delivery_delay', 'defect_rate', 'return_rate', 'churn_risk')
-            ->orderBy('churn_risk', 'DESC')
-            ->get();
+        // Get the authenticated vendor
+        $vendor = auth('vendor')->user();
 
-        // Log the retrieved supplier data for debugging
-        Log::debug('Retrieved Supplier Data:', ['suppliers' => $suppliers]);
+        // Check if vendor is authenticated
+        if (!$vendor) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
-        // Convert the collection of suppliers into an array for easier handling by the AI service
-        $supplierData = $suppliers->map(function ($supplier) {
-            return [
-                'vendor_id' => $supplier->vendor_id,
-                'on_time_delivery_rate' => $supplier->on_time_delivery_rate,
-                'avg_delivery_delay' => $supplier->avg_delivery_delay,
-                'defect_rate' => $supplier->defect_rate,
-                'return_rate' => $supplier->return_rate,
-                'churn_risk' => $supplier->churn_risk,
-            ];
-        })->toArray();
+        // Retrieve supplier performance data only for the authenticated vendor
+        $supplier = DB::table('supplier_performance')
+            ->join('vendors', 'supplier_performance.vendor_id', '=', 'vendors.id')
+            ->where('supplier_performance.vendor_id', $vendor->id)
+            ->select(
+                'vendors.company_name',
+                'supplier_performance.on_time_delivery_rate',
+                'supplier_performance.avg_delivery_delay',
+                'supplier_performance.defect_rate',
+                'supplier_performance.return_rate',
+                'supplier_performance.churn_risk',
+                'supplier_performance.cost_variance',
+                'supplier_performance.response_time',
+                'supplier_performance.issue_resolution_time',
+                'supplier_performance.compliance_score',
+            )
+            ->first(); // ✅ Retrieves a single row instead of a collection
 
-        // Log the transformed supplier data for debugging
-        Log::debug('Transformed Supplier Data:', ['supplierData' => $supplierData]);
+        // Check if the vendor has performance data
+        if (!$supplier) {
+            return response()->json(['error' => 'No performance data found'], 404);
+        }
 
-        // Send the supplier data to the AI service for analysis
-        $aiResponse = $this->aiService->analyzeSupplierPerformance($supplierData);
+        // Prepare supplier data for AI analysis
+        $supplierData = [
+            'company_name' => $supplier->company_name,
+            'on_time_delivery_rate' => $supplier->on_time_delivery_rate,
+            'avg_delivery_delay' => $supplier->avg_delivery_delay,
+            'defect_rate' => $supplier->defect_rate,
+            'return_rate' => $supplier->return_rate,
+            'churn_risk' => $supplier->churn_risk,
+            'cost_variance' => $supplier->cost_variance,
+            'response_time' => $supplier->response_time,
+            'issue_resolution_time' => $supplier->issue_resolution_time,
+            'compliance_score' => $supplier->compliance_score,
+        ];
 
-        // Log the AI response for debugging
-        Log::debug('AI Response:', ['aiResponse' => $aiResponse]);
+        // Custom prompt for AI analysis
+        $customPrompt = "Analyze the performance metrics for {$supplier->company_name}. Provide insights on improving efficiency, reliability, and customer satisfaction. Strategize how to outperform competitors in key areas. Ensure the response is a well-structured paragraph with human-like explanations. Additionally, based on current trends, predict the company's future performance and suggest proactive strategies to stay competitive. Do not mention any numbers ";
 
-        // Return the suppliers' data and the AI's insights as a JSON response
+        // Send data to AI service
+        $aiResponse = $this->aiService->analyzeSupplierPerformance($supplierData, $customPrompt);
+
+        // Return response
         return response()->json([
-            'suppliers' => $suppliers,
+            'supplier' => $supplierData,
             'ai_insights' => $aiResponse
         ]);
     }

@@ -159,18 +159,16 @@
                                 <div class="tab height-100-p">
                                     <ul class="nav nav-tabs customtab" role="tablist">
                                         <li class="nav-item">
-
-                                            <a class="nav-link active" data-toggle="tab" href="#account"
-                                                role="tab">Account Information</a>
+                                            <a class="nav-link active" data-toggle="tab" href="#account" role="tab">Account Information</a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#security"
-                                                role="tab">Security</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" data-toggle="tab" href="#personal"
-                                                role="tab">Personal</a>
-                                        </li>
+                                        @if ($vendor->verifiedVendor && $vendor->verifiedVendor->is_verified)
+                                            <li class="nav-item">
+                                                <a class="nav-link" data-toggle="tab" href="#security" role="tab">Security</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link" data-toggle="tab" href="#personal" role="tab">Personal</a>
+                                            </li>
+                                        @endif
                                     </ul>
 
                                     <div class="tab-content">
@@ -181,51 +179,47 @@
                                         </div>
 
                                         <!-- Security Tab start -->
-                                        <div class="tab-pane fade" id="security" role="tabpanel">
-                                            @include('profiles.security')
-                                        </div>
-
-
-                                        <!-- Setting Tab start -->
-                                        <div class="tab-pane fade height-100-p" id="personal" role="tabpanel">
-                                            <div class="pd-20 profile-task-wrap">
-                                                <div class="container pd-0">
-                                                    <!-- Personal Details Section Start -->
-                                                    <div class="billing-title row align-items-center">
-                                                        <div class="col-md-8 col-sm-12">
-                                                            <h5>Personal Details</h5>
-                                                            <p class="text-muted small">
-                                                                View and manage your personal details. Some information
-                                                                may be non-editable for security reasons.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="card-body">
-                                                        <!-- Account Owner -->
-                                                        <div class="form-group">
-                                                            <label>Account Owner</label>
-                                                            <input type="text" class="form-control"
-                                                                value="{{ $vendor->full_name }}" disabled>
-                                                        </div>
-
-                                                        <!-- Gender -->
-                                                        <div class="form-group">
-                                                            <label>Gender</label>
-                                                            <input type="text" class="form-control"
-                                                                value="{{ $vendor->gender }}" disabled>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- Personal Details Section End -->
+                                        @if ($vendor->verifiedVendor && $vendor->verifiedVendor->is_verified)
+                                            <div class="tab-pane fade" id="security" role="tabpanel">
+                                                @include('profiles.security')
                                             </div>
-                                        </div>
 
+                                            <!-- Setting Tab start -->
+                                            <div class="tab-pane fade height-100-p" id="personal" role="tabpanel">
+                                                <div class="pd-20 profile-task-wrap">
+                                                    <div class="container pd-0">
+                                                        <!-- Personal Details Section Start -->
+                                                        <div class="billing-title row align-items-center">
+                                                            <div class="col-md-8 col-sm-12">
+                                                                <h5>Personal Details</h5>
+                                                                <p class="text-muted small">
+                                                                    View and manage your personal details. Some information may be non-editable for security reasons.
+                                                                </p>
+                                                            </div>
+                                                        </div>
 
+                                                        <div class="card-body">
+                                                            <!-- Account Owner -->
+                                                            <div class="form-group">
+                                                                <label>Account Owner</label>
+                                                                <input type="text" class="form-control" value="{{ $vendor->full_name }}" disabled>
+                                                            </div>
 
+                                                            <!-- Gender -->
+                                                            <div class="form-group">
+                                                                <label>Gender</label>
+                                                                <input type="text" class="form-control" value="{{ $vendor->gender }}" disabled>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- Personal Details Section End -->
+                                                </div>
+                                            </div>
+                                        @endif
                                         <!-- Setting Tab End -->
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

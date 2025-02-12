@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\HereMapController;
 use App\Http\Controllers\LalamoveController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ReturnsController;
 
 
@@ -91,13 +92,17 @@ Route::get('/shipment-details/{orderId}', [ShipmentController::class, 'getShipme
 Route::get('/getMyPerformance', [DashboardController::class, 'getMyPerformance'])->middleware('auth:vendor');
 Route::get('/getTopSuppliers', [DashboardController::class, 'getTopSuppliers'])->middleware('auth:vendor');
 
+Route::get('/analyze-suppliers', [SupplierController::class, 'analyzeSuppliers'])
+    ->middleware('auth:vendor')
+    ->name('analyze.suppliers');
 
 
 
-use App\Http\Controllers\SupplierController;
 
-Route::get('/dashboard/suppliers', function () {
-    return view('supplier_dashboard');
-})->name('supplier.dashboard');
+
+
+Route::get('/order-tracking', function () {
+    return view('DeliveryTracking.order-status');
+});
 
 Route::get('/api/supplier-analysis', [SupplierController::class, 'analyzeSuppliers'])->name('supplier.analysis')->middleware('auth:vendor');

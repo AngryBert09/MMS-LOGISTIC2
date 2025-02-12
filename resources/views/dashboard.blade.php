@@ -160,8 +160,47 @@
 
             </div>
             <div class="card-box mb-30">
-
+                <h5 class="h5 pd-20">
+                    AI Supplier Performance Analysis
+                    <span style="color:blue; cursor: pointer;" data-toggle="tooltip" data-placement="right" title="This feature is under development and improvement. Expect changes and enhancements.">
+                        [BETA]
+                    </span>
+                </h5>
+                <div id="aiResponse" class="pd-20">
+                    <p>Loading insights...</p>
+                </div>
             </div>
+
+
+
+
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    fetch("{{ route('analyze.suppliers') }}", {
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                            },
+                            credentials: "include"
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                document.getElementById("aiResponse").innerHTML =
+                                    `<p class="text-danger">${data.error}</p>`;
+                            } else {
+                                document.getElementById("aiResponse").innerHTML = `<p>${data.ai_insights}</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching AI response:", error);
+                            document.getElementById("aiResponse").innerHTML =
+                                `<p class="text-danger">Failed to load insights.</p>`;
+                        });
+                });
+            </script>
+
 
         </div>
     </div>
