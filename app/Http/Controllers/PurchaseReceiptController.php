@@ -14,9 +14,14 @@ class PurchaseReceiptController extends Controller
     // Display a listing of the receipts
     public function index()
     {
-        $receipts = PurchaseReceipt::all(); // Retrieve only data from the PurchaseReceipt table
+        $user = auth()->user(); // Get the authenticated user
+
+        // Retrieve PurchaseReceipt records where the vendor_id matches the authenticated user's ID
+        $receipts = PurchaseReceipt::where('vendor_id', $user->id)->get();
+
         return view('vendors.purchase-receipts.index-receipt', compact('receipts'));
     }
+
 
 
     // Show the form for creating a new receipt

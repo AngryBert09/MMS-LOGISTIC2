@@ -15,5 +15,10 @@ class BroadcastServiceProvider extends ServiceProvider
         Broadcast::routes();
 
         require base_path('routes/channels.php');
+
+
+        Broadcast::channel('chat.{vendorId}', function ($user, $vendorId) {
+            return $user->id === (int) $vendorId; // Adjust as needed for access control
+        });
     }
 }

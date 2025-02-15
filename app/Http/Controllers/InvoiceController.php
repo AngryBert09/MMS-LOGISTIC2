@@ -31,7 +31,6 @@ class InvoiceController extends Controller
      */
     public function create(Request $request)
     {
-        // Retrieve PO ID and Vendor ID from the form
         $poId = $request->input('po_id');
         $vendorId = $request->input('vendor_id');
 
@@ -40,9 +39,18 @@ class InvoiceController extends Controller
         $vendor = Vendor::findOrFail($vendorId);
         $orderItems = $purchaseOrder->orderItems;
 
-        // Redirect to the invoice creation page or preview, with data
+        // Check if an invoice number already exists for the given purchase order
+        $existingInvoice = Invoice::where('po_id', $poId)->first();
+
+        if ($existingInvoice) {
+            return redirect()->route('purchase-orders.index')
+                ->with('error_message', 'An invoice has already been generated for this purchase order.');
+        }
+
         return view('vendors.invoices.create-invoice', compact('purchaseOrder', 'vendor', 'orderItems'));
     }
+
+
     /**
      * Store a newly created resource in storage.
      */
@@ -65,7 +73,7 @@ class InvoiceController extends Controller
             Log::info('Purchase Order Retrieved', ['purchase_order_id' => $purchaseOrder->po_id, 'purchase_order_number' => $purchaseOrder->purchase_order_number]);
 
             // Extract the numeric part from the purchase order number (e.g., PO-1002 -> 1002)
-            $purchaseOrderNumber = $purchaseOrder->purchase_order_number; // Assuming you have this field
+            $purchaseOrderNumber = $purchaseOrder->purchase_order_number;
             preg_match('/\d+/', $purchaseOrderNumber, $matches);
             $numericPart = $matches[0] ?? '0000'; // Fallback to '0000' if not found
 
@@ -75,31 +83,33 @@ class InvoiceController extends Controller
 
             // Create the invoice using details from the purchase order
             $invoice = Invoice::create([
-                'invoice_number' => $invoiceNumber,  // Ensure this is set
-                'po_id' => $purchaseOrder->po_id,    // Store the purchase order ID in the invoice
-                'vendor_id' => $purchaseOrder->vendor->id, // Store the vendor ID in the invoice
+                'invoice_number' => $invoiceNumber,
+                'po_id' => $purchaseOrder->po_id,
+                'vendor_id' => $purchaseOrder->vendor->id,
                 'invoice_date' => now(),
-                'due_date' => Carbon::parse($purchaseOrder->due_date)->addDays(20), // Add 20 days to the due date
-                'total_amount' => $purchaseOrder->orderItems->sum('total_price'), // Calculate total amount from related order items
-                'status' => 'unpaid', // Set default status
+                'due_date' => Carbon::parse($purchaseOrder->due_date)->addDays(20),
+                'total_amount' => $purchaseOrder->orderItems->sum('total_price'),
+                'status' => 'unpaid',
             ]);
 
-            Log::info('Invoice Created', ['invoice_id' => $invoice->id]);
+            Log::info('Invoice Created', ['invoice_id' => $invoice->invoice_id]);
 
             // Attach order items to the invoice
             $orderItems = OrderItem::where('po_id', $purchaseOrder->po_id)->get();
             Log::info('Order Items Retrieved', ['count' => $orderItems->count()]);
 
             foreach ($orderItems as $item) {
-                // Save the item details as necessary
-                $item->invoice_id = $invoice->id; // Assuming you have an `invoice_id` field in the OrderItems table
+                // Check if the item already has an invoice_id before saving
+                $item->invoice_id = $invoice->invoice_id;
                 $item->save();
+
                 Log::info('Attached Order Item to Invoice', ['order_item_id' => $item->id, 'invoice_id' => $invoice->id]);
             }
 
             // Update the purchase order with the generated invoice number
             $purchaseOrder->invoice_number = $invoiceNumber;
             $purchaseOrder->save();
+
             Log::info('Purchase Order Updated with Invoice Number', ['purchase_order_id' => $purchaseOrder->po_id, 'invoice_number' => $invoiceNumber]);
 
             // Commit the transaction
@@ -111,12 +121,14 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             // Rollback the transaction in case of error
             DB::rollback();
-            Log::error('Transaction Rolled Back', ['error' => $e->getMessage()]);
+            Log::error('Transaction Rolled Back', ['error' => $e->getMessage(), 'stack' => $e->getTraceAsString()]);
 
             // Redirect back with an error message
             return redirect()->back()->withErrors(['error' => 'Failed to create invoice. Please try again.']);
         }
     }
+
+
 
 
 
@@ -127,7 +139,7 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice)
     {
         // Return the view with the invoice data
-        return view('invoices.show', compact('invoice'));
+        return view('vendors.invoices.show-invoice', compact('invoice'));
     }
 
 
@@ -137,7 +149,7 @@ class InvoiceController extends Controller
     public function edit(Invoice $invoice)
     {
         // Show a form for editing the invoice
-        return view('invoices.edit', compact('invoice'));
+        return view('vendors.invoices.edit-invoice', compact('invoice'));
     }
 
     /**
@@ -145,18 +157,36 @@ class InvoiceController extends Controller
      */
     public function update(Request $request, Invoice $invoice)
     {
-        // Validate and update the invoice
+        // Validate and update only the specified fields
         $validatedData = $request->validate([
-            'client_name' => 'required|string|max:255',
-            'date_issued' => 'required|date',
-            'total_amount' => 'required|numeric',
-            // Add other fields as necessary
+            'tax_amount' => 'required|numeric',  // Validating the tax amount
+            'discount_amount' => 'required|numeric',  // Validating the discount amount
         ]);
 
-        $invoice->update($validatedData);
+        // Retrieve the current total amount from the invoice
+        $currentTotalAmount = $invoice->total_amount;
 
+        // Apply the tax amount to the current total amount
+        $totalWithTax = $currentTotalAmount + $validatedData['tax_amount']; // Adding tax to the current total
+
+        // Subtract the discount amount from the total with tax
+        $newTotalAmount = $totalWithTax - $validatedData['discount_amount'];
+
+        // Update the invoice with the new values
+        $invoice->update([
+            'tax_amount' => $validatedData['tax_amount'],  // Update the tax amount
+            'discount_amount' => $validatedData['discount_amount'],  // Update the discount amount
+            'total_amount' => $newTotalAmount,  // Update the total amount after applying tax and discount
+        ]);
+
+        // Redirect back with a success message
         return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
     }
+
+
+
+
+
 
     /**
      * Remove the specified resource from storage.

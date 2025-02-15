@@ -1,5 +1,5 @@
  <!-- Delete Action: Delete only if order is in a cancellable state -->
- @if ($order->order_status !== 'Completed' && $order->order_status !== 'Cancelled')
+ @if ($order->order_status !== 'Completed' && $order->order_status !== 'Rejected')
      <a class="dropdown-item" href="{{ route('purchase-orders.destroy', $order->po_id) }}"
          onclick="event.preventDefault(); document.getElementById('delete-form-{{ $order->po_id }}').submit();">
          <i class="dw dw-delete-3"></i> Delete

@@ -6,10 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable; // Ensure this is the correct import
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract; // Interface import
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\CustomResetPassword;
+use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Facades\Mail;
 
 class Vendor extends Authenticatable implements AuthenticatableContract
 {
     use HasFactory, Notifiable; // Ensure Notifiable is used
+
+    protected $guarded = ['id']; // This will prevent the 'id' field from being mass-assigned
+
 
     protected $fillable = [
         'company_name',
@@ -21,12 +27,14 @@ class Vendor extends Authenticatable implements AuthenticatableContract
         'business_registration',
         'mayor_permit',
         'tax_identification_number',
+        'verification_token',
         'proof_of_identity',
         'postal_code',
         'profile_pic',
         'phone_number',
         'address',
         'notifications_enabled',
+        'is_online',
     ];
 
     // Optionally, you can hide sensitive attributes
@@ -52,5 +60,33 @@ class Vendor extends Authenticatable implements AuthenticatableContract
     public function verifiedVendor()
     {
         return $this->hasOne(VerifiedVendor::class, 'vendor_id', 'id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
+    }
+
+    public function isActive()
+    {
+        // Example: Check if the last login time is within the last 5 minutes
+        // You can adjust the condition based on your needs (e.g., online status or last activity)
+
+        $lastActive = $this->last_activity_at; // Assuming you have a 'last_activity_at' field
+        $timeout = now()->subMinutes(5); // Consider active if last activity is within 5 minutes
+
+        return $lastActive && $lastActive >= $timeout;
+    }
+
+    public function unreadMessages()
+    {
+        return $this->hasMany(Message::class, 'receiver_id')
+            ->where('is_read', false);  // Only count unread messages
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $resetUrl = url(route('password.reset', ['token' => $token, 'email' => $this->email], false));
+        Mail::to($this->email)->send(new ResetPasswordMail($resetUrl));
     }
 }

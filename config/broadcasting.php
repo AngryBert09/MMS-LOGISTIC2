@@ -27,7 +27,6 @@ return [
     | each available type of connection are provided inside this array.
     |
     */
-
     'connections' => [
 
         'pusher' => [
@@ -37,35 +36,17 @@ return [
             'app_id' => env('PUSHER_APP_ID'),
             'options' => [
                 'cluster' => env('PUSHER_APP_CLUSTER'),
-                'host' => env('PUSHER_HOST') ?: 'api-'.env('PUSHER_APP_CLUSTER', 'mt1').'.pusher.com',
+                'host' => env('PUSHER_HOST') ?: 'api-' . env('PUSHER_APP_CLUSTER', 'mt1') . '.pusher.com',
                 'port' => env('PUSHER_PORT', 443),
                 'scheme' => env('PUSHER_SCHEME', 'https'),
                 'encrypted' => true,
-                'useTLS' => env('PUSHER_SCHEME', 'https') === 'https',
-            ],
-            'client_options' => [
-                // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
+                'useTLS' => true,
+
             ],
         ],
 
-        'ably' => [
-            'driver' => 'ably',
-            'key' => env('ABLY_KEY'),
-        ],
-
-        'redis' => [
-            'driver' => 'redis',
-            'connection' => 'default',
-        ],
-
-        'log' => [
-            'driver' => 'log',
-        ],
-
-        'null' => [
-            'driver' => 'null',
-        ],
-
+        // other connections...
     ],
+
 
 ];

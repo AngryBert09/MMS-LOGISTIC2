@@ -4,7 +4,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>Register to greatwall</title>
+    <title>Register to GWA</title>
 
     <!-- Site favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
@@ -57,21 +57,8 @@
 </head>
 
 <body class="login-page">
-    <div class="login-header box-shadow">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <div class="brand-logo">
-                <a href="{{ route('login') }}">
-                    <img src="images/greatwall-logo.png " style="height:90px" />
-                    <img src="images/greatwallarts-logo.svg " style="height:100px " />
-                </a>
-            </div>
-            <div class="login-menu">
-                <ul>
-                    <li><a href="{{ route('login') }}">Login</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
+    @include('layout.login-header')
+
     <div class="register-page-wrap d-flex align-items-center flex-wrap justify-content-center">
         <div class="container">
             <div class="row align-items-center">
@@ -91,37 +78,47 @@
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Company Name</label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="companyName" class="form-control"
-                                                    value="{{ old('companyName') }}" required />
+                                                <input type="text" name="companyName"
+                                                    class="form-control {{ $errors->has('companyName') ? 'is-invalid' : '' }}"
+                                                    value="{{ old('companyName', $companyName ?? '') }}"
+                                                    {{ isset($companyName) ? 'readonly' : '' }} />
                                                 @error('companyName')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Email</label>
                                             <div class="col-sm-8">
-                                                <input type="email" name="email" class="form-control"
-                                                    value="{{ old('email') }}" required />
+                                                <input type="email" name="email"
+                                                    class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                                                    value="{{ old('email', $email ?? '') }}"
+                                                    {{ isset($email) ? 'readonly' : '' }} />
                                                 @error('email')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Password*</label>
                                             <div class="col-sm-8">
-                                                <input type="password" name="password" class="form-control" required />
+                                                <input type="password" name="password"
+                                                    class="form-control {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                                                    required />
                                                 @error('password')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Confirm Password*</label>
                                             <div class="col-sm-8">
-                                                <input type="password" name="password_confirmation" class="form-control"
+                                                <input type="password" name="password_confirmation"
+                                                    class="form-control {{ $errors->has('password_confirmation') ? 'is-invalid' : '' }}"
                                                     required />
+                                                @error('password_confirmation')
+                                                    <div class="text-danger small-error">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                         </div>
                                     </div>
@@ -134,10 +131,11 @@
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Full Name*</label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="fullName" class="form-control"
+                                                <input type="text" name="fullName"
+                                                    class="form-control {{ $errors->has('fullName') ? 'is-invalid' : '' }}"
                                                     value="{{ old('fullName') }}" required />
                                                 @error('fullName')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -150,22 +148,23 @@
                                                     <label class="custom-control-label" for="male">Male</label>
                                                 </div>
                                                 <div class="custom-control custom-radio custom-control-inline pb-0">
-                                                    <input type="radio" id="female" name="gender"
-                                                        value="female" class="custom-control-input" required />
+                                                    <input type="radio" id="female" name="gender" value="female"
+                                                        class="custom-control-input" required />
                                                     <label class="custom-control-label" for="female">Female</label>
                                                 </div>
                                                 @error('gender')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Address</label>
                                             <div class="col-sm-8">
-                                                <input type="text" name="address" class="form-control"
+                                                <input type="text" name="address"
+                                                    class="form-control {{ $errors->has('address') ? 'is-invalid' : '' }}"
                                                     value="{{ old('address') }}" />
                                                 @error('address')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -183,11 +182,12 @@
                                                 Document*</label>
                                             <div class="col-sm-8">
                                                 <input type="file" name="business_registration"
-                                                    class="form-control" required accept=".pdf,.jpg,.jpeg,.png" />
+                                                    class="form-control {{ $errors->has('business_registration') ? 'is-invalid' : '' }}"
+                                                    required accept=".pdf,.jpg,.jpeg,.png" />
                                                 <small class="form-text text-muted">Upload your business registration
                                                     document (PDF or image format).</small>
                                                 @error('business_registration')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -195,12 +195,13 @@
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Mayor's Permit*</label>
                                             <div class="col-sm-8">
-                                                <input type="file" name="mayor_permit" class="form-control"
+                                                <input type="file" name="mayor_permit"
+                                                    class="form-control {{ $errors->has('mayor_permit') ? 'is-invalid' : '' }}"
                                                     required accept=".pdf,.jpg,.jpeg,.png" />
                                                 <small class="form-text text-muted">Upload your Mayor's Permit (PDF or
                                                     image format).</small>
                                                 @error('mayor_permit')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -209,12 +210,13 @@
                                             <label class="col-sm-4 col-form-label">Tax Identification Number
                                                 (TIN)*</label>
                                             <div class="col-sm-8">
-                                                <input type="file" name="tin" class="form-control" required
-                                                    accept=".pdf,.jpg,.jpeg,.png" />
+                                                <input type="file" name="tin"
+                                                    class="form-control {{ $errors->has('tin') ? 'is-invalid' : '' }}"
+                                                    required accept=".pdf,.jpg,.jpeg,.png" />
                                                 <small class="form-text text-muted">Upload your TIN document (PDF or
                                                     image format).</small>
                                                 @error('tin')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
@@ -222,18 +224,21 @@
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Proof of Identity*</label>
                                             <div class="col-sm-8">
-                                                <input type="file" name="proof_of_identity" class="form-control"
+                                                <input type="file" name="proof_of_identity"
+                                                    class="form-control {{ $errors->has('proof_of_identity') ? 'is-invalid' : '' }}"
                                                     required accept=".pdf,.jpg,.jpeg,.png" />
                                                 <small class="form-text text-muted">Upload a valid government-issued ID
                                                     (PDF or image format).</small>
                                                 @error('proof_of_identity')
-                                                    <div class="text-danger">{{ $message }}</div>
+                                                    <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
                                     </div>
                                 </section>
                             </form>
+
+
                         </div>
                     </div>
                 </div>
@@ -250,7 +255,7 @@
         aria-labelledby="successModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-body text-center font-18">
+                <div class="modal-body text-center font-18" style="max-height: 70vh; overflow-y: auto;">
                     <h3 class="mb-4">Success!</h3>
                     <div class="mb-3 text-center">
                         <img src="images/success.png" alt="Success" class="img-fluid" />
@@ -300,11 +305,12 @@
                     </p>
                 </div>
                 <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-dark" id="termsAgreeBtn" disabled>Done</button>
+                    <button type="button" class="btn btn-warning" id="termsAgreeBtn" disabled>Done</button>
                 </div>
             </div>
         </div>
     </div>
+
 
 
 

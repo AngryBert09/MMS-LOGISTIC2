@@ -34,12 +34,13 @@ return [
             'driver' => 'local',
             'root' => storage_path('app'),
             'throw' => false,
+            'max_upload_size' => 50 * 1024 * 1024, // 50MB
         ],
 
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
         ],

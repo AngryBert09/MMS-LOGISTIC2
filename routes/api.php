@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DeliveryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +18,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/adjust-delivery-time', [DeliveryController::class, 'adjustDeliveryTime']);
+
+
+use App\Http\Controllers\SupplierController;
+
+Route::get('/supplier-analysis', [SupplierController::class, 'analyzeSuppliers']);

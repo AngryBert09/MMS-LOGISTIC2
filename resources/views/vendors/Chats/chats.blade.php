@@ -4,6 +4,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Chats</title>
 
     <!-- Site favicon -->
@@ -74,84 +75,77 @@
     @include('layout.right-sidebar')
     @include('layout.left-sidebar')
 
-
-
-
     <div class="mobile-menu-overlay"></div>
 
     <div class="main-container">
         <div class="pd-ltr-20 xs-pd-20-10">
             <div class="min-height-200px">
-                <div class="page-header">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="title">
-                                <h4>Chat</h4>
-                            </div>
-                            <nav aria-label="breadcrumb" role="navigation">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="{{ asset('index.html') }}">Home</a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">
-                                        Chat
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white border-radius-4 box-shadow mb-30">
+                @include('layout.breadcrumb')
+                <div x-data="chatApp()" x-init="init();" class="bg-white border-radius-4 box-shadow mb-30">
                     <div class="row no-gutters">
+                        <!-- Chat List Column -->
                         <div class="col-lg-3 col-md-4 col-sm-12">
                             <div class="chat-list bg-light-gray">
+                                <!-- Search Bar -->
                                 <div class="chat-search">
                                     <span class="ti-search"></span>
-                                    <input type="text" placeholder="Search Contact" />
+                                    <input type="text" placeholder="Search Contact" x-model="searchQuery" />
                                 </div>
+
+                                <!-- Vendor List -->
                                 <div class="notification-list chat-notification-list customscroll">
                                     <ul>
-                                        <li>
-                                            <a href="#">
-                                                <img src="{{ asset('images/img.jpg') }}" alt="" />
-                                                <h3 class="clearfix">GWA</h3>
-                                                <p>
-                                                    <i class="fa fa-circle text-light-green"></i> online
-                                                </p>
-                                            </a>
-                                        </li>
-                                        <li class="active">
-                                            <a href="#">
-                                                <img src="{{ asset('images/img.jpg') }}" alt="" />
-                                                <h3 class="clearfix">GreatWallArts</h3>
-                                                <p>
-                                                    <i class="fa fa-circle text-light-green"></i> online
-                                                </p>
-                                            </a>
-                                        </li>
+                                        <template x-for="vendor in filteredVendors" :key="vendor.id">
+                                            <li @click="selectVendor(vendor)"
+                                                :class="{ 'active': currentVendor?.id === vendor.id }"
+                                                class="vendor-link" x-show="vendor.id !== authVendorId">
+                                                <a href="#">
+                                                    <img :src="vendor.profile_pic || '{{ asset('images/default.jpg') }}'"
+                                                        alt="Vendor Profile" />
+                                                    <h3 x-text="vendor.company_name"></h3>
+                                                    <p>
+                                                        <i
+                                                            :class="vendor.is_online ? 'fa fa-circle text-light-green' :
+                                                                'fa fa-circle text-warning'"></i>
+                                                        <span x-text="vendor.is_online ? 'Online' : 'Offline'"></span>
+                                                        <span x-text="vendor.unread_messages_count || 0"
+                                                            class="unread-count"></span>
+                                                    </p>
+
+                                                </a>
+                                            </li>
+                                        </template>
                                     </ul>
                                 </div>
+
                             </div>
                         </div>
+
+                        <!-- Chat Detail Column -->
                         <div class="col-lg-9 col-md-8 col-sm-12">
                             <div class="chat-detail">
-                                <div class="chat-profile-header clearfix">
+                                <!-- Chat Header -->
+                                <div class="chat-profile-header clearfix" x-show="currentVendor">
                                     <div class="left">
                                         <div class="clearfix">
                                             <div class="chat-profile-photo">
-                                                <img src="{{ asset('images/profile-photo.jpg') }}" alt="" />
+                                                <img :src="currentVendor?.profile_pic || '{{ asset('images/default.jpg') }}'"
+                                                    alt="Vendor Profile" />
                                             </div>
                                             <div class="chat-profile-name">
-                                                <h3>GWA EMPLOYEE</h3>
-                                                <span>New York, USA</span>
+                                                <h3 class="text-warning"
+                                                    x-text="currentVendor ? currentVendor.company_name : 'No Vendor Selected'">
+                                                </h3>
+                                                <span
+                                                    x-text="currentVendor ? currentVendor.address : 'No address available'"></span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="right text-right">
                                         <div class="dropdown">
-                                            <a class="btn btn-outline-primary dropdown-toggle" href="#"
+                                            <a class="btn btn-outline-warning dropdown-toggle" href="#"
                                                 role="button" data-toggle="dropdown">
-                                                Setting
+                                                Settings
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-right">
                                                 <a class="dropdown-item" href="#">Export Chat</a>
@@ -162,121 +156,54 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Chat Box -->
                                 <div class="chat-box">
-                                    <div class="chat-desc customscroll">
+                                    <div x-show="!currentVendor" class="no-message-selected">
+                                        <p>No Message Selected</p>
+                                    </div>
+                                    <div class="chat-desc" x-ref="chatContainer">
                                         <ul>
-                                            <li class="clearfix admin_chat">
-                                                <span class="chat-img">
-                                                    <img src="{{ asset('images/chat-img2.jpg') }}" alt="" />
-                                                </span>
-                                                <div class="chat-body clearfix">
-                                                    <p>Maybe you already have additional info?</p>
-                                                    <div class="chat_time">09:40PM</div>
-                                                </div>
-                                            </li>
-                                            <li class="clearfix admin_chat">
-                                                <span class="chat-img">
-                                                    <img src="{{ asset('images/chat-img2.jpg') }}" alt="" />
-                                                </span>
-                                                <div class="chat-body clearfix">
-                                                    <p>
-                                                        It is too early to provide some kind of estimation
-                                                        here. We need user stories.
-                                                    </p>
-                                                    <div class="chat_time">09:40PM</div>
-                                                </div>
-                                            </li>
-                                            <li class="clearfix">
-                                                <span class="chat-img">
-                                                    <img src="{{ asset('images/chat-img1.jpg') }}" alt="" />
-                                                </span>
-                                                <div class="chat-body clearfix">
-                                                    <p>
-                                                        We are just writing up the user stories now so
-                                                        will have requirements for you next week.
-                                                    </p>
-                                                    <div class="chat_time">09:40PM</div>
-                                                </div>
-                                            </li>
-                                            <li class="clearfix">
-                                                <span class="chat-img">
-                                                    <img src="{{ asset('images/chat-img1.jpg') }}" alt="" />
-                                                </span>
-                                                <div class="chat-body clearfix">
-                                                    <p>
-                                                        Essentially, the brief is for you guys to build an
-                                                        iOS and Android app. We will do backend and web
-                                                        app. If you have any early questions, please do send them on.
-                                                    </p>
-                                                    <div class="chat_time">09:40PM</div>
-                                                </div>
-                                            </li>
-                                            <li class="clearfix admin_chat">
-                                                <span class="chat-img">
-                                                    <img src="{{ asset('images/chat-img2.jpg') }}" alt="" />
-                                                </span>
-                                                <div class="chat-body clearfix">
-                                                    <p>Maybe you already have additional info?</p>
-                                                    <div class="chat_time">09:40PM</div>
-                                                </div>
-                                            </li>
-                                            <li class="clearfix upload-file">
-                                                <span class="chat-img">
-                                                    <img src="{{ asset('images/chat-img1.jpg') }}" alt="" />
-                                                </span>
-                                                <div class="chat-body clearfix">
-                                                    <div class="upload-file-box clearfix">
-                                                        <div class="left">
-                                                            <img src="{{ asset('images/upload-file-img.jpg') }}"
-                                                                alt="" />
-                                                            <div class="overlay">
-                                                                <a href="#">
-                                                                    <span><i class="fa fa-angle-down"></i></span>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div class="right">
-                                                            <h3>Big room.jpg</h3>
-                                                            <a href="#">Download</a>
+                                            <template x-for="message in messages"
+                                                :key="message.message_id || message.created_at || Math.random()">
+                                                <li
+                                                    :class="{
+                                                        'clearfix': true,
+                                                        'admin_chat': message.sender_id ===
+                                                            authVendorId
+                                                    }">
+                                                    <span class="chat-img">
+                                                        <img :src="message.sender_id === authVendorId ?
+                                                            '{{ Auth::user()->profile_pic }}' :
+                                                            (currentVendor?.profile_pic ? currentVendor.profile_pic :
+                                                                '{{ asset('images/default.jpg') }}')"
+                                                            alt="Chat Image" />
+                                                    </span>
+                                                    <div class="chat-body clearfix">
+                                                        <p
+                                                            x-text="typeof message.message === 'string' ? message.message : message.message.message">
+                                                        </p>
+                                                        <div class="chat_time">
+                                                            <span
+                                                                x-text="formatDate(message.created_at) || 'Invalid Date'"></span>
+                                                            <span x-text="formatTime(message.created_at)"></span>
                                                         </div>
                                                     </div>
-                                                    <div class="chat_time">09:40PM</div>
-                                                </div>
-                                            </li>
-                                            <li class="clearfix upload-file admin_chat">
-                                                <span class="chat-img">
-                                                    <img src="{{ asset('images/chat-img2.jpg') }}" alt="" />
-                                                </span>
-                                                <div class="chat-body clearfix">
-                                                    <div class="upload-file-box clearfix">
-                                                        <div class="left">
-                                                            <img src="{{ asset('images/upload-file-img.jpg') }}"
-                                                                alt="" />
-                                                            <div class="overlay">
-                                                                <a href="#">
-                                                                    <span><i class="fa fa-angle-down"></i></span>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div class="right">
-                                                            <h3>Big room.jpg</h3>
-                                                            <a href="#">Download</a>
-                                                        </div>
-                                                    </div>
-                                                    <div class="chat_time">09:40PM</div>
-                                                </div>
-                                            </li>
+                                                </li>
+                                            </template>
                                         </ul>
                                     </div>
-                                    <div class="chat-footer">
+
+                                    <div class="chat-footer" x-show="currentVendor">
                                         <div class="file-upload">
                                             <a href="#"><i class="fa fa-paperclip"></i></a>
                                         </div>
                                         <div class="chat_text_area">
-                                            <textarea placeholder="Type your message…"></textarea>
+                                            <textarea placeholder="Type your message..." x-model="newMessage" @keydown.enter.prevent="sendMessage()">
+                                        </textarea>
                                         </div>
                                         <div class="chat_send">
-                                            <button class="btn btn-link" type="submit">
+                                            <button @click="sendMessage()" class="btn btn-link" type="button">
                                                 <i class="icon-copy ion-paper-airplane"></i>
                                             </button>
                                         </div>
@@ -286,15 +213,280 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Meta Data for User -->
+                <div id="user-data" data-user-id="{{ auth()->id() }}"
+                    data-selected-vendor-id="{{ $selectedVendorId ?? 'null' }}"></div>
             </div>
+
         </div>
     </div>
+
+
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        function chatApp() {
+            return {
+                vendors: @json($vendors),
+                currentVendor: null, // No vendor selected initially
+                messages: [],
+                newMessage: '',
+                authVendorId: {{ auth()->id() }},
+                searchQuery: '',
+                pusher: null,
+                loadingMessages: false,
+
+                get filteredVendors() {
+                    return this.vendors.filter((vendor) =>
+                        vendor.company_name.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
+                },
+
+                init() {
+                    this.pusher = new Pusher('e91ebdcbd5414615fcb8', {
+                        cluster: 'eu',
+                        encrypted: true,
+                    });
+                    console.log('Pusher initialized.');
+
+                    this.currentVendor = null;
+                    this.messages = [];
+                    this.listenForOnlineStatusChanges();
+                    this.fetchVendors();
+                },
+
+                selectVendor(vendor) {
+                    this.currentVendor = vendor;
+                    this.messages = [];
+                    this.loadMessages(vendor.id);
+                    this.markAsRead(vendor.id);
+
+                    if (this.channel) {
+                        this.pusher.unsubscribe(this.channel.name); // Unsubscribe from the old channel
+                    }
+
+                    this.listenToVendorChannel(); // Resubscribe to the general channel
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                    });
+
+                },
+
+                fetchVendors() {
+                    console.log('Fetching vendors...'); // Log when the fetch starts
+
+                    fetch('{{ route('vendors.unread') }}')
+                        .then(response => {
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Vendors data:', data); // Log the data you received
+                            this.vendors = data;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching vendors:', error); // Log any error that occurs
+                        });
+                },
+
+
+                markAsRead(vendorId) {
+                    fetch(`/mark-as-read/${vendorId}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            const contentType = response.headers.get('content-type');
+                            if (contentType && contentType.includes('application/json')) {
+                                return response.json();
+                            } else {
+                                throw new Error('Unexpected response type, expected JSON');
+                            }
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                console.log('Messages marked as read successfully:', data);
+                                this.vendors = this.vendors.map(vendor => {
+                                    if (vendor.id === vendorId) {
+                                        vendor.unread_messages_count = 0;
+                                    }
+                                    return vendor;
+                                });
+                            } else {
+                                console.error('Failed to mark messages as read:', data.error);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error marking messages as read:', error);
+                        });
+                },
+
+                listenForOnlineStatusChanges() {
+                    const channel = this.pusher.subscribe('vendor-status');
+                    channel.bind('status-updated', (data) => {
+                        console.log('Received vendor status update:', data);
+
+                        // Find the vendor and update its status
+                        const updatedVendor = this.vendors.find(vendor => vendor.id === data.vendor_id);
+                        if (updatedVendor) {
+                            updatedVendor.is_online = data.is_online;
+
+                            // Trigger Alpine.js reactivity
+                            this.vendors = [...this.vendors]; // Create a shallow copy to trigger re-render
+                        }
+                    });
+                },
+
+                formatDate(dateString) {
+                    const date = new Date(dateString);
+                    const options = {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    };
+                    return date.toLocaleDateString('en-US', options);
+                },
+
+                formatTime() {
+                    const now = new Date();
+                    const hours = now.getHours().toString().padStart(2, '0');
+                    const minutes = now.getMinutes().toString().padStart(2, '0');
+                    const seconds = now.getSeconds().toString().padStart(2, '0');
+                    return `${hours}:${minutes}:${seconds}`;
+                },
+
+                sendMessage() {
+                    if (this.newMessage.trim() === '') return;
+
+                    fetch('/send-message', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content'),
+                            },
+                            body: JSON.stringify({
+                                message: this.newMessage,
+                                receiver_id: this.currentVendor.id, // Dynamically set receiver
+                                sender_id: this.authVendorId,
+                            }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.message_id) {
+                                this.messages.push(data); // Directly push the response data
+                                this.newMessage = ''; // Clear input field
+                                this.scrollToBottom();
+                            } else {
+                                console.error("Error in response format:", data);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error sending message:", error);
+                        });
+                },
+
+
+                loadMessages(vendorId) {
+                    this.loadingMessages = true;
+
+                    // Fetch messages for the selected vendor using fetch API
+                    fetch(`messages/${vendorId}?auth_vendor_id=${this.authVendorId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.messages) {
+                                this.messages = data.messages; // Set messages from the backend
+                            }
+                            this.loadingMessages = false;
+
+                            // After messages are loaded, scroll to the bottom
+                            this.$nextTick(() => {
+                                this.scrollToBottom();
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Error loading messages:", error);
+                            this.loadingMessages = false;
+                        });
+                },
+
+
+                listenToVendorChannel() {
+                    console.log('Listening for real-time messages');
+
+                    // Create a Set to track message IDs for duplicate checking
+                    if (!this.messageIds) {
+                        this.messageIds = new Set();
+                    }
+
+                    // Subscribe to the chat channel
+                    const channel = this.pusher.subscribe('chat');
+
+                    // Bind to the 'message-sent' event
+                    channel.bind('message-sent', (message) => {
+                        // Process the message only if it is for the authenticated user
+                        if (message.message.receiver_id === this.authVendorId) {
+                            // Check if the message already exists using the Set
+                            if (!this.messageIds.has(message.message.message_id)) {
+                                console.log('Incoming message for this user:', message);
+
+                                // Add the message to the array and the Set
+                                this.messages.push(message.message);
+                                this.messageIds.add(message.message.message_id);
+
+                                // Scroll to the bottom of the chat
+                                this.scrollToBottom();
+                            } else {
+                                console.log('Duplicate message detected, ignoring.');
+                            }
+                        }
+                    });
+                },
+
+
+                scrollToBottom() {
+                    this.$nextTick(() => {
+                        if (this.$refs.chatContainer) {
+                            const container = this.$refs.chatContainer;
+                            const scrollHeight = container.scrollHeight;
+                            const clientHeight = container.clientHeight;
+
+
+                            if (scrollHeight > clientHeight) {
+
+                                container.scrollTop = scrollHeight - clientHeight;
+                            }
+                        }
+                    });
+
+
+
+                }
+
+            };
+        }
+    </script>
+
+
+
+
+
 
     <!-- js -->
     <script src="{{ asset('js/core.js') }}"></script>
     <script src="{{ asset('js/script.min.js') }}"></script>
     <script src="{{ asset('js/process.js') }}"></script>
     <script src="{{ asset('js/layout-settings.js') }}"></script>
+    <script src="{{ asset('src/plugins/cropperjs/dist/cropper.js') }}"></script>
+
+
 
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NXZMQSS" height="0" width="0"

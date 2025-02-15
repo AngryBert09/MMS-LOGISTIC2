@@ -82,42 +82,11 @@
     <div class="main-container">
         <div class="pd-ltr-20 xs-pd-20-10">
             <div class="min-height-200px">
-                <div class="page-header">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="title">
-                                <h4>Invoices</h4>
-                            </div>
-                            <nav aria-label="breadcrumb" role="navigation">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="index.html">Home</a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">
-                                        Invoices
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="col-md-6 col-sm-12 text-right">
-                            <div class="dropdown">
-                                <a class="btn btn-dark dropdown-toggle" href="#" role="button"
-                                    data-toggle="dropdown">
-                                    January 2018
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#">Export List</a>
-                                    <a class="dropdown-item" href="#">Policies</a>
-                                    <a class="dropdown-item" href="#">View Assets</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @include('layout.breadcrumb')
                 <!-- Simple Datatable start -->
                 <div class="card-box mb-30">
                     <div class="pd-20">
-                        <h4 class="text-dark h4">Invoices</h4>
+                        <h4 class="text-warning h4">Invoices</h4>
                         <p class="text-muted">All invoices are for Great Wall Arts.</p>
                     </div>
                     <div class="pb-20">
@@ -125,7 +94,6 @@
                             <thead>
                                 <tr>
                                     <th class="table-plus datatable-nosort">Invoice #</th>
-                                    <th>Subtotal</th>
                                     <th>Tax Amount</th>
                                     <th>Discount Amount</th>
                                     <th>Total Amount</th>
@@ -139,19 +107,31 @@
                                 @foreach ($invoices as $invoice)
                                     <tr>
                                         <td class="table-plus">{{ $invoice->invoice_number }}</td>
-                                        <td>${{ number_format($invoice->subtotal, 2) }}</td>
                                         <td>${{ number_format($invoice->tax_amount, 2) }}</td>
                                         <td>${{ number_format($invoice->discount_amount, 2) }}</td>
                                         <td>${{ number_format($invoice->total_amount, 2) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}</td>
-                                        <td>{{ $invoice->status }}</td>
+                                        <td>
+                                            <!-- Status Badge for Invoices -->
+                                            @if ($invoice->status === 'paid')
+                                                <span class="badge badge-success">{{ ucfirst($invoice->status) }}</span>
+                                            @elseif ($invoice->status === 'unpaid')
+                                                <span class="badge badge-danger">{{ ucfirst($invoice->status) }}</span>
+                                            @elseif ($invoice->status === 'overdue')
+                                                <span class="badge badge-warning">{{ ucfirst($invoice->status) }}</span>
+                                            @else
+                                                <span
+                                                    class="badge badge-secondary">{{ ucfirst($invoice->status) }}</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             @include('vendors.invoices.actions-invoice')
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
+
                         </table>
                     </div>
                 </div>

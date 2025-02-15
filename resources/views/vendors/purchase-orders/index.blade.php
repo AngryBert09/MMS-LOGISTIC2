@@ -39,22 +39,22 @@
         gtag("config", "G-GBZ3SGGX85");
     </script>
     <!-- Google Tag Manager -->
-    <scrip>
+    <script>
         (function(w, d, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
-        "gtm.start": new Date().getTime(),
-        event: "gtm.js"
-        });
-        var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != "dataLayer" ? "&l=" + l : "";
-        j.async = true;
-        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f.parentNode.insertBefore(j, f);
+            w[l] = w[l] || [];
+            w[l].push({
+                "gtm.start": new Date().getTime(),
+                event: "gtm.js"
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != "dataLayer" ? "&l=" + l : "";
+            j.async = true;
+            j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+            f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", "GTM-NXZMQSS");
-        </script>
-        <!-- End Google Tag Manager -->
+    </script>
+    <!-- End Google Tag Manager -->
 </head>
 
 <body>
@@ -83,42 +83,11 @@
     <div class="main-container">
         <div class="pd-ltr-20 xs-pd-20-10">
             <div class="min-height-200px">
-                <div class="page-header">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-12">
-                            <div class="title">
-                                <h4>Purchase Orders</h4>
-                            </div>
-                            <nav aria-label="breadcrumb" role="navigation">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item">
-                                        <a href="{{ route('dashboard') }}">Home</a>
-                                    </li>
-                                    <li class="breadcrumb-item active" aria-current="page">
-                                        Purchase Orders
-                                    </li>
-                                </ol>
-                            </nav>
-                        </div>
-                        <div class="col-md-6 col-sm-12 text-right">
-                            <div class="dropdown">
-                                <a class="btn btn-dark dropdown-toggle" href="#" role="button"
-                                    data-toggle="dropdown">
-                                    January 2018
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item" href="#">Export List</a>
-                                    <a class="dropdown-item" href="#">Policies</a>
-                                    <a class="dropdown-item" href="#">View Assets</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @include('layout.breadcrumb')
                 <!-- Simple Datatable start -->
                 <div class="card-box mb-30">
                     <div class="pd-20">
-                        <h4 class="text-dark h4">Purchase Orders</h4>
+                        <h4 class="text-warning h4">Purchase Orders</h4>
                         <p class="text-muted">All purchase orders are for Great Wall Arts.</p>
                     </div>
                     <div class="pb-20">
@@ -132,9 +101,9 @@
                                     <th>Order Status</th>
                                     <th>Total Amount</th>
                                     <th>Payment Terms</th>
-                                    <th>Delivery Location</th>
+                                    {{-- <th>Delivery Location</th>
                                     <th>Notes/Instructions</th>
-                                    <th>Shipping Method</th>
+                                    <th>Shipping Method</th> --}}
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -144,26 +113,44 @@
                                         <td class="table-plus">{{ $order->purchase_order_number }}</td>
                                         <td>
                                             @if ($order->invoices->isNotEmpty())
-                                                <!-- Check if the invoices collection is not empty -->
                                                 {{ $order->invoices->first()->invoice_number }}
-                                                <!-- Use the correct property name -->
-                                            @else
                                             @endif
                                         </td>
                                         <td>{{ $order->order_date }}</td>
                                         <td>{{ $order->delivery_date }}</td>
-                                        <td>{{ $order->order_status }}</td>
+                                        <td>
+                                            <!-- Status Badge -->
+                                            @if ($order->order_status === 'Pending Approval')
+                                                <span class="badge badge-warning">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'Approved')
+                                                <span class="badge badge-success">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'Rejected')
+                                                <span class="badge badge-danger">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'On hold')
+                                                <span class="badge badge-secondary">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'In Transit')
+                                                <span class="badge badge-primary">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'Completed')
+                                                <span class="badge badge-info">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'In Progress')
+                                                <span class="badge badge-light">{{ $order->order_status }}</span>
+                                            @else
+                                                <span class="badge badge-dark">{{ $order->order_status }}</span>
+                                            @endif
+                                        </td>
                                         <td>{{ number_format($order->orderItems->sum('total_price'), 2) }}</td>
                                         <td>{{ $order->payment_terms }}</td>
-                                        <td>{{ $order->delivery_location }}</td>
+                                        {{-- <td>{{ $order->delivery_location }}</td>
                                         <td>{{ $order->notes_instructions }}</td>
-                                        <td>{{ $order->shipping_method }}</td>
+                                        <td>{{ $order->shipping_method }}</td> --}}
                                         <td>
                                             @include('vendors.purchase-orders.actions')
                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
+
+
                         </table>
                     </div>
                 </div>
@@ -183,6 +170,9 @@
 
     <!-- VIEW MODAL -->
     @include('vendors.purchase-orders.show')
+
+
+
 
 
     <!-- welcome modal end -->

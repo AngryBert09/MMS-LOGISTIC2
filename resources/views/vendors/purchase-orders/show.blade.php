@@ -117,7 +117,6 @@
     </div>
 </div>
 
-
 <script>
     $(document).ready(function() {
         // Handle the purchase order modal display
@@ -147,12 +146,23 @@
                     $('#modal-order-date').text(data.order_date || 'N/A');
                     $('#modal-delivery-date').text(data.delivery_date || 'N/A');
                     $('#modal-order-status').text(data.order_status || 'N/A');
-                    $('#modal-total-amount').text(data.total_amount || 'N/A');
+
+                    // Ensure totalAmount is initialized as a number
+                    var totalAmount = 0; // Initialize as number (in case it's undefined)
+                    if (data.order_items && data.order_items.length > 0) {
+                        data.order_items.forEach(function(item) {
+                            totalAmount += parseFloat(item.total_price) ||
+                                0; // Ensure total_price is treated as a number
+                        });
+                    }
+
+                    $('#modal-total-amount').text(totalAmount.toFixed(
+                        2)); // Display the calculated total amount
+
                     $('#modal-payment-terms').text(data.payment_terms || 'N/A');
                     $('#modal-delivery-location').text(data.delivery_location || 'N/A');
                     $('#modal-notes').text(data.notes_instructions || 'N/A');
                     $('#modal-shipping-method').text(data.shipping_method || 'N/A');
-
 
                     // Disable "Create Invoice" button if the status is "Rejected" or an invoice already exists
                     if (data.order_status === 'Rejected' || data.invoice_number) {
