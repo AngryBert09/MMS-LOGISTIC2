@@ -80,7 +80,8 @@
                                             <div class="col-sm-8">
                                                 <input type="text" name="companyName"
                                                     class="form-control {{ $errors->has('companyName') ? 'is-invalid' : '' }}"
-                                                    value="{{ old('companyName') }}" required />
+                                                    value="{{ old('companyName', $companyName ?? '') }}"
+                                                    {{ isset($companyName) ? 'readonly' : '' }} />
                                                 @error('companyName')
                                                     <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
@@ -91,11 +92,11 @@
                                             <div class="col-sm-8">
                                                 <input type="email" name="email"
                                                     class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                                                    value="{{ old('email') }}" required />
+                                                    value="{{ old('email', $email ?? '') }}"
+                                                    {{ isset($email) ? 'readonly' : '' }} />
                                                 @error('email')
                                                     <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
-
                                             </div>
                                         </div>
                                         <div class="form-group row">
@@ -236,6 +237,7 @@
                                     </div>
                                 </section>
                             </form>
+
 
                         </div>
                     </div>
