@@ -92,13 +92,14 @@
                                             <div class="col-sm-8">
                                                 <input type="email" name="email"
                                                     class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                                                    value="{{ old('email', $email ?? '') }}"
-                                                    {{ isset($email) ? 'readonly' : '' }} />
+                                                    value="{{ old('email', $decodedEmail ?? '') }}"
+                                                    {{ isset($decodedEmail) ? 'readonly' : '' }} />
                                                 @error('email')
                                                     <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                         </div>
+
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Password*</label>
                                             <div class="col-sm-8">
