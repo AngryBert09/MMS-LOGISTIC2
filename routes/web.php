@@ -88,6 +88,7 @@ Route::get('/order-tracking', function () {
 
 Route::get('/api/supplier-analysis', [SupplierController::class, 'analyzeSuppliers'])->name('supplier.analysis')->middleware('auth:vendor');
 
-Route::get('2fa/verify', [AuthController::class, 'showVerifyForm'])->name('2fa.verify');
-Route::post('/two-factor', [AuthController::class, 'verifyTwoFactor'])->name('2fa.authenticate');
-Route::get('2fa/resend', [AuthController::class, 'resendTwoFactorCode'])->name('2fa.resend');
+
+Route::get('/developers.api-documentation', function () {
+    return view('api.api-documentation');
+});

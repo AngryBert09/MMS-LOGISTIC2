@@ -27,7 +27,6 @@ class Vendor extends Authenticatable implements AuthenticatableContract
         'business_registration',
         'mayor_permit',
         'tax_identification_number',
-        'verification_token',
         'proof_of_identity',
         'postal_code',
         'profile_pic',

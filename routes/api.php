@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\APIs\VendorManagementController;
+
 
 
 /*
@@ -22,6 +24,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
+Route::get('vendors', [VendorManagementController::class, 'index']); // Retrieve all vendors
+Route::get('/vendor', [VendorManagementController::class, 'show']);
+Route::put('vendor/{id}', [VendorManagementController::class, 'update']); // Update a vendor
 
 
 
