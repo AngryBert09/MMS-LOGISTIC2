@@ -75,26 +75,112 @@
                                 <h5>Basic Account Credentials</h5>
                                 <section>
                                     <div class="form-wrap max-width-600 mx-auto">
-                                        <div class="form-group row">
-                                            <label class="col-sm-4 col-form-label">Company Name</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="companyName"
-                                                    class="form-control {{ $errors->has('companyName') ? 'is-invalid' : '' }}"
-                                                    value="{{ old('companyName', $companyName ?? '') }}"
-                                                    {{ isset($companyName) ? 'readonly' : '' }} />
-                                                @error('companyName')
-                                                    <div class="text-danger small-error">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
+                                        <!-- Email Input -->
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Email</label>
                                             <div class="col-sm-8">
                                                 <input type="email" name="email"
                                                     class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                                                    value="{{ old('email', $decodedEmail ?? '') }}"
-                                                    {{ isset($decodedEmail) ? 'readonly' : '' }} />
+                                                    value="{{ old(
+                                                        'email',
+                                                        $email ??
+                                                            (request()->has('data')
+                                                                ? (function () {
+                                                                    try {
+                                                                        $data = Crypt::decryptString(request()->query('data'));
+                                                                        $email = explode('|', $data)[0] ?? '';
+                                                                        return $email;
+                                                                    } catch (\Exception $e) {
+                                                                        return '';
+                                                                    }
+                                                                })()
+                                                                : ''),
+                                                    ) }}"
+                                                    {{ isset($email) || request()->has('data') ? 'readonly' : '' }} />
                                                 @error('email')
+                                                    <div class="text-danger small-error">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <!-- Company Name Input -->
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Company Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="companyName"
+                                                    class="form-control {{ $errors->has('companyName') ? 'is-invalid' : '' }}"
+                                                    value="{{ old(
+                                                        'companyName',
+                                                        $companyName ??
+                                                            (request()->has('data')
+                                                                ? (function () {
+                                                                    try {
+                                                                        $data = Crypt::decryptString(request()->query('data'));
+                                                                        $companyName = explode('|', $data)[1] ?? '';
+                                                                        return $companyName;
+                                                                    } catch (\Exception $e) {
+                                                                        return '';
+                                                                    }
+                                                                })()
+                                                                : ''),
+                                                    ) }}"
+                                                    {{ isset($companyName) || request()->has('data') ? 'readonly' : '' }} />
+                                                @error('companyName')
+                                                    <div class="text-danger small-error">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <!-- Email Input -->
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Email</label>
+                                            <div class="col-sm-8">
+                                                <input type="email" name="email"
+                                                    class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                                                    value="{{ old(
+                                                        'email',
+                                                        $email ??
+                                                            (request()->has('data')
+                                                                ? (function () {
+                                                                    try {
+                                                                        $data = Crypt::decryptString(request()->query('data'));
+                                                                        $email = explode('|', $data)[0] ?? '';
+                                                                        return $email;
+                                                                    } catch (\Exception $e) {
+                                                                        return '';
+                                                                    }
+                                                                })()
+                                                                : ''),
+                                                    ) }}"
+                                                    {{ isset($email) || request()->has('data') ? 'disabled' : '' }} />
+                                                @error('email')
+                                                    <div class="text-danger small-error">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <!-- Company Name Input -->
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label">Company Name</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="companyName"
+                                                    class="form-control {{ $errors->has('companyName') ? 'is-invalid' : '' }}"
+                                                    value="{{ old(
+                                                        'companyName',
+                                                        $companyName ??
+                                                            (request()->has('data')
+                                                                ? (function () {
+                                                                    try {
+                                                                        $data = Crypt::decryptString(request()->query('data'));
+                                                                        $companyName = explode('|', $data)[1] ?? '';
+                                                                        return $companyName;
+                                                                    } catch (\Exception $e) {
+                                                                        return '';
+                                                                    }
+                                                                })()
+                                                                : ''),
+                                                    ) }}"
+                                                    {{ isset($companyName) || request()->has('data') ? 'disabled' : '' }} />
+                                                @error('companyName')
                                                     <div class="text-danger small-error">{{ $message }}</div>
                                                 @enderror
                                             </div>
@@ -144,13 +230,13 @@
                                             <label class="col-sm-4 col-form-label">Gender*</label>
                                             <div class="col-sm-8">
                                                 <div class="custom-control custom-radio custom-control-inline pb-0">
-                                                    <input type="radio" id="male" name="gender" value="male"
-                                                        class="custom-control-input" required />
+                                                    <input type="radio" id="male" name="gender"
+                                                        value="male" class="custom-control-input" required />
                                                     <label class="custom-control-label" for="male">Male</label>
                                                 </div>
                                                 <div class="custom-control custom-radio custom-control-inline pb-0">
-                                                    <input type="radio" id="female" name="gender" value="female"
-                                                        class="custom-control-input" required />
+                                                    <input type="radio" id="female" name="gender"
+                                                        value="female" class="custom-control-input" required />
                                                     <label class="custom-control-label" for="female">Female</label>
                                                 </div>
                                                 @error('gender')

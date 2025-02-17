@@ -30,13 +30,6 @@ class AuthController extends Controller
 
     public function store(Request $request)
     {
-        // Check if an email is passed in the query string (for invitation registration)
-        $decodedEmail = null;
-        if ($request->has('email')) {
-            // Decode the base64-encoded email
-            $decodedEmail = base64_decode($request->query('email'));
-        }
-
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'companyName' => 'required|string|max:255',
