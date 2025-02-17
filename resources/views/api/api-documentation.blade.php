@@ -57,8 +57,10 @@
             <div class="right-col">
 
                 <h1>Introduction</h1>
-                <p>Welcome to the LOGISTIC2 API documentation. This API allows you to manage vendors in your
-                    system, enabling CRUD operations for vendor data.</p>
+                <p>Welcome to the LOGISTIC2 API documentation. This API is open-source and allows you to manage vendors
+                    in your system, enabling CRUD operations for vendor data. It is still evolving, and we plan to
+                    improve and expand its capabilities in the future.</p>
+
 
                 <h2>Getting Started</h2>
                 <p>To get started, you'll need an API key for authentication. Ensure you have the required access rights
