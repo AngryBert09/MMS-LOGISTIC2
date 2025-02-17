@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\DeliveryController;
-use App\Http\Controllers\HereMapController;
-use App\Http\Controllers\LalamoveController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ReturnsController;
 
@@ -34,8 +31,10 @@ use App\Http\Controllers\ReturnsController;
 
 
 
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard')
+    ->middleware('auth:vendor', '2fa');
 
-Route::get('', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth:vendor');
 
 Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('auth:vendor');
 Route::resource('invoices', InvoiceController::class)->middleware('auth:vendor');
@@ -45,10 +44,6 @@ Route::resource('returns', ReturnsController::class)->middleware('auth:vendor');
 Route::resource('biddings', BiddingController::class)->middleware('auth:vendor');
 Route::get('/verify-email/{vendor}/{token}', [ProfileController::class, 'verifyEmail'])->name('verify.email');
 Route::post('/profiles/{vendor}/verify-email', [ProfileController::class, 'resendVerificationEmail'])->name('profiles.verifyEmail');
-
-
-
-
 
 
 
@@ -79,16 +74,6 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 // Add this to your web.php or routes file
 Route::get('/shipment-details/{orderId}', [ShipmentController::class, 'getShipmentDetails']);
 
-
-// TESTING PURPOSES
-
-
-// Render the Blade view
-// Route::get('/delivery', [DeliveryController::class, 'showDeliveryPage']);
-
-
-
-
 Route::get('/getMyPerformance', [DashboardController::class, 'getMyPerformance'])->middleware('auth:vendor');
 Route::get('/getTopSuppliers', [DashboardController::class, 'getTopSuppliers'])->middleware('auth:vendor');
 
@@ -97,12 +82,12 @@ Route::get('/analyze-suppliers', [SupplierController::class, 'analyzeSuppliers']
     ->name('analyze.suppliers');
 
 
-
-
-
-
 Route::get('/order-tracking', function () {
     return view('DeliveryTracking.order-status');
 });
 
 Route::get('/api/supplier-analysis', [SupplierController::class, 'analyzeSuppliers'])->name('supplier.analysis')->middleware('auth:vendor');
+
+Route::get('2fa/verify', [AuthController::class, 'showVerifyForm'])->name('2fa.verify');
+Route::post('/two-factor', [AuthController::class, 'verifyTwoFactor'])->name('2fa.authenticate');
+Route::get('2fa/resend', [AuthController::class, 'resendTwoFactorCode'])->name('2fa.resend');

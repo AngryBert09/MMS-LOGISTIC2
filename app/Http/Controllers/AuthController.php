@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Vendor;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Notifications\VendorRegistered;
 use App\Notifications\WelcomeVendorNotification;
@@ -134,62 +135,75 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]);
 
-        // Check if the vendor exists by email
+        // Find vendor by email
         $vendor = \App\Models\Vendor::where('email', $validated['email'])->first();
 
-        // If vendor doesn't exist, return email error
         if (!$vendor) {
-            return redirect()->route('login')->withErrors(['email' => 'No vendor found with this email.'])
-                ->withInput(request()->only('email'));
+            return redirect()->route('login')->withErrors(['email' => 'No vendor found with this email.']);
         }
 
-        // Check if the vendor's status is 'Approved'
+        // Check vendor status
         if ($vendor->status !== 'Approved') {
             $statusMessage = match ($vendor->status) {
                 'Pending' => 'Your application is still pending. Please wait for approval.',
                 'Rejected' => 'Your application has been rejected. Please contact support.',
                 default => 'Unexpected vendor status. Please contact support.',
             };
-
-            return redirect()->route('login')->withErrors(['email' => $statusMessage])
-                ->withInput(request()->only('email'));
+            return redirect()->route('login')->withErrors(['email' => $statusMessage]);
         }
 
-        // Attempt to login using the provided email and password
+        // Attempt to log in
         $remember = request()->has('remember');
-
-        if (auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
-            request()->session()->regenerate();
-
-            Log::info('Vendor login attempt successful', ['vendor_id' => $vendor->id, 'remember_me' => $remember]);
-
-            // Update the vendor's online status
-            $vendor->update(['is_online' => true]);
-            broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
-
-            // Check if the vendor is verified
-            $verifiedVendor = \App\Models\VerifiedVendor::where('vendor_id', $vendor->id)->first();
-
-            if ($verifiedVendor && $verifiedVendor->is_verified) {
-                return redirect()->route('dashboard')->with('success', 'Logged in successfully!');
-            } else {
-                return redirect()->route('profiles.show', $vendor->id)
-                    ->with('message', 'Please complete your profile information below to proceed.');
-            }
+        if (!auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
+            Log::warning('Login failed due to incorrect password.', ['email' => $vendor->email]);
+            return redirect()->back()->withErrors(['password' => 'Invalid password.']);
         }
 
-        // Check if the password is incorrect (fails after email is verified)
-        if (\App\Models\Vendor::where('email', $validated['email'])->exists()) {
-            Log::warning('Vendor login attempt failed due to wrong password', ['email' => $vendor->email]);
-            return redirect()->back()->withErrors(['password' => 'Invalid password.'])
-                ->withInput(request()->only('email'));
+        // Regenerate session after successful login
+        request()->session()->regenerate();
+        Log::info('Vendor login successful', ['vendor_id' => $vendor->id]);
+
+        // Update online status
+        $vendor->update(['is_online' => true]);
+        broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
+
+        // Check if 2FA was already authenticated within the last 24 hours
+        if ($vendor->last_2fa_at && $vendor->last_2fa_at->gt(now()->subDay())) {
+            Log::info('Skipping 2FA, already authenticated today.', [
+                'vendor_id' => $vendor->id,
+                'last_2fa_at' => $vendor->last_2fa_at,
+            ]);
+            return redirect()->route('dashboard');
         }
 
-        // If no vendor found, return email error
-        Log::warning('Vendor login attempt failed due to invalid email', ['email' => $validated['email']]);
-        return redirect()->back()->withErrors(['email' => 'No vendor found with this email.'])
-            ->withInput(request()->only('email'));
+        // Generate and store 2FA code
+        $twoFactorCode = random_int(100000, 999999);
+        $twoFactorExpiresAt = now()->addMinutes(10);
+
+        DB::table('vendor_2fa_codes')->updateOrInsert(
+            ['vendor_id' => $vendor->id],
+            ['code' => $twoFactorCode, 'expires_at' => $twoFactorExpiresAt, 'created_at' => now()]
+        );
+
+        // Send 2FA code via email
+        Mail::to($vendor->email)->send(new \App\Mail\TwoFactorCodeMail($twoFactorCode));
+
+        Log::info('2FA code sent', ['vendor_id' => $vendor->id]);
+
+        // Redirect to 2FA verification page
+        $url = route('2fa.verify');
+        Log::info('Redirecting to 2FA verify page', ['url' => $url]);
+
+        return redirect($url)->with('success', 'A 2FA code has been sent to your email.');
     }
+
+
+
+
+
+
+
+
 
 
     public function logout()

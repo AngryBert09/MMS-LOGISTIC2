@@ -43,6 +43,11 @@ return [
                 'useTLS' => true,
 
             ],
+            'client_options' => [
+                'verify' => false,
+            ],
+
+
         ],
 
         // other connections...

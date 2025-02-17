@@ -35,6 +35,7 @@ class Vendor extends Authenticatable implements AuthenticatableContract
         'address',
         'notifications_enabled',
         'is_online',
+        'last_2fa_at'
     ];
 
     // Optionally, you can hide sensitive attributes
@@ -49,6 +50,8 @@ class Vendor extends Authenticatable implements AuthenticatableContract
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'last_2fa_at' => 'datetime',
+
         // Add any other casts if needed
     ];
 

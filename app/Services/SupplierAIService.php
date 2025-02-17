@@ -45,7 +45,7 @@ class SupplierAIService
 
             // Log the full response for debugging
             $responseBody = $response->getBody()->getContents();
-            Log::debug('Gemini AI Response:', ['response' => $responseBody]);
+
 
             // Decode the response
             $responseData = json_decode($responseBody, true);
@@ -63,5 +63,4 @@ class SupplierAIService
             return 'Error: ' . $e->getMessage();
         }
     }
-
 }
