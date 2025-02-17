@@ -42,7 +42,7 @@ class VendorManagementController extends Controller
                 'status' => $vendor->status,
                 'businessRegistration' => $vendor->business_registration,
                 'mayorsPermit' => $vendor->mayor_permit,
-                'taxIdentificationNumber' => $vendor->tax_identification_number,
+                'taxIdentificationNumber' => $vendor->tin,
                 'proofOfIdentity' => $vendor->proof_of_identity,
                 'createdAt' => $vendor->created_at,
             ];

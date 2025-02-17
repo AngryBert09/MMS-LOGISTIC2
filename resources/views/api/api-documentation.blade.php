@@ -63,8 +63,10 @@
 
 
                 <h2>Getting Started</h2>
-                <p>To get started, you'll need an API key for authentication. Ensure you have the required access rights
-                    to manage vendor data.</p>
+                <p>To get started, you can begin making requests to the LOGISTIC2 API. Currently, authentication is not
+                    required, so you can freely interact with the endpoints. However, future versions may introduce
+                    authentication for added security.</p>
+
 
                 <h2 id="apiendpoints">API Endpoints</h2>
                 <p>The following API endpoints are available for interacting with vendor data:</p>
