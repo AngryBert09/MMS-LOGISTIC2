@@ -30,10 +30,17 @@ class AuthController extends Controller
 
     public function store(Request $request)
     {
+        // Check if an email is passed in the query string (for invitation registration)
+        $decodedEmail = null;
+        if ($request->has('email')) {
+            // Decode the base64-encoded email
+            $decodedEmail = base64_decode($request->query('email'));
+        }
+
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'companyName' => 'required|string|max:255',
-            'email' => 'required|email|unique:vendors,email',
+            'email' => 'required|email|unique:vendors,email,' . ($decodedEmail ?? $request->email),
             'password' => 'required|string|min:8|confirmed',
             'fullName' => 'required|string|max:255',
             'gender' => 'required|string',
@@ -51,7 +58,7 @@ class AuthController extends Controller
         // Create a new vendor record and set properties
         $vendor = new Vendor();
         $vendor->company_name = $request->companyName;
-        $vendor->email = $request->email;
+        $vendor->email = $decodedEmail ?? $request->email; // Use decoded email if available
         $vendor->password = Hash::make($request->password);
         $vendor->full_name = $request->fullName;
         $vendor->gender = $request->gender;
@@ -121,6 +128,7 @@ class AuthController extends Controller
         // Redirect to login with a confirmation message
         return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
     }
+
 
 
     public function login()
