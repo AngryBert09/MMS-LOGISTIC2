@@ -92,3 +92,7 @@ Route::get('/api/supplier-analysis', [SupplierController::class, 'analyzeSupplie
 Route::get('/developers.api-documentation', function () {
     return view('api.api-documentation');
 });
+
+Route::get('/order-tracking', function () {
+    return view('DeliveryTracking.track-products');
+});

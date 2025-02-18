@@ -28,6 +28,9 @@
             <a class="right" href="mailto: logistic2.devs.gwamerchandise.com" target="_blank"><i
                     class="fas fa-paper-plane"></i>&nbsp;
                 logistic2.devs.gwamerchandise.com</a>
+            <!-- Login & Register Buttons -->
+            <a href="{{ route('login') }}" class="btn btn-outline-primary me-2 right">Login</a>
+            <a href="{{ route('register') }}" class="btn btn-primary right">Register</a>
         </div>
     </div>
 
@@ -104,6 +107,8 @@
 }
                 </code></pre>
 
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
                 <h3 id="updatevendor">Update Vendor</h3>
                 <p>To update a vendor's information, send a PUT request to <code>/api/vendor/{id}</code> with the data
                     you want to update (e.g., vendor name, contact info, etc.):</p>
@@ -121,7 +126,7 @@ PUT /api/vendor/{id}
                 </code></pre>
 
 
-                <div class="divider" style="width:24%; margin:30px 0;"></div>
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
 
                 <h2 id="moreinfo">More Info</h2>
                 <p>If you need more detailed information on how to interact with the API, please refer to our full

@@ -1,60 +1,6 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <!-- Basic Page Info -->
-    <meta charset="utf-8" />
-    <title>Register to GWA</title>
-
-    <!-- Site favicon -->
-    <link rel="apple-touch-icon" sizes="180x180" href="images/gwa-touch-icon" />
-    <link rel="icon" type="image/png" sizes="32x32" href="images/gwa-favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/favicon-16x16.png') }}" />
-
-    <!-- Mobile Specific Metas -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet" />
-    <!-- CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/core.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/icon-font.min.css') }}" />
-    <link rel="stylesheet" type="text/css" href="src/plugins/jquery-steps/jquery.steps.css" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/style.css') }}" />
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GBZ3SGGX85"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2973766580778258"
-        crossorigin="anonymous"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag("js", new Date());
-
-        gtag("config", "G-GBZ3SGGX85");
-    </script>
-    <!-- Google Tag Manager -->
-    <script>
-        (function(w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                "gtm.start": new Date().getTime(),
-                event: "gtm.js"
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != "dataLayer" ? "&l=" + l : "";
-            j.async = true;
-            j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, "script", "dataLayer", "GTM-NXZMQSS");
-    </script>
-    <!-- End Google Tag Manager -->
-</head>
+@include('layout.head')
 
 <body class="login-page">
     @include('layout.login-header')
@@ -130,61 +76,7 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <!-- Email Input -->
-                                        <div class="form-group row">
-                                            <label class="col-sm-4 col-form-label">Email</label>
-                                            <div class="col-sm-8">
-                                                <input type="email" name="email"
-                                                    class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                                                    value="{{ old(
-                                                        'email',
-                                                        $email ??
-                                                            (request()->has('data')
-                                                                ? (function () {
-                                                                    try {
-                                                                        $data = Crypt::decryptString(request()->query('data'));
-                                                                        $email = explode('|', $data)[0] ?? '';
-                                                                        return $email;
-                                                                    } catch (\Exception $e) {
-                                                                        return '';
-                                                                    }
-                                                                })()
-                                                                : ''),
-                                                    ) }}"
-                                                    {{ isset($email) || request()->has('data') ? 'disabled' : '' }} />
-                                                @error('email')
-                                                    <div class="text-danger small-error">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
 
-                                        <!-- Company Name Input -->
-                                        <div class="form-group row">
-                                            <label class="col-sm-4 col-form-label">Company Name</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="companyName"
-                                                    class="form-control {{ $errors->has('companyName') ? 'is-invalid' : '' }}"
-                                                    value="{{ old(
-                                                        'companyName',
-                                                        $companyName ??
-                                                            (request()->has('data')
-                                                                ? (function () {
-                                                                    try {
-                                                                        $data = Crypt::decryptString(request()->query('data'));
-                                                                        $companyName = explode('|', $data)[1] ?? '';
-                                                                        return $companyName;
-                                                                    } catch (\Exception $e) {
-                                                                        return '';
-                                                                    }
-                                                                })()
-                                                                : ''),
-                                                    ) }}"
-                                                    {{ isset($companyName) || request()->has('data') ? 'disabled' : '' }} />
-                                                @error('companyName')
-                                                    <div class="text-danger small-error">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
 
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Password*</label>
@@ -230,13 +122,13 @@
                                             <label class="col-sm-4 col-form-label">Gender*</label>
                                             <div class="col-sm-8">
                                                 <div class="custom-control custom-radio custom-control-inline pb-0">
-                                                    <input type="radio" id="male" name="gender"
-                                                        value="male" class="custom-control-input" required />
+                                                    <input type="radio" id="male" name="gender" value="male"
+                                                        class="custom-control-input" required />
                                                     <label class="custom-control-label" for="male">Male</label>
                                                 </div>
                                                 <div class="custom-control custom-radio custom-control-inline pb-0">
-                                                    <input type="radio" id="female" name="gender"
-                                                        value="female" class="custom-control-input" required />
+                                                    <input type="radio" id="female" name="gender" value="female"
+                                                        class="custom-control-input" required />
                                                     <label class="custom-control-label" for="female">Female</label>
                                                 </div>
                                                 @error('gender')
