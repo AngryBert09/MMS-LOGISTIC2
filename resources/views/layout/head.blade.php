@@ -1,7 +1,7 @@
 <head>
     <!-- Basic Page Info -->
     <meta charset="utf-8" />
-    <title>Vendor</title>
+    <title>GWA</title>
 
     <!-- Site favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/gwa-favicon-32x32.png') }}" />

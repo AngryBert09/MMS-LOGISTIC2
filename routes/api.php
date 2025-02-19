@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\APIs\VendorManagementController;
-
+use App\Http\Controllers\APIs\ApiUserController;
 
 
 /*
@@ -24,10 +24,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-Route::get('vendors', [VendorManagementController::class, 'index']); // Retrieve all vendors
-Route::get('/vendor', [VendorManagementController::class, 'show']);
-Route::put('vendor/{id}', [VendorManagementController::class, 'update']); // Update a vendor
-
-
+Route::middleware(['auth:sanctum', 'sanctum.json'])->group(function () {
+    Route::get('vendors', [VendorManagementController::class, 'index']); // Retrieve all vendors
+    Route::get('vendor/{id}', [VendorManagementController::class, 'show']); // Retrieve a specific vendor
+    Route::put('vendor/{id}', [VendorManagementController::class, 'update']); // Update a vendor
+    Route::patch('vendor/{id}', [VendorManagementController::class, 'patch']); // Partial update of a vendor
+});
 
 Route::get('/supplier-analysis', [SupplierController::class, 'analyzeSuppliers']);

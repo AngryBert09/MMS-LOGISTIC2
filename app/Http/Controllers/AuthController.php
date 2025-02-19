@@ -18,6 +18,7 @@ use App\Notifications\VendorRegistered;
 use App\Notifications\WelcomeVendorNotification;
 use App\Models\VerifiedVendor;
 use App\Events\VendorStatusUpdated;
+use Illuminate\Support\Facades\Cache;
 
 
 
@@ -136,12 +137,32 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]);
 
-        // Find vendor by email
-        $vendor = \App\Models\Vendor::where('email', $validated['email'])->first();
+        // Set cache key for the vendor based on email
+        $email = $validated['email'];
+        $cacheKey = "vendor_auth_{$email}";
 
+        // Attempt to retrieve vendor from cache, excluding the status field
+        Log::info('Attempting to retrieve vendor from cache', ['email' => $email]);
+
+        $vendor = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($email) {
+            Log::info('Cache miss: Retrieving vendor from database', ['email' => $email]);
+            // Fetch vendor data excluding the 'status' field
+            return \App\Models\Vendor::where('email', $email)->first(['id', 'email']);
+        });
+
+        if ($vendor) {
+            Log::info('Cache hit: Vendor data retrieved from cache', ['email' => $email]);
+        } else {
+            Log::info('Cache miss: Vendor not found in cache', ['email' => $email]);
+        }
+
+        // If no vendor found, return error
         if (!$vendor) {
             return redirect()->route('login')->withErrors(['email' => 'No vendor found with this email.']);
         }
+
+        // Fetch the full vendor record from the database to get the status
+        $vendor = \App\Models\Vendor::find($vendor->id);
 
         // Check vendor status
         if ($vendor->status !== 'Approved') {
@@ -150,7 +171,7 @@ class AuthController extends Controller
                 'Rejected' => 'Your application has been rejected. Please contact support.',
                 default => 'Unexpected vendor status. Please contact support.',
             };
-            return redirect()->route('login')->withErrors(['email' => $statusMessage]);
+            return redirect()->back()->withErrors(['email' => $statusMessage]);
         }
 
         // Attempt to log in
@@ -207,6 +228,10 @@ class AuthController extends Controller
 
 
 
+
+
+
+
     public function logout()
     {
         // Get the authenticated vendor
@@ -229,6 +254,9 @@ class AuthController extends Controller
 
         // Regenerate CSRF token for security
         request()->session()->regenerateToken();
+
+        // Clear all cached data (optional)
+        Cache::flush();
 
         // Redirect to the login page with a success message
         return redirect()->route('login')->with('success', 'Logged out successfully');

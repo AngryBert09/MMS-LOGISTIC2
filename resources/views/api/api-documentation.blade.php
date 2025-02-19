@@ -19,20 +19,28 @@
 
 
 <body>
-
     <div class="navbar clear nav-top">
         <div class="row content">
             <a href="#"><img class="logo" src="{{ asset('images/greatwall-logo.png') }}" alt="Logo"></a>
             <a class="right" style="text-decoration: underline;" href="#"><i class="fas fa-book"></i>&nbsp;
-                Documentation</a>
-            <a class="right" href="mailto: logistic2.devs.gwamerchandise.com" target="_blank"><i
+                LOGI2 Documentation</a>
+            <a class="right" href="mailto:logistic2.devs.gwamerchandise.com" target="_blank"><i
                     class="fas fa-paper-plane"></i>&nbsp;
                 logistic2.devs.gwamerchandise.com</a>
-            <!-- Login & Register Buttons -->
-            <a href="{{ route('login') }}" class="btn btn-outline-primary me-2 right">Login</a>
-            <a href="{{ route('register') }}" class="btn btn-primary right">Register</a>
+
+            @guest
+                <!-- Show only if the user is NOT authenticated -->
+                <a href="{{ route('api.login') }}" class="btn btn-outline-primary me-2 right">Login</a>
+                <a href="{{ route('register') }}" class="btn btn-primary right">Register</a>
+            @else
+                <!-- Show Logout button if user is authenticated -->
+                <a href="{{ route('api.dashboard') }}" class="btn btn-danger right">
+                    dashboard
+                </a>
+            @endguest
         </div>
     </div>
+
 
     <div class="container clear">
         <div class="row wrapper">
@@ -48,7 +56,8 @@
 
                 <a class="title" href="#features">API Features</a>
 
-                <a class="section" href="#getvendor">Get Vendor</a>
+                <a class="section" href="#getallvendor">Get All Vendors</a>
+                <a class="section" href="#getvendor">Get Specific Vendor</a>
                 <a class="section" href="#updatevendor">Update Vendor</a>
 
                 <div class="divider left"></div>
@@ -60,70 +69,163 @@
             <div class="right-col">
 
                 <h1>Introduction</h1>
-                <p>Welcome to the LOGISTIC2 API documentation. This API is open-source and allows you to manage vendors
-                    in your system, enabling CRUD operations for vendor data. It is still evolving, and we plan to
-                    improve and expand its capabilities in the future.</p>
+                <p>Welcome to the LOGISTIC2 API documentation. This API provides a secure and efficient way to manage
+                    vendors within your system, supporting CRUD operations (Create, Read, Update, and Delete) for vendor
+                    data.</p>
+
+                <p>This API is <strong>no longer open-source</strong>. To access and use it, you must
+                    <strong>register</strong> and obtain an API key. We are continuously working on improvements and
+                    expanding its capabilities to better serve your needs.
+                </p>
+                <p>🔹 <strong>Key Features:</strong></p>
+                <ul>
+                    <li>✔️ Secure Vendor Management (CRUD Operations)</li>
+                    <li>✔️ Authentication & API Key Access</li>
+                    <li>✔️ Scalable and Structured API Design</li>
+                </ul>
+                <p>📌 <strong>To get started, register for access and obtain your API key.</strong> 🚛💨</p>
 
 
                 <h2>Getting Started</h2>
-                <p>To get started, you can begin making requests to the LOGISTIC2 API. Currently, authentication is not
-                    required, so you can freely interact with the endpoints. However, future versions may introduce
-                    authentication for added security.</p>
+                <p>To start using the LOGISTIC2 API, you must first register and obtain an API key. Authentication is
+                    <strong>required</strong> to interact with the endpoints securely.
+                </p>
+
+                <p>Follow these steps to get started:</p>
+                <ol>
+                    <li>🔹 <strong>Register</strong> for an account.</li>
+                    <li>🔹 <strong>Generate your API key</strong> from the dashboard.</li>
+                    <li>🔹 Use your API key in requests by including it in the <code>Authorization</code> header as a
+                        Bearer token.</li>
+                </ol>
+
+                <p>Future updates will continue improving security and expanding API capabilities. Stay tuned! 🚀</p>
+
 
 
                 <h2 id="apiendpoints">API Endpoints</h2>
-                <p>The following API endpoints are available for interacting with vendor data:</p>
+                <p>The following API endpoints allow you to manage vendor data. Authentication is required for all
+                    requests.</p>
 
                 <ul>
-
-                    <li><b>GET /api/vendors</b> - Retrieve a list of all vendors</li>
-                    <li><b>GET /api/vendor?id={id}</b> - Retrieve a specific vendor's data by ID</li>
-                    <li><b>PUT /api/vendors/{id}</b> - Update a vendor's information by ID</li>
-                    <h5>SAMPLE ENDPOINT : logistic2.gwamerchandise.com/api/vendors</h5>
+                    <li><b>GET /api/vendors</b> - Retrieve a list of all vendors.</li>
+                    <li><b>GET /api/vendor/{id}</b> - Retrieve a specific vendor's data by ID.</li>
+                    <li><b>PUT /api/vendor/{id}</b> - Update a vendor's information by ID.</li>
+                    <li><b>PATCH /api/vendor/{id}</b> - Partially update a vendor's data.</li>
                 </ul>
 
+                <h5>📌 Sample Endpoint:</h5>
+                <p><code>https://logistic2.gwamerchandise.com/api/vendors</code></p>
+
+
                 <h2 id="authentication">Authentication</h2>
-                <p>Currently, no authentication is required to access the API. All endpoints are open for use, but this
-                    may change in the future as security measures are implemented.</p>
+                <p>Authentication is required to access the LOGISTIC2 API. You must first register and obtain an API
+                    key.
+                    All requests must include a valid API key in the header using the Bearer token method.</p>
+
+                <h5>📌 Authentication Header:</h5>
+                <pre><code>Authorization: Bearer YOUR_API_KEY
+                     Accept: application/json</code></pre>
+
+                <h5>🔹 Example cURL Request:</h5>
+                <pre><code>curl -X GET "https://logistic2.gwamerchandise.com/api/vendors" \
+                          -H "Authorization: Bearer YOUR_API_KEY" \
+                          -H "Accept: application/json"</code></pre>
+
 
 
                 <h2 id="features">API Features</h2>
 
 
 
-                <h3 id="getvendor">Get Vendor</h3>
-                <p>To retrieve a vendor's details, send a GET request to <code>/api/vendor?id={id}</code>:</p>
+                <h3 id="getallvendors">Get All Vendors</h3>
+                <p>To retrieve a list of all vendors, send a <b>GET</b> request to the following endpoint:</p>
 
+                <pre><code>GET /api/vendors</code></pre>
 
-                <p>Sample Output:</p>
+                <h5>📌 Sample Response:</h5>
                 <pre><code>
-{
- "id": 44,
-"companyName": "MY COMPANY",
-"email": "yourmom@gmail.com",
-"fullName": "asd",
-"gender": "Male",
-"status": "Approved",
-}
+                [
+                    {
+                        "id": 44,
+                        "companyName": "MY COMPANY",
+                        "email": "yourmom@gmail.com",
+                        "fullName": "John Doe",
+                        "gender": "Male",
+                        "status": "Approved"
+                    },
+                    {
+                        "id": 45,
+                        "companyName": "XYZ Logistics",
+                        "email": "xyz@email.com",
+                        "fullName": "Jane Smith",
+                        "gender": "Female",
+                        "status": "Pending"
+                    }
+                ]
                 </code></pre>
+
 
                 <div class="divider" style="width:100%; margin:30px 0;"></div>
 
-                <h3 id="updatevendor">Update Vendor</h3>
-                <p>To update a vendor's information, send a PUT request to <code>/api/vendor/{id}</code> with the data
-                    you want to update (e.g., vendor name, contact info, etc.):</p>
+                <h3 id="getvendor">Get a Specific Vendor</h3>
+                <p>To retrieve details of a specific vendor, send a <b>GET</b> request to the following endpoint,
+                    replacing <code>{id}</code> with the vendor's ID:</p>
 
-                <pre><code>
-PUT /api/vendor/{id}
-                </code></pre>
+                <pre><code>GET /api/vendor/{id}</code></pre>
 
-                <p>Example data to update:</p>
+                <h5>📌 Sample Response:</h5>
                 <pre><code>
 {
- "companyName": "VendorCompany",
- "status": "Approved",
+    "id": 44,
+    "companyName": "MY COMPANY",
+    "email": "yourmom@gmail.com",
+    "fullName": "John Doe",
+    "gender": "Male",
+    "status": "Approved"
 }
-                </code></pre>
+</code></pre>
+
+
+                <h3 id="updatevendor">Update a Vendor</h3>
+                <p>To update a vendor's information, send a <b>PUT</b> request to the following endpoint, replacing
+                    <code>{id}</code> with the vendor's ID:
+                </p>
+
+                <pre><code>PUT /api/vendor/{id}</code></pre>
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+{
+
+        "id": 44,
+        "companyName": "Updated Company",
+        "email": "updated.email@example.com",
+        "fullName": "John Doe",
+        "gender": "Male",
+        "status": "Approved"
+
+}
+</code></pre>
+
+                <h3 id="updatevendorpartial">Update Vendor (Partial)</h3>
+                <p>To partially update a vendor's data, send a <b>PATCH</b> request to the following endpoint:</p>
+
+                <pre><code>PATCH /api/vendor/{id}</code></pre>
+
+
+
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+{
+    "id": 44,
+    "companyName": "Updated Company Name",
+    "email": "newemail@example.com",
+    "fullName": "John Doe",
+    "gender": "Male",
+    "status": "Approved"
+}
+</code></pre>
+
 
 
                 <div class="divider" style="width:100%; margin:30px 0;"></div>
@@ -498,6 +600,7 @@ PUT /api/vendor/{id}
 
         }
     }
+
 
     /* Small devices (portrait tablets and large phones, 650px and up) */
     @media only screen and (min-width: 650px) {

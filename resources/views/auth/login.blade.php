@@ -22,6 +22,8 @@
     </div>
 
 
+
+
     <div class="login-wrap d-flex align-items-center flex-wrap justify-content-center">
         <div class="container">
             <div class="row align-items-center">
@@ -33,7 +35,7 @@
                         <div class="login-title">
                             <h2 class="text-center text-primary text-dark">LOGIN TO GREATWALL</h2>
                         </div>
-                        <form action="{{ route('login') }}" method="post">
+                        <form action="{{ route('login') }}" method="post" id="loginForm">
                             @csrf
                             @if (session('confirmation_message'))
                                 <div class="alert alert-info mt-3">
@@ -46,7 +48,6 @@
                                     <p>{{ $errors->all() ? implode(' | ', $errors->all()) : '' }}</p>
                                 </div>
                             @endif
-
 
                             <div class="input-group custom">
                                 <input type="text"
@@ -62,6 +63,7 @@
                                     </div>
                                 @endif
                             </div>
+
                             <div class="input-group custom mt-3">
                                 <input id="password-field" type="password"
                                     class="form-control form-control-lg {{ $errors->has('password') ? 'is-invalid' : '' }}"
@@ -72,30 +74,11 @@
                                 @if (!$errors->has('password'))
                                     <div class="input-group-append custom">
                                         <span class="input-group-text">
-                                            <!-- Use ti-lock for closed and ti-lock-open for open padlock -->
                                             <i id="toggle-password" class="dw dw-padlock1" style="cursor: pointer;"></i>
                                         </span>
                                     </div>
                                 @endif
                             </div>
-
-                            <script>
-                                document.getElementById('toggle-password').addEventListener('click', function() {
-                                    var passwordField = document.getElementById('password-field');
-                                    var icon = document.getElementById('toggle-password');
-
-                                    if (passwordField.type === 'password') {
-                                        passwordField.type = 'text';
-                                        icon.classList.remove('ti-lock');
-                                        icon.classList.add('dw-open-padlock'); // Changed to ti-lock-open
-                                    } else {
-                                        passwordField.type = 'password';
-                                        icon.classList.remove('dw-open-padlock');
-                                        icon.classList.add('dw-padlock1');
-                                    }
-                                });
-                            </script>
-
 
                             <div class="row pb-30">
                                 <div class="col-6">
@@ -107,17 +90,25 @@
                                 </div>
                                 <div class="col-6">
                                     <div class="forgot-password ">
-                                        <a href="{{ route('forgot.password.form') }}">Forgot
-                                            Password</a>
+                                        <a href="{{ route('forgot.password.form') }}">Forgot Password</a>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="row">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
-                                        <input class="btn btn-warning btn-lg btn-block " type="submit" value="Sign In">
+                                        <!-- Submit Button with Spinner -->
+                                        <button type="submit" class="btn btn-warning btn-lg btn-block" id="submitBtn">
+                                            Sign In
+
+                                        </button>
                                     </div>
+                                </div>
+                            </div>
                         </form>
+
+
                         <div class="font-16 weight-600 pt-10 pb-10 text-center" data-color="#707373">
                             OR
                         </div>
@@ -129,11 +120,62 @@
                     </div>
                 </div>
 
+
+
+                <script>
+                    document.getElementById('loginForm').addEventListener('submit', function(e) {
+                        // Get the submit button and spinner
+                        var submitBtn = document.getElementById('submitBtn');
+                        var preLoad = document.getElementById('.pre-loader');
+
+                        preLoad.style.display = "none";
+
+
+                        // Disable the submit button to prevent multiple submissions
+                        submitBtn.disabled = true;
+
+
+
+                        // Change the button text to indicate it's being processed
+                        submitBtn.innerHTML = 'Signing In...';
+
+                        // Optionally, you can prevent form submission in case of additional validation
+                        // e.preventDefault(); // If needed
+                    });
+                </script>
+
+
+
+
+
             </div>
         </div>
     </div>
     </div>
     </div>
+    <script>
+        // Toggle password visibility
+        document.getElementById('toggle-password')?.addEventListener('click', function() {
+            var passwordField = document.getElementById('password-field');
+            var icon = document.getElementById('toggle-password');
+
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('dw-padlock1');
+                icon.classList.add('dw-open-padlock'); // Change to 'dw-open-padlock' (assuming it's available)
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('dw-open-padlock');
+                icon.classList.add('dw-padlock1');
+            }
+        });
+
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Ensure the pre-loader is hidden just before the form is submitted
+            document.querySelector('.pre-loader').style.display = 'none';
+        });
+    </script>
 
     <script src="{{ asset('js/core.js') }}"></script>
     <script src="{{ asset('js/script.min.js') }}"></script>

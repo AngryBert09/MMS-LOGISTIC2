@@ -11,6 +11,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ReturnsController;
+use App\Http\Controllers\APIs\ApiUserController;
 
 
 /*
@@ -35,15 +36,22 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard')
     ->middleware('auth:vendor', '2fa');
 
+Route::middleware(['auth:vendor'])->group(function () {
+    Route::resource('purchase-orders', PurchaseOrderController::class);
+    Route::resource('invoices', InvoiceController::class);
+    Route::resource('profiles', ProfileController::class);
+    Route::resource('receipts', PurchaseReceiptController::class);
+    Route::resource('returns', ReturnsController::class);
+    Route::resource('biddings', BiddingController::class);
 
-Route::resource('purchase-orders', PurchaseOrderController::class)->middleware('auth:vendor');
-Route::resource('invoices', InvoiceController::class)->middleware('auth:vendor');
-Route::resource('profiles', ProfileController::class)->middleware('auth:vendor');
-Route::resource('receipts', PurchaseReceiptController::class)->middleware('auth:vendor');
-Route::resource('returns', ReturnsController::class)->middleware('auth:vendor');
-Route::resource('biddings', BiddingController::class)->middleware('auth:vendor');
-Route::get('/verify-email/{vendor}/{token}', [ProfileController::class, 'verifyEmail'])->name('verify.email');
-Route::post('/profiles/{vendor}/verify-email', [ProfileController::class, 'resendVerificationEmail'])->name('profiles.verifyEmail');
+    Route::post('/profiles/{vendor}/verify-email', [ProfileController::class, 'resendVerificationEmail'])
+        ->name('profiles.verifyEmail');
+});
+
+// Keep email verification routes outside authentication middleware
+Route::get('/verify-email/{vendor}/{token}', [ProfileController::class, 'verifyEmail'])
+    ->name('verify.email');
+
 
 
 
@@ -89,10 +97,26 @@ Route::get('/order-tracking', function () {
 Route::get('/api/supplier-analysis', [SupplierController::class, 'analyzeSuppliers'])->name('supplier.analysis')->middleware('auth:vendor');
 
 
-Route::get('/developers.api-documentation', function () {
-    return view('api.api-documentation');
-});
+
 
 Route::get('/order-tracking', function () {
     return view('DeliveryTracking.track-products');
+});
+
+Route::get('/developers.api-documentation', function () {
+    return view('api.api-documentation');
+})->name('api.docs');
+
+
+Route::group(['middleware' => 'guest'], function () {
+    Route::get('/developers.api/login', [ApiUserController::class, 'getApiLogin'])->name('api.login');
+    Route::get('/developers.api/signup', [ApiUserController::class, 'getApiRegister'])->name('api.register');
+    Route::post('/developers.api/signup', [ApiUserController::class, 'register'])->name('api.store');
+
+    Route::post('/developers.api/login', [ApiUserController::class, 'login'])->name('api.auth');
+});
+Route::post('/developers.api/logout', [ApiUserController::class, 'logout'])->name('api.logout');
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/developers.api/dashboard', [ApiUserController::class, 'getApiDashboard'])->name('api.dashboard')->middleware('auth');
+    Route::post('/generate-token', [ApiUserController::class, 'generateApiToken'])->name('api.generateToken');
 });
