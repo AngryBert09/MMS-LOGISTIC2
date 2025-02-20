@@ -5,6 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/gwa-favicon-32x32.png') }}" />
     <title>API Documentation</title>
     <meta name="description" content="API Documentation for managing vendors">
     <meta name="author" content="Your Name">
@@ -23,7 +24,7 @@
         <div class="row content">
             <a href="#"><img class="logo" src="{{ asset('images/greatwall-logo.png') }}" alt="Logo"></a>
             <a class="right" style="text-decoration: underline;" href="#"><i class="fas fa-book"></i>&nbsp;
-                LOGI2 Documentation</a>
+                Documentation 1.4.x</a>
             <a class="right" href="mailto:logistic2.devs.gwamerchandise.com" target="_blank"><i
                     class="fas fa-paper-plane"></i>&nbsp;
                 logistic2.devs.gwamerchandise.com</a>
@@ -31,7 +32,7 @@
             @guest
                 <!-- Show only if the user is NOT authenticated -->
                 <a href="{{ route('api.login') }}" class="btn btn-outline-primary me-2 right">Login</a>
-                <a href="{{ route('register') }}" class="btn btn-primary right">Register</a>
+                <a href="{{ route('api.register') }}" class="btn btn-primary right">Register</a>
             @else
                 <!-- Show Logout button if user is authenticated -->
                 <a href="{{ route('api.dashboard') }}" class="btn btn-danger right">
