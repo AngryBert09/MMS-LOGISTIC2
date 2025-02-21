@@ -110,7 +110,7 @@
 
                 <ul>
                     <li><b>GET /api/vendors</b> - Retrieve a list of all vendors.</li>
-                    <li><b>GET /api/vendor/{id}</b> - Retrieve a specific vendor's data by ID.</li>
+                    <li><b>GET /api/vendor?id={id}</b> - Retrieve a specific vendor's data by ID.</li>
                     <li><b>PUT /api/vendor/{id}</b> - Update a vendor's information by ID.</li>
                     <li><b>PATCH /api/vendor/{id}</b> - Partially update a vendor's data.</li>
                 </ul>

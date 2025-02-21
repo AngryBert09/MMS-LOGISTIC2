@@ -195,6 +195,7 @@ class AuthController extends Controller
                 'vendor_id' => $vendor->id,
                 'last_2fa_at' => $vendor->last_2fa_at,
             ]);
+
             return redirect()->route('dashboard');
         }
 

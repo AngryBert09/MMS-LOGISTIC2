@@ -32,9 +32,6 @@ use App\Http\Controllers\APIs\ApiUserController;
 
 
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->name('dashboard')
-    ->middleware('auth:vendor', '2fa');
 
 Route::middleware(['auth:vendor'])->group(function () {
     Route::resource('purchase-orders', PurchaseOrderController::class);

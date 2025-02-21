@@ -124,7 +124,7 @@
                             <i class="dw dw-user1"></i> Profile
                         </a>
                         <a class="dropdown-item" href="profile.html"><i class="dw dw-settings2"></i> Setting</a>
-                        <a class="dropdown-item" href="{{ route('faqs') }}"><i class="dw dw-help"></i> Help</a>
+                        {{-- <a class="dropdown-item" href="{{ route('faqs') }}"><i class="dw dw-help"></i> Help</a> --}}
                         <button class="dropdown-item" type="submit"><i class="dw dw-logout"></i> Log Out</button>
                     </div>
                 </form>

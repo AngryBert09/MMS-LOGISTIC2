@@ -133,6 +133,9 @@ class VendorManagementController extends Controller
             }
         }
 
+        // Prevent password from being updated
+        unset($validated['password']);
+
         $vendor->update($validated);
 
         return response()->json([
@@ -167,6 +170,7 @@ class VendorManagementController extends Controller
             'gender' => 'sometimes|string',
             'address' => 'sometimes|string',
             'status' => 'sometimes|string|in:Approved,Rejected,Pending',
+
             'business_registration' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'mayor_permit' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'tin' => 'sometimes|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -175,11 +179,15 @@ class VendorManagementController extends Controller
 
         $validated = $request->validate($rules);
 
+        // Handle file uploads
         foreach (['business_registration', 'mayor_permit', 'tin', 'proof_of_identity'] as $file) {
             if ($request->hasFile($file)) {
                 $validated[$file] = $request->file($file)->store('documents');
             }
         }
+
+        // Prevent password from being updated
+        unset($validated['password']);
 
         $vendor->update($validated);
 
