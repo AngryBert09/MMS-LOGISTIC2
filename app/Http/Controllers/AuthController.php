@@ -137,69 +137,52 @@ class AuthController extends Controller
             'password' => 'required|min:8',
         ]);
 
-        // Set cache key for the vendor based on email
         $email = $validated['email'];
         $cacheKey = "vendor_auth_{$email}";
 
-        // Attempt to retrieve vendor from cache, excluding the status field
         Log::info('Attempting to retrieve vendor from cache', ['email' => $email]);
 
         $vendor = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($email) {
             Log::info('Cache miss: Retrieving vendor from database', ['email' => $email]);
-            // Fetch vendor data excluding the 'status' field
             return \App\Models\Vendor::where('email', $email)->first(['id', 'email']);
         });
 
-        if ($vendor) {
-            Log::info('Cache hit: Vendor data retrieved from cache', ['email' => $email]);
-        } else {
-            Log::info('Cache miss: Vendor not found in cache', ['email' => $email]);
-        }
-
-        // If no vendor found, return error
         if (!$vendor) {
-            return redirect()->route('login')->withErrors(['email' => 'No vendor found with this email.']);
+            return response()->json(['errors' => ['email' => 'No vendor found with this email.']], 422);
         }
 
-        // Fetch the full vendor record from the database to get the status
         $vendor = \App\Models\Vendor::find($vendor->id);
 
-        // Check vendor status
         if ($vendor->status !== 'Approved') {
             $statusMessage = match ($vendor->status) {
                 'Pending' => 'Your application is still pending. Please wait for approval.',
                 'Rejected' => 'Your application has been rejected. Please contact support.',
                 default => 'Unexpected vendor status. Please contact support.',
             };
-            return redirect()->back()->withErrors(['email' => $statusMessage]);
+            return response()->json(['errors' => ['email' => $statusMessage]], 422);
         }
 
-        // Attempt to log in
         $remember = request()->has('remember');
         if (!auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
             Log::warning('Login failed due to incorrect password.', ['email' => $vendor->email]);
-            return redirect()->back()->withErrors(['password' => 'Invalid password.']);
+            return response()->json(['errors' => ['password' => 'Invalid password.']], 422);
         }
 
-        // Regenerate session after successful login
         request()->session()->regenerate();
         Log::info('Vendor login successful', ['vendor_id' => $vendor->id]);
 
-        // Update online status
         $vendor->update(['is_online' => true]);
         broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
 
-        // Check if 2FA was already authenticated within the last 24 hours
         if ($vendor->last_2fa_at && $vendor->last_2fa_at->gt(now()->subDay())) {
             Log::info('Skipping 2FA, already authenticated today.', [
                 'vendor_id' => $vendor->id,
                 'last_2fa_at' => $vendor->last_2fa_at,
             ]);
 
-            return redirect()->route('dashboard');
+            return response()->json(['redirect' => route('dashboard')], 200);
         }
 
-        // Generate and store 2FA code
         $twoFactorCode = random_int(100000, 999999);
         $twoFactorExpiresAt = now()->addMinutes(10);
 
@@ -208,18 +191,12 @@ class AuthController extends Controller
             ['code' => $twoFactorCode, 'expires_at' => $twoFactorExpiresAt, 'created_at' => now()]
         );
 
-        // Send 2FA code via email
         Mail::to($vendor->email)->send(new \App\Mail\TwoFactorCodeMail($twoFactorCode));
 
         Log::info('2FA code sent', ['vendor_id' => $vendor->id]);
 
-        // Redirect to 2FA verification page
-        $url = route('2fa.verify');
-        Log::info('Redirecting to 2FA verify page', ['url' => $url]);
-
-        return redirect($url)->with('success', 'A 2FA code has been sent to your email.');
+        return response()->json(['redirect' => route('2fa.verify')], 200);
     }
-
 
 
 

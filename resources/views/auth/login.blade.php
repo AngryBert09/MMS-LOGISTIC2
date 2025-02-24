@@ -23,7 +23,6 @@
 
 
 
-
     <div class="login-wrap d-flex align-items-center flex-wrap justify-content-center">
         <div class="container">
             <div class="row align-items-center">
@@ -37,50 +36,36 @@
                         </div>
                         <form action="{{ route('login') }}" method="post" id="loginForm">
                             @csrf
+                            <!-- Error Message Container -->
+                            <div id="errorMessage" class="alert alert-danger d-none mt-3"></div>
+
                             @if (session('confirmation_message'))
                                 <div class="alert alert-info mt-3">
                                     {{ session('confirmation_message') }}
                                 </div>
                             @endif
 
-                            @if ($errors->any())
-                                <div class="alert alert-danger mt-3">
-                                    <p>{{ $errors->all() ? implode(' | ', $errors->all()) : '' }}</p>
-                                </div>
-                            @endif
-
                             <div class="input-group custom">
-                                <input type="text"
-                                    class="form-control form-control-lg {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                                    placeholder="Email" name="email" value="{{ old('email') }}"
-                                    title="{{ $errors->has('email') ? $errors->first('email') : '' }}" />
-                                {{-- Show user icon only if there is no error --}}
-                                @if (!$errors->has('email'))
-                                    <div class="input-group-append custom">
-                                        <span class="input-group-text">
-                                            <i class="icon-copy dw dw-user1"></i>
-                                        </span>
-                                    </div>
-                                @endif
+                                <input type="text" class="form-control form-control-lg" placeholder="Email"
+                                    name="email" value="{{ old('email') }}" />
+                                <div class="input-group-append custom">
+                                    <span class="input-group-text">
+                                        <i class="icon-copy dw dw-user1"></i>
+                                    </span>
+                                </div>
                             </div>
 
                             <div class="input-group custom mt-3">
-                                <input id="password-field" type="password"
-                                    class="form-control form-control-lg {{ $errors->has('password') ? 'is-invalid' : '' }}"
-                                    name="password" placeholder="Password"
-                                    title="{{ $errors->has('password') ? $errors->first('password') : '' }}" />
-
-                                {{-- Show padlock icon only if there is no error --}}
-                                @if (!$errors->has('password'))
-                                    <div class="input-group-append custom">
-                                        <span class="input-group-text">
-                                            <i id="toggle-password" class="dw dw-padlock1" style="cursor: pointer;"></i>
-                                        </span>
-                                    </div>
-                                @endif
+                                <input id="password-field" type="password" class="form-control form-control-lg"
+                                    name="password" placeholder="Password" />
+                                <div class="input-group-append custom">
+                                    <span class="input-group-text">
+                                        <i id="toggle-password" class="dw dw-padlock1" style="cursor: pointer;"></i>
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="row pb-30">
+                            <div class="row pb-30 mt-3">
                                 <div class="col-6">
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="customCheck1"
@@ -89,26 +74,25 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <div class="forgot-password ">
+                                    <div class="forgot-password">
                                         <a href="{{ route('forgot.password.form') }}">Forgot Password</a>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row">
+                            <div class="row mt-3">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
                                         <!-- Submit Button with Spinner -->
                                         <button type="submit" class="btn btn-warning btn-lg btn-block" id="submitBtn">
-                                            Sign In
-
+                                            <span id="submitText">Sign In</span>
+                                            <span id="submitSpinner" class="spinner-border spinner-border-lg d-none"
+                                                role="status" aria-hidden="true"></span>
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </form>
-
-
                         <div class="font-16 weight-600 pt-10 pb-10 text-center" data-color="#707373">
                             OR
                         </div>
@@ -122,30 +106,78 @@
 
 
 
+
+
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
-                    document.getElementById('loginForm').addEventListener('submit', function(e) {
-                        // Get the submit button and spinner
-                        var submitBtn = document.getElementById('submitBtn');
-                        var preLoad = document.getElementById('.pre-loader');
+                    $(document).ready(function() {
+                        $('#loginForm').on('submit', function(e) {
+                            e.preventDefault();
 
-                        preLoad.style.display = "none";
+                            // Clear previous error messages, invalid classes, and restore icons if necessary
+                            $('#errorMessage').addClass('d-none').html('');
+                            $('.form-control').removeClass('is-invalid');
+                            // Optionally, you can restore the icons if you saved them before removing
 
+                            // Show loading spinner
+                            $('#submitText').addClass('d-none');
+                            $('#submitSpinner').removeClass('d-none');
+                            $('#submitBtn').prop('disabled', true);
 
-                        // Disable the submit button to prevent multiple submissions
-                        submitBtn.disabled = true;
+                            $.ajax({
+                                url: $(this).attr('action'),
+                                method: $(this).attr('method'),
+                                data: $(this).serialize(),
+                                success: function(response) {
+                                    if (response.redirect) {
+                                        window.location.href = response.redirect;
+                                    } else {
+                                        console.log('Login successful!');
+                                    }
+                                },
+                                error: function(error) {
+                                    // Hide loading spinner
+                                    $('#submitText').removeClass('d-none');
+                                    $('#submitSpinner').addClass('d-none');
+                                    $('#submitBtn').prop('disabled', false);
 
+                                    if (error.status === 422) {
+                                        var errors = error.responseJSON && error.responseJSON.errors ? error
+                                            .responseJSON.errors : error.errors;
+                                        var errorMessage = '';
 
+                                        // Loop through errors
+                                        for (var key in errors) {
+                                            if (errors.hasOwnProperty(key)) {
+                                                // Add invalid class to the input
+                                                var $input = $('[name="' + key + '"]');
+                                                $input.addClass('is-invalid');
 
-                        // Change the button text to indicate it's being processed
-                        submitBtn.innerHTML = 'Signing In...';
+                                                // Remove icon if exists in the input-group-append element
+                                                $input.closest('.input-group').find('.input-group-append')
+                                                    .remove();
 
-                        // Optionally, you can prevent form submission in case of additional validation
-                        // e.preventDefault(); // If needed
+                                                // Append error messages (handle both array or string)
+                                                if (Array.isArray(errors[key])) {
+                                                    errorMessage += errors[key].join('<br>') + '<br>';
+                                                } else {
+                                                    errorMessage += errors[key] + '<br>';
+                                                }
+                                            }
+                                        }
+                                        $('#errorMessage').removeClass('d-none').html(errorMessage);
+                                    } else if (error.status === 401 || error.status === 403) {
+                                        $('#errorMessage').removeClass('d-none').html(
+                                            'Invalid credentials. Please try again.');
+                                    } else {
+                                        $('#errorMessage').removeClass('d-none').html(
+                                            'An error occurred. Please try again.');
+                                    }
+                                }
+                            });
+                        });
                     });
                 </script>
-
-
-
 
 
             </div>
@@ -153,6 +185,53 @@
     </div>
     </div>
     </div>
+
+
+    <!-- New Features Modal -->
+    <div class="modal fade" id="newFeaturesModal" tabindex="-1" aria-labelledby="newFeaturesModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 800px;">
+            <div class="modal-content" style="border-radius: 15px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="newFeaturesModalLabel">🎉 New Features & Updates 🎉</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                    <p>We're thrilled to share some exciting updates with you! Here's what's new:</p>
+                    <ul>
+                        <li>
+                            <strong>🔒 Enhanced Security:</strong> We've added two-factor authentication (2FA) to keep
+                            your
+                            account even safer. Now, you can enjoy peace of mind knowing your data is protected with an
+                            extra
+                            layer of security.
+                        </li>
+                        <li>
+                            <strong>✨ Improved Dashboard:</strong> Your dashboard just got a makeover! We've redesigned
+                            it
+                            to be more intuitive and user-friendly, so you can focus on what matters most.
+                        </li>
+                        <li>
+                            <strong>📊 New Reporting Tools:</strong> Dive deeper into your data with our advanced
+                            reporting
+                            and analytics features. Get insights like never before and make smarter decisions.
+                        </li>
+                    </ul>
+                    <p>We're constantly working to make your experience better. Stay tuned for more updates! 🚀</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        // Automatically show the modal when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            var myModal = new bootstrap.Modal(document.getElementById('newFeaturesModal'), {
+                keyboard: true // Prevent closing the modal by pressing the ESC key
+            });
+            myModal.show();
+        });
+    </script>
     <script>
         // Toggle password visibility
         document.getElementById('toggle-password')?.addEventListener('click', function() {
