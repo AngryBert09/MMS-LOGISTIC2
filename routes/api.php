@@ -24,7 +24,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-Route::middleware(['auth:sanctum', 'sanctum.json'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('vendors', [VendorManagementController::class, 'index']); // Retrieve all vendors
     Route::get('/vendor', [VendorManagementController::class, 'show']); // Retrieve a specific vendor
     Route::put('vendor/{id}', [VendorManagementController::class, 'update']); // Update a vendor

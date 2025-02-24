@@ -33,6 +33,8 @@
     <div class="card shadow-sm p-4 rounded-4" style="max-width: 400px; width: 100%;">
         <!-- Header Section -->
         <div class="text-center mb-4">
+            <img src="{{ asset('images/greatwall-logo.png') }}" alt="Security" class="img-fluid mb-3"
+                style="max-width: 100px;">
             <h4 class="fw-bold text-warning">Two-Factor Authentication</h4>
             <p class="text-muted">Enter the 6-digit code sent to your email address.</p>
         </div>

@@ -25,15 +25,6 @@ class TwoFactorMiddleware
 
         $currentRouteName = $request->route()->getName();
 
-        // If vendor is already 2FA authenticated and trying to access the 2fa.verify route, redirect them away.
-        if ($currentRouteName === '2fa.verify' && $is2faAuthenticated) {
-            Log::info('Vendor already 2FA authenticated, redirecting away from 2fa.verify', [
-                'vendor_id'   => $vendor->id,
-                'last_2fa_at' => $vendor->last_2fa_at,
-            ]);
-            return redirect()->route('dashboard'); // Redirect to dashboard
-        }
-
         // If vendor is not 2FA authenticated and trying to access any route other than 2fa.verify, force them to 2fa.verify.
         if (!$is2faAuthenticated && $currentRouteName !== '2fa.verify') {
             Log::info('Vendor not 2FA authenticated, redirecting to 2fa.verify', [

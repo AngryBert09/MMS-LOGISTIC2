@@ -70,6 +70,7 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'sanctum.json' => \App\Http\Middleware\EnsureSanctumJsonResponse::class,
+        'restrict.2fa' => \App\Http\Middleware\Restrict2faVerifyAccess::class,
 
     ];
 }
