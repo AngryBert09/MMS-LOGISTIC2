@@ -86,7 +86,7 @@
                                         <!-- Submit Button with Spinner -->
                                         <button type="submit" class="btn btn-warning btn-lg btn-block" id="submitBtn">
                                             <span id="submitText">Sign In</span>
-                                            <span id="submitSpinner" class="spinner-border spinner-border-lg d-none"
+                                            <span id="submitSpinner" class="spinner-border spinner-border-sm d-none"
                                                 role="status" aria-hidden="true"></span>
                                         </button>
                                     </div>
