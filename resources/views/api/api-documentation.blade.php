@@ -24,7 +24,7 @@
         <div class="row content">
             <a href="#"><img class="logo" src="{{ asset('images/greatwall-logo.png') }}" alt="Logo"></a>
             <a class="right" style="text-decoration: underline;" href="#"><i class="fas fa-book"></i>&nbsp;
-                Documentation 1.4.x</a>
+                Documentation 1.5.x</a>
             <a class="right" href="mailto:logistic2.devs.gwamerchandise.com" target="_blank"><i
                     class="fas fa-paper-plane"></i>&nbsp;
                 logistic2.devs.gwamerchandise.com</a>
@@ -60,6 +60,11 @@
                 <a class="section" href="#getallvendor">Get All Vendors</a>
                 <a class="section" href="#getvendor">Get Specific Vendor</a>
                 <a class="section" href="#updatevendor">Update Vendor</a>
+                <a class="section" href="#getallshipments">Get All Shipments</a>
+                <a class="section" href="#getshipment">Get Specific Shipment</a>
+                <a class="section" href="#createshipment">Create Shipment</a>
+                <a class="section" href="#updateshipment">Update Shipment</a>
+                <a class="section" href="#deleteshipment">Delete Shipment</a>
 
                 <div class="divider left"></div>
 
@@ -71,8 +76,9 @@
 
                 <h1>Introduction</h1>
                 <p>Welcome to the LOGISTIC2 API documentation. This API provides a secure and efficient way to manage
-                    vendors within your system, supporting CRUD operations (Create, Read, Update, and Delete) for vendor
-                    data.</p>
+                    vendors and shipments within your system, supporting CRUD operations (Create, Read, Update, and
+                    Delete)
+                    for vendor and shipment data.</p>
 
                 <p>This API is <strong>no longer open-source</strong>. To access and use it, you must
                     <strong>register</strong> and obtain an API key. We are continuously working on improvements and
@@ -80,7 +86,7 @@
                 </p>
                 <p>🔹 <strong>Key Features:</strong></p>
                 <ul>
-                    <li>✔️ Secure Vendor Management (CRUD Operations)</li>
+                    <li>✔️ Secure Vendor and Shipment Management (CRUD Operations)</li>
                     <li>✔️ Authentication & API Key Access</li>
                     <li>✔️ Scalable and Structured API Design</li>
                 </ul>
@@ -100,12 +106,10 @@
                         Bearer token.</li>
                 </ol>
 
-                <p>Future updates will continue improving security and expanding API capabilities. Stay tuned! 🚀</p>
-
-
 
                 <h2 id="apiendpoints">API Endpoints</h2>
-                <p>The following API endpoints allow you to manage vendor data. Authentication is required for all
+                <p>The following API endpoints allow you to manage vendor and shipment data. Authentication is required
+                    for all
                     requests.</p>
 
                 <ul>
@@ -113,10 +117,15 @@
                     <li><b>GET /api/vendor?id={id}</b> - Retrieve a specific vendor's data by ID.</li>
                     <li><b>PUT /api/vendor/{id}</b> - Update a vendor's information by ID.</li>
                     <li><b>PATCH /api/vendor/{id}</b> - Partially update a vendor's data.</li>
+                    <li><b>GET /api/shipment-details</b> - Retrieve a list of all shipments.</li>
+                    <li><b>GET /api/shipment-details/{id}</b> - Retrieve a specific shipment's data by ID.</li>
+                    <li><b>POST /api/shipment-details</b> - Create a new shipment.</li>
+                    <li><b>PUT /api/shipment-details/{id}</b> - Update a shipment's information by ID.</li>
+                    <li><b>DELETE /api/shipment-details/{id}</b> - Delete a shipment by ID.</li>
                 </ul>
 
                 <h5>📌 Sample Endpoint:</h5>
-                <p><code>https://logistic2.gwamerchandise.com/api/vendors</code></p>
+                <p><code>https://logistic2.gwamerchandise.com/api/shipment-details</code></p>
 
 
                 <h2 id="authentication">Authentication</h2>
@@ -126,18 +135,15 @@
 
                 <h5>📌 Authentication Header:</h5>
                 <pre><code>Authorization: Bearer YOUR_API_KEY
-                     Accept: application/json</code></pre>
+                         Accept: application/json</code></pre>
 
                 <h5>🔹 Example cURL Request:</h5>
-                <pre><code>curl -X GET "https://logistic2.gwamerchandise.com/api/vendors" \
-                          -H "Authorization: Bearer YOUR_API_KEY" \
-                          -H "Accept: application/json"</code></pre>
-
+                <pre><code>curl -X GET "https://logistic2.gwamerchandise.com/api/shipment-details" \
+                              -H "Authorization: Bearer YOUR_API_KEY" \
+                              -H "Accept: application/json"</code></pre>
 
 
                 <h2 id="features">API Features</h2>
-
-
 
                 <h3 id="getallvendors">Get All Vendors</h3>
                 <p>To retrieve a list of all vendors, send a <b>GET</b> request to the following endpoint:</p>
@@ -177,15 +183,15 @@
 
                 <h5>📌 Sample Response:</h5>
                 <pre><code>
-{
-    "id": 44,
-    "companyName": "MY COMPANY",
-    "email": "yourmom@gmail.com",
-    "fullName": "John Doe",
-    "gender": "Male",
-    "status": "Approved"
-}
-</code></pre>
+        {
+            "id": 44,
+            "companyName": "MY COMPANY",
+            "email": "yourmom@gmail.com",
+            "fullName": "John Doe",
+            "gender": "Male",
+            "status": "Approved"
+        }
+        </code></pre>
 
 
                 <h3 id="updatevendor">Update a Vendor</h3>
@@ -196,38 +202,199 @@
                 <pre><code>PUT /api/vendor/{id}</code></pre>
                 <h5>📌 Sample Response:</h5>
                 <pre><code>
-{
+        {
 
-        "id": 44,
-        "companyName": "Updated Company",
-        "email": "updated.email@example.com",
-        "fullName": "John Doe",
-        "gender": "Male",
-        "status": "Approved"
+                "id": 44,
+                "companyName": "Updated Company",
+                "email": "updated.email@example.com",
+                "fullName": "John Doe",
+                "gender": "Male",
+                "status": "Approved"
 
-}
-</code></pre>
+        }
+        </code></pre>
 
                 <h3 id="updatevendorpartial">Update Vendor (Partial)</h3>
                 <p>To partially update a vendor's data, send a <b>PATCH</b> request to the following endpoint:</p>
 
                 <pre><code>PATCH /api/vendor/{id}</code></pre>
 
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+        {
+            "id": 44,
+            "companyName": "Updated Company Name",
+            "email": "newemail@example.com",
+            "fullName": "John Doe",
+            "gender": "Male",
+            "status": "Approved"
+        }
+        </code></pre>
 
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
+                <h3 id="getallshipments">Get All Shipments</h3>
+                <p>To retrieve a list of all shipments, send a <b>GET</b> request to the following endpoint:</p>
+
+                <pre><code>GET /api/shipment-details</code></pre>
 
                 <h5>📌 Sample Response:</h5>
                 <pre><code>
-{
-    "id": 44,
-    "companyName": "Updated Company Name",
-    "email": "newemail@example.com",
-    "fullName": "John Doe",
-    "gender": "Male",
-    "status": "Approved"
-}
-</code></pre>
+        [
+            {
+                "shipmentId": "SH12345",
+                "poId": "PO67890",
+                "carrierName": "FastShip",
+                "riderName": "John Doe",
+                "trackingNumber": "TRK123456789",
+                "shipmentStatus": "In Transit",
+                "estimatedDeliveryDate": "2023-12-25T00:00:00.000000Z",
+                "actualDeliveryDate": null,
+                "shippingAddress": "123 Main St, Springfield, IL, USA",
+                "shipmentMethod": "Express",
+                "shippingCost": 25.99,
+                "weight": 5.5
+            },
+            {
+                "shipmentId": "SH67890",
+                "poId": "PO12345",
+                "carrierName": "QuickShip",
+                "riderName": "Jane Doe",
+                "trackingNumber": "TRK987654321",
+                "shipmentStatus": "Delivered",
+                "estimatedDeliveryDate": "2023-12-20T00:00:00.000000Z",
+                "actualDeliveryDate": "2023-12-19T00:00:00.000000Z",
+                "shippingAddress": "456 Elm St, Springfield, IL, USA",
+                "shipmentMethod": "Standard",
+                "shippingCost": 15.99,
+                "weight": 3.2
+            }
+        ]
+        </code></pre>
 
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
 
+                <h3 id="getshipment">Get a Specific Shipment</h3>
+                <p>To retrieve details of a specific shipment, send a <b>GET</b> request to the following endpoint,
+                    replacing <code>{id}</code> with the shipment's ID:</p>
+
+                <pre><code>GET /api/shipment-details/{id}</code></pre>
+
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+        {
+            "shipmentId": "SH12345",
+            "poId": "PO67890",
+            "carrierName": "FastShip",
+            "riderName": "John Doe",
+            "trackingNumber": "TRK123456789",
+            "shipmentStatus": "In Transit",
+            "estimatedDeliveryDate": "2023-12-25T00:00:00.000000Z",
+            "actualDeliveryDate": null,
+            "shippingAddress": "123 Main St, Springfield, IL, USA",
+            "shipmentMethod": "Express",
+            "shippingCost": 25.99,
+            "weight": 5.5
+        }
+        </code></pre>
+
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
+                <h3 id="createshipment">Create a Shipment</h3>
+                <p>To create a new shipment, send a <b>POST</b> request to the following endpoint with the required JSON
+                    payload:</p>
+
+                <pre><code>POST /api/shipment-details</code></pre>
+
+                <h5>📌 Sample Request Body:</h5>
+                <pre><code>
+        {
+            "poId": "PO12345",
+            "shipmentStatus": "Pending",
+            "shippingAddress": "123 Main St, Springfield, IL, USA",
+            "shipmentMethod": "Express",
+            "weight": 5.5,
+            "actualDeliveryDate": null
+        }
+        </code></pre>
+
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+        {
+            "shipmentId": "SH12345",
+            "poId": "PO12345",
+            "carrierName": null,
+            "riderName": null,
+            "trackingNumber": "TRKABCDEFGHIJ",
+            "shipmentStatus": "Pending",
+            "estimatedDeliveryDate": "2023-12-25T12:00:00.000000Z",
+            "actualDeliveryDate": null,
+            "shippingAddress": "123 Main St, Springfield, IL, USA",
+            "shipmentMethod": "Express",
+            "shippingCost": 25.99,
+            "weight": 5.5
+        }
+        </code></pre>
+
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
+                <h3 id="updateshipment">Update a Shipment</h3>
+                <p>To update a shipment's information, send a <b>PUT</b> request to the following endpoint, replacing
+                    <code>{id}</code> with the shipment's ID:
+                </p>
+
+                <pre><code>PUT /api/shipment-details/{id}</code></pre>
+
+                <h5>📌 Sample Request Body:</h5>
+                <pre><code>
+        {
+            "poId": "PO12345",
+            "carrierName": "FastShip",
+            "riderName": "John Doe",
+            "trackingNumber": "TRK123456789",
+            "shipmentStatus": "Delivered",
+            "estimatedDeliveryDate": "2023-12-25",
+            "actualDeliveryDate": "2023-12-24",
+            "shippingAddress": "123 Main St, Springfield, IL, USA",
+            "shipmentMethod": "Express",
+            "shippingCost": 25.99,
+            "weight": 5.5
+        }
+        </code></pre>
+
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+        {
+            "shipmentId": "SH12345",
+            "poId": "PO12345",
+            "carrierName": "FastShip",
+            "riderName": "John Doe",
+            "trackingNumber": "TRK123456789",
+            "shipmentStatus": "Delivered",
+            "estimatedDeliveryDate": "2023-12-25T00:00:00.000000Z",
+            "actualDeliveryDate": "2023-12-24T00:00:00.000000Z",
+            "shippingAddress": "123 Main St, Springfield, IL, USA",
+            "shipmentMethod": "Express",
+            "shippingCost": 25.99,
+            "weight": 5.5
+        }
+        </code></pre>
+
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
+                <h3 id="deleteshipment">Delete a Shipment</h3>
+                <p>To delete a shipment, send a <b>DELETE</b> request to the following endpoint, replacing
+                    <code>{id}</code> with the shipment's ID:
+                </p>
+
+                <pre><code>DELETE /api/shipment-details/{id}</code></pre>
+
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+        {
+            "message": "Shipment deleted successfully"
+        }
+        </code></pre>
 
                 <div class="divider" style="width:100%; margin:30px 0;"></div>
 
@@ -235,6 +402,10 @@
                 <p>If you need more detailed information on how to interact with the API, please refer to our full
                     documentation or contact our support team at <a href="mailto:yourapp@email.com">
                         logistic2.devs.gwamerchandise.com</a>.</p>
+
+
+
+
 
             </div>
 

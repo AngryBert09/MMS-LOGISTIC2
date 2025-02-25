@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
 use App\Mail\EmailVerificationMail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 
 class ProfileController extends Controller
@@ -43,9 +45,30 @@ class ProfileController extends Controller
      */
     public function show($id)
     {
+        // Retrieve vendor from the database, will throw 404 if not found
         $vendor = Vendor::findOrFail($id);
+
+        // Check if the vendor is verified by querying the verified_vendor table.
+        // Adjust the table and column names as necessary.
+        $isVerified = DB::table('verified_vendors')
+            ->where('vendor_id', $vendor->id)
+            ->value('is_verified');
+
+        // If the vendor is verified, use caching; otherwise, simply return the view.
+        if ($isVerified) {
+            // Define a cache key based on the vendor ID (or email if you prefer)
+            $cacheKey = "vendor_profile_{$vendor->id}";
+
+            // Retrieve vendor profile from cache or store it for 30 minutes if not present
+            $vendor = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($vendor) {
+                return $vendor;
+            });
+        }
+
         return view('profiles.show', compact('vendor'));
     }
+
+
 
     /**
      * Show the form for editing the specified resource.

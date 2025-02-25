@@ -2,25 +2,21 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Http\Requests\RegisterUserRequest;
 use App\Mail\WelcomeEmail;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Models\VerifiedVendor;
+use App\Notifications\WelcomeVendorNotification;
+use App\Events\VendorStatusUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Vendor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Notifications\VendorRegistered;
-use App\Notifications\WelcomeVendorNotification;
-use App\Models\VerifiedVendor;
-use App\Events\VendorStatusUpdated;
 use Illuminate\Support\Facades\Cache;
-
-
 
 class AuthController extends Controller
 {
@@ -31,105 +27,84 @@ class AuthController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'companyName' => 'required|string|max:255',
-            'email' => 'required|email|unique:vendors,email,' . ($decodedEmail ?? $request->email),
-            'password' => 'required|string|min:8|confirmed',
+            'email' => 'required|email|unique:vendors,email',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
+            ],
             'fullName' => 'required|string|max:255',
             'gender' => 'required|string',
             'address' => 'nullable|string|max:255',
-            'business_registration' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'mayor_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'tin' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'proof_of_identity' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048'
+            'business_registration' => 'required|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:2048',
+            'mayor_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:2048',
+            'tin' => 'required|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:2048',
+            'proof_of_identity' => 'required|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:2048',
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        // Create a new vendor record and set properties
-        $vendor = new Vendor();
-        $vendor->company_name = $request->companyName;
-        $vendor->email = $decodedEmail ?? $request->email; // Use decoded email if available
-        $vendor->password = Hash::make($request->password);
-        $vendor->full_name = $request->fullName;
-        $vendor->gender = $request->gender;
-        $vendor->address = $request->address;
+        $vendor = new Vendor([
+            'company_name' => $request->companyName,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'full_name' => $request->fullName,
+            'gender' => $request->gender,
+            'address' => $request->address,
+        ]);
 
-        // Handle file uploads with storage path management
-        $errorMessages = [];
-        try {
-            // Check and upload business registration
-            if ($request->hasFile('business_registration')) {
-                if ($request->file('business_registration')->getSize() > 2048000) {
-                    $errorMessages[] = 'Business registration file is too large. Max size allowed is 2MB.';
-                } else {
-                    $vendor->business_registration = $request->file('business_registration')->store('documents');
-                }
-            }
+        $errorMessages = $this->handleFileUploads($request, $vendor);
 
-            // Check and upload mayor permit
-            if ($request->hasFile('mayor_permit')) {
-                if ($request->file('mayor_permit')->getSize() > 2048000) {
-                    $errorMessages[] = 'Mayor permit file is too large. Max size allowed is 2MB.';
-                } else {
-                    $vendor->mayor_permit = $request->file('mayor_permit')->store('documents');
-                }
-            }
-
-            // Check and upload tin
-            if ($request->hasFile('tin')) {
-                if ($request->file('tin')->getSize() > 2048000) {
-                    $errorMessages[] = 'TIN file is too large. Max size allowed is 2MB.';
-                } else {
-                    $vendor->tin = $request->file('tin')->store('documents');
-                }
-            }
-
-            // Check and upload proof of identity
-            if ($request->hasFile('proof_of_identity')) {
-                if ($request->file('proof_of_identity')->getSize() > 2048000) {
-                    $errorMessages[] = 'Proof of identity file is too large. Max size allowed is 2MB.';
-                } else {
-                    $vendor->proof_of_identity = $request->file('proof_of_identity')->store('documents');
-                }
-            }
-        } catch (\Exception $e) {
-            // If an unexpected exception occurs, return an error
-            $errorMessages[] = 'An unexpected error occurred during file upload.';
-        }
-
-        // If any file was too large, return the user back with the error messages
         if (!empty($errorMessages)) {
             return back()->withErrors(['error' => $errorMessages])->withInput();
         }
 
-        // Save vendor data
         $vendor->save();
 
-        // Create VerifiedVendor record
         VerifiedVendor::create([
-            'vendor_id' => $vendor->id, // Use the newly created vendor's ID
-            'is_verified' => false, // Set to false as per requirement
-            'verified_at' => null, // Initially null, as the vendor is not verified yet
+            'vendor_id' => $vendor->id,
+            'is_verified' => false,
+            'verified_at' => null,
         ]);
 
-        // Send notification to the vendor
         $vendor->notify(new WelcomeVendorNotification($vendor->full_name));
 
-        // Redirect to login with a confirmation message
         return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
     }
 
+    private function handleFileUploads(Request $request, Vendor $vendor): array
+    {
+        $errorMessages = [];
+        $files = [
+            'business_registration',
+            'mayor_permit',
+            'tin',
+            'proof_of_identity',
+        ];
 
+        foreach ($files as $file) {
+            if ($request->hasFile($file)) {
+                if ($request->file($file)->getSize() > 2048000) {
+                    $errorMessages[] = ucfirst(str_replace('_', ' ', $file)) . ' file is too large. Max size allowed is 2MB.';
+                } else {
+                    $vendor->$file = $request->file($file)->store('documents');
+                }
+            }
+        }
+
+        return $errorMessages;
+    }
 
     public function login()
     {
         return view('auth.login');
     }
-
     public function authenticate()
     {
         $validated = request()->validate([
@@ -142,44 +117,53 @@ class AuthController extends Controller
 
         Log::info('Attempting to retrieve vendor from cache', ['email' => $email]);
 
-        $vendor = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($email) {
+        // Retrieve vendor from cache or database
+        $vendor = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($email) {
             Log::info('Cache miss: Retrieving vendor from database', ['email' => $email]);
-            return \App\Models\Vendor::where('email', $email)->first(['id', 'email']);
+            return Vendor::where('email', $email)->first(['id', 'email']);
         });
 
         if (!$vendor) {
+            Cache::forget($cacheKey); // Ensure outdated cache is cleared
             return response()->json(['errors' => ['email' => 'No vendor found with this email.']], 422);
         }
 
-        $vendor = \App\Models\Vendor::find($vendor->id);
+        $vendor = Vendor::find($vendor->id);
+        if (!$vendor) {
+            Cache::forget($cacheKey);
+            return response()->json(['errors' => ['email' => 'No vendor found with this email.']], 422);
+        }
 
+        // Check vendor status
         if ($vendor->status !== 'Approved') {
             $statusMessage = match ($vendor->status) {
-                'Pending' => 'Your application is still pending. Please wait for approval.',
+                'Pending'  => 'Your application is still pending. Please wait for approval.',
                 'Rejected' => 'Your application has been rejected. Please contact support.',
-                default => 'Unexpected vendor status. Please contact support.',
+                default    => 'Unexpected vendor status. Please contact support.',
             };
+
+            Cache::forget($cacheKey);
             return response()->json(['errors' => ['email' => $statusMessage]], 422);
         }
 
+        // Attempt authentication
         $remember = request()->has('remember');
         if (!auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
-            Log::warning('Login failed due to incorrect password.', ['email' => $vendor->email]);
+            Cache::forget($cacheKey);
             return response()->json(['errors' => ['password' => 'Invalid password.']], 422);
         }
 
         request()->session()->regenerate();
         Log::info('Vendor login successful', ['vendor_id' => $vendor->id]);
 
+        // Mark vendor as online and update cache
         $vendor->update(['is_online' => true]);
         broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
 
-        if ($vendor->last_2fa_at && $vendor->last_2fa_at->gt(now()->subDay())) {
-            Log::info('Skipping 2FA, already authenticated today.', [
-                'vendor_id' => $vendor->id,
-                'last_2fa_at' => $vendor->last_2fa_at,
-            ]);
+        Cache::put($cacheKey, $vendor, now()->addMinutes(2)); // Refresh cache after successful login
 
+        // Handle 2FA authentication
+        if ($vendor->last_2fa_at && $vendor->last_2fa_at->gt(now()->subDay())) {
             return response()->json(['redirect' => route('dashboard')], 200);
         }
 
@@ -193,50 +177,33 @@ class AuthController extends Controller
 
         Mail::to($vendor->email)->send(new \App\Mail\TwoFactorCodeMail($twoFactorCode));
 
-        Log::info('2FA code sent', ['vendor_id' => $vendor->id]);
-
         return response()->json(['redirect' => route('2fa.verify')], 200);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
     public function logout()
     {
-        // Get the authenticated vendor
-        $vendor = auth()->user();
+        $vendor = auth('vendor')->user();
 
         if ($vendor) {
-            // Update the vendor's 'is_online' status to false
-            $vendor->is_online = false;
-            $vendor->save();
-
-            // Broadcast the vendor's offline status
+            // Update vendor status to offline
+            $vendor->update(['is_online' => false]);
             broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
+
+            // Define cache keys for analyze and getMyPerformance
+            $analysisCacheKey = "vendor_{$vendor->id}_supplier_analysis";
+            $performanceCacheKey = "vendor_{$vendor->id}_performance";
+            $profileCacheKey = "vendor_profile_{$vendor->id}";
+
+            // Clear the caches if they exist
+            Cache::forget($analysisCacheKey);
+            Cache::forget($performanceCacheKey);
+            Cache::forget($profileCacheKey);
         }
 
-        // Perform the logout
         auth()->logout();
-
-        // Invalidate the session
         request()->session()->invalidate();
-
-        // Regenerate CSRF token for security
         request()->session()->regenerateToken();
 
-        // Clear all cached data (optional)
-        Cache::flush();
-
-        // Redirect to the login page with a success message
         return redirect()->route('login')->with('success', 'Logged out successfully');
     }
 }
