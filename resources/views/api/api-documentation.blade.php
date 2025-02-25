@@ -47,7 +47,6 @@
         <div class="row wrapper">
 
             <div class="sidepanel">
-
                 <a class="title" href="#">Introduction</a>
                 <a class="section" href="#gettingstarted">Getting Started</a>
                 <a class="section" href="#apiendpoints">API Endpoints</a>
@@ -57,20 +56,34 @@
 
                 <a class="title" href="#features">API Features</a>
 
-                <a class="section" href="#getallvendor">Get All Vendors</a>
-                <a class="section" href="#getvendor">Get Specific Vendor</a>
-                <a class="section" href="#updatevendor">Update Vendor</a>
-                <a class="section" href="#getallshipments">Get All Shipments</a>
-                <a class="section" href="#getshipment">Get Specific Shipment</a>
-                <a class="section" href="#createshipment">Create Shipment</a>
-                <a class="section" href="#updateshipment">Update Shipment</a>
-                <a class="section" href="#deleteshipment">Delete Shipment</a>
+                <div>
+                    <a id="vendorsToggle" class="title" href="#">Vendors ▾</a>
+                    <div id="vendorsDropdown" class="dropdown">
+                        <a class="section" href="#getallvendor">Get All Vendors</a>
+                        <a class="section" href="#getvendor">Get Specific Vendor</a>
+                        <a class="section" href="#updatevendor">Update Vendor</a>
+                    </div>
+                </div>
+
+                <div>
+                    <a id="shipmentsToggle" class="title" href="#">Shipments ▾</a>
+                    <div id="shipmentsDropdown" class="dropdown">
+                        <a class="section" href="#getallshipments">Get All Shipments</a>
+                        <a class="section" href="#getshipment">Get Specific Shipment</a>
+                        <a class="section" href="#createshipment">Create Shipment</a>
+                        <a class="section" href="#updateshipment">Update Shipment</a>
+                        <a class="section" href="#deleteshipment">Delete Shipment</a>
+                    </div>
+                </div>
 
                 <div class="divider left"></div>
 
                 <a class="title" href="#moreinfo">More Info</a>
-
             </div>
+
+
+            <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 
             <div class="right-col">
 
@@ -417,7 +430,19 @@
 
 </html>
 
+<script>
+    // Toggle Vendors Dropdown
+    document.getElementById('vendorsToggle').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('vendorsDropdown').classList.toggle('show');
+    });
 
+    // Toggle Shipments Dropdown
+    document.getElementById('shipmentsToggle').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('shipmentsDropdown').classList.toggle('show');
+    });
+</script>
 
 <style>
     html {
@@ -772,6 +797,44 @@
 
         }
     }
+
+    .dropdown {
+        display: none;
+        margin-left: 15px;
+        text-decoration: none;
+        /* Indentation for dropdown items */
+    }
+
+    .dropdown.show {
+        display: block;
+    }
+
+    .sidepanel a {
+        display: block;
+        padding: 5px 10px;
+        text-decoration: none;
+        /* Removes underline */
+        color: #333;
+        cursor: pointer;
+    }
+
+    .sidepanel a:hover {
+        text-decoration: none;
+        /* Ensures no underline on hover */
+        background-color: #f0f0f0;
+        /* Optional: Adds a hover effect */
+    }
+
+    .title {
+        font-weight: bold;
+    }
+
+    .divider {
+        margin: 10px 0;
+        border-top: 1px solid #ddd;
+    }
+
+
 
 
     /* Small devices (portrait tablets and large phones, 650px and up) */
