@@ -41,7 +41,7 @@ class ShipmentDetailController extends Controller
         $trackingNumber = 'TRK' . strtoupper(Str::random(10));
 
         // Define the origin and destination
-        $origin = 'New Jersey';
+        $origin = 'Greenwoods Executive Village, Blk 2 Lot 6 Redwood';
         $destination = $request->shippingAddress;
 
         // Call the distance matrix API
@@ -168,6 +168,49 @@ class ShipmentDetailController extends Controller
     {
         DB::table('shipment_details')->where('shipment_id', $id)->delete();
         return response()->json(null, 204);
+    }
+
+    public function calculateShippingCost(Request $request)
+    {
+        $request->validate([
+            'destination' => 'required|string',
+        ]);
+
+        $origin = 'Greenwoods Executive Village, Blk 2 Lot 6 Redwood';
+        $destination = $request->input('destination');
+        $apiKey = env('GOMAPS_API_KEY');
+
+        // Call Distance Matrix API
+        $response = Http::get('https://maps.gomaps.pro/maps/api/distancematrix/json', [
+            'origins' => $origin,
+            'destinations' => $destination,
+            'key' => $apiKey,
+        ]);
+
+        $data = $response->json();
+
+        // Check if API response is valid
+        if ($response->successful() && isset($data['rows'][0]['elements'][0]['distance']['value'])) {
+            $distanceInMeters = $data['rows'][0]['elements'][0]['distance']['value'];
+            $distanceInKm = $distanceInMeters / 1000; // Convert meters to km
+
+            // Define cost per km
+            $costPerKm = 2;
+            $shippingCost = $distanceInKm * $costPerKm;
+
+            return response()->json([
+                'success' => true,
+                'origin' => $origin,
+                'destination' => $destination,
+                'distanceKm' => round($distanceInKm, 2),
+                'shippingCost' => round($shippingCost, 2)
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Unable to fetch distance data'
+        ], 400);
     }
 
     private function transformToCamelCase($data)

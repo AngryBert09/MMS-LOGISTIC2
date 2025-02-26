@@ -73,6 +73,7 @@
                         <a class="section" href="#createshipment">Create Shipment</a>
                         <a class="section" href="#updateshipment">Update Shipment</a>
                         <a class="section" href="#deleteshipment">Delete Shipment</a>
+                        <a class="section" href="#calculateShipping">Calculate shipping cost</a>
                     </div>
                 </div>
 
@@ -408,6 +409,40 @@
             "message": "Shipment deleted successfully"
         }
         </code></pre>
+
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
+
+                <h3 id="calculateShipping">Calculate Shipping Cost</h3>
+                <p>To calculate the shipping cost, send a <b>POST</b> request to the following endpoint:</p>
+
+                <pre><code>POST /api/calculate-shipping</code></pre>
+
+                <h5>📌 Request Body (JSON):</h5>
+                <pre><code>
+{
+    "destination": "Los Angeles, CA"
+}
+</code></pre>
+
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+{
+    "success": true,
+    "origin": "New York, NY",
+    "destination": "Los Angeles, CA",
+    "distanceKm": 4500.12,
+    "shippingCost": 9000.24
+}
+</code></pre>
+
+                <h5>📌 Error Response:</h5>
+                <pre><code>
+{
+    "success": false,
+    "message": "Unable to fetch distance data"
+}
+</code></pre>
 
                 <div class="divider" style="width:100%; margin:30px 0;"></div>
 

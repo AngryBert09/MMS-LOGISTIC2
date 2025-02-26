@@ -51,4 +51,5 @@ Route::prefix('shipment-details')->group(function () {
 
     // Delete a specific shipment detail by ID
     Route::delete('/{id}', [ShipmentDetailController::class, 'destroy']);
+    Route::post('/calculate-shipping', [ShipmentDetailController::class, 'calculateShippingCost']);
 });
