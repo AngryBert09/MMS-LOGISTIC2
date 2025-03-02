@@ -27,12 +27,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('vendors', [VendorManagementController::class, 'index']); // Retrieve all vendors
-    Route::get('/vendor', [VendorManagementController::class, 'show']); // Retrieve a specific vendor
-    Route::put('vendor/{id}', [VendorManagementController::class, 'update']); // Update a vendor
-    Route::patch('vendor/{id}', [VendorManagementController::class, 'patch']); // Partial update of a vendor
-});
+Route::get('vendors', [VendorManagementController::class, 'index']); // Retrieve all vendors
+Route::get('/vendor', [VendorManagementController::class, 'show']); // Retrieve a specific vendor
+Route::put('vendor/{id}', [VendorManagementController::class, 'update']); // Update a vendor
+Route::patch('vendor/{id}', [VendorManagementController::class, 'patch']); // Partial update of a vendor
+
 
 Route::get('/supplier-analysis', [SupplierController::class, 'analyzeSuppliers']);
 

@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Validator;
 
 class VendorManagementController extends Controller
 {
-    public function __construct()
-    {
-        // Apply Sanctum authentication to all methods
-        $this->middleware('auth:sanctum');
-    }
+    // public function __construct()
+    // {
+    //     // Apply Sanctum authentication to all methods
+    //     $this->middleware('auth:sanctum');
+    // }
 
     /**
      * Retrieve all vendors with pagination.
