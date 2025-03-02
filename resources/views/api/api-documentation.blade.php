@@ -57,7 +57,7 @@
                 <a class="title" href="#features">API Features</a>
 
                 <div>
-                    <a id="vendorsToggle" class="title" href="#">Vendors</a>
+                    <a id="vendorsToggle" class="title" href="#">• Vendors</a>
                     <div id="vendorsDropdown" class="dropdown">
                         <a class="section" href="#getallvendor">Get All Vendors</a>
                         <a class="section" href="#getvendor">Get Specific Vendor</a>
@@ -66,7 +66,7 @@
                 </div>
 
                 <div>
-                    <a id="shipmentsToggle" class="title" href="#">Shipments</a>
+                    <a id="shipmentsToggle" class="title" href="#">• Shipments</a>
                     <div id="shipmentsDropdown" class="dropdown">
                         <a class="section" href="#getallshipments">Get All Shipments</a>
                         <a class="section" href="#getshipment">Get Specific Shipment</a>
@@ -78,7 +78,7 @@
                 </div>
 
                 <div>
-                    <a id="invoiceToggle" class="title" href="#">Invoices</a>
+                    <a id="invoiceToggle" class="title" href="#">• Invoices</a>
                     <div id="invoicesDropdown" class="dropdown">
                         <a class="section" href="#getallinvoices">Get All invoices</a>
                         <a class="section" href="#getinvoicebyid">Get Specific invoice</a>
