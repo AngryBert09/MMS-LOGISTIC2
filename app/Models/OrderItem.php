@@ -16,6 +16,7 @@ class OrderItem extends Model
     protected $fillable = [
         'po_id', // Foreign key reference to PurchaseOrder
         'item_description',
+        'total_price',
         'quantity',
         'unit_price',
     ];

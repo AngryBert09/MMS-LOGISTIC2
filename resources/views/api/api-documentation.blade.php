@@ -24,7 +24,7 @@
         <div class="row content">
             <a href="#"><img class="logo" src="{{ asset('images/greatwall-logo.png') }}" alt="Logo"></a>
             <a class="right" style="text-decoration: underline;" href="#"><i class="fas fa-book"></i>&nbsp;
-                Documentation 1.5.x</a>
+                Documentation 1.6.x</a>
             <a class="right" href="mailto:logistic2.devs.gwamerchandise.com" target="_blank"><i
                     class="fas fa-paper-plane"></i>&nbsp;
                 logistic2.devs.gwamerchandise.com</a>
@@ -57,7 +57,7 @@
                 <a class="title" href="#features">API Features</a>
 
                 <div>
-                    <a id="vendorsToggle" class="title" href="#">Vendors ▾</a>
+                    <a id="vendorsToggle" class="title" href="#">Vendors</a>
                     <div id="vendorsDropdown" class="dropdown">
                         <a class="section" href="#getallvendor">Get All Vendors</a>
                         <a class="section" href="#getvendor">Get Specific Vendor</a>
@@ -66,7 +66,7 @@
                 </div>
 
                 <div>
-                    <a id="shipmentsToggle" class="title" href="#">Shipments ▾</a>
+                    <a id="shipmentsToggle" class="title" href="#">Shipments</a>
                     <div id="shipmentsDropdown" class="dropdown">
                         <a class="section" href="#getallshipments">Get All Shipments</a>
                         <a class="section" href="#getshipment">Get Specific Shipment</a>
@@ -74,6 +74,15 @@
                         <a class="section" href="#updateshipment">Update Shipment</a>
                         <a class="section" href="#deleteshipment">Delete Shipment</a>
                         <a class="section" href="#calculateShipping">Calculate shipping cost</a>
+                    </div>
+                </div>
+
+                <div>
+                    <a id="invoiceToggle" class="title" href="#">Invoices</a>
+                    <div id="invoicesDropdown" class="dropdown">
+                        <a class="section" href="#getallinvoices">Get All invoices</a>
+                        <a class="section" href="#getinvoicebyid">Get Specific invoice</a>
+                        <a class="section" href="#updateinvoice">Update payment invoice</a>
                     </div>
                 </div>
 
@@ -446,6 +455,115 @@
 
                 <div class="divider" style="width:100%; margin:30px 0;"></div>
 
+
+
+                <h3 id="getallinvoices">Get All Invoices</h3>
+                <p>To retrieve a list of all invoices, send a <b>GET</b> request to the following endpoint:</p>
+                <pre><code>GET /api/invoices</code></pre>
+                <h5>📌 Sample Response:</h5>
+                <pre><code> {
+                    "success": true,
+                    "data": [
+                        {
+                            "invoiceId": 1,
+                            "invoiceNumber": "INV_001",
+                            "poId": 100,
+                            "vendorId": 10,
+                            "invoiceDate": "2025-01-01",
+                            "dueDate": "2025-01-15",
+                            "totalAmount": "1000.00",
+                            "taxAmount": "50.00",
+                            "discountAmount": "100.00",
+                            "status": "pending"
+                        }
+                    ]
+                }
+                 </code></pre>
+
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
+                <h3 id="getinvoicebyid">Get Invoice by ID</h3>
+                <p>To retrieve details of a specific invoice, send a <b>GET</b> request to the following endpoint:</p>
+                <pre><code>GET /api/invoices/{id}</code></pre>
+                <h5>📌 Sample Response:</h5>
+                <pre><code>
+                    {
+                        "success": true,
+                        "data": {
+                            "invoiceId": 1,
+                            "invoiceNumber": "INV_001",
+                            "poId": 100,
+                            "vendorId": 10,
+                            "invoiceDate": "2025-01-01",
+                            "dueDate": "2025-01-15",
+                            "totalAmount": "1000.00",
+                            "taxAmount": "50.00",
+                            "discountAmount": "100.00",
+                            "status": "pending"
+                        },
+
+                        {
+                            "invoiceId": 2,
+                            "invoiceNumber": "INV_002",
+                            "poId": 100,
+                            "vendorId": 10,
+                            "invoiceDate": "2025-01-01",
+                            "dueDate": "2025-01-15",
+                            "totalAmount": "1000.00",
+                            "taxAmount": "50.00",
+                            "discountAmount": "100.00",
+                            "status": "pending"
+                        }
+
+
+                    }   </code></pre>
+
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
+
+                <h3 id="updateinvoice">Update Invoice Payment</h3>
+                <p>To update an invoice with a payment, send a <b>PUT</b> request to the following endpoint:</p>
+                <pre><code>PUT /api/{id}/pay</code></pre>
+                <h5>📌 Request Body:</h5>
+                <pre><code>
+                    {
+                        "paymentAmount": 500.00,
+                        "paymentMethod": "Credit Card"
+                    }
+
+                </code></pre>
+                <h5>📌 Sample Response (Success):</h5>
+                <pre><code>
+                    {
+                        "success": true,
+                        "message": "Payment applied successfully.",
+                        "data": {
+                            "invoiceNumber": "INV_001",
+                            "remainingBalance": 500.00,
+                            "status": "partial",
+                            "receiptNumber": "RCP-001"
+                        }
+                    }
+                </code></pre>
+                <h5>📌 Sample Response (Error - Payment Exceeds Balance):</h5>
+                <pre><code>
+                    {
+                        "success": false,
+                        "message": "Payment amount exceeds the remaining balance."
+                    }
+                </code></pre>
+                <h5>📌 Sample Response (Error - Transaction Failed):</h5>
+                <pre><code>
+                    {
+                        "success": false,
+                        "message": "Failed to apply payment.",
+                        "error": "Internal Server Error"
+                    }
+                </code></pre>
+
+                <div class="divider" style="width:100%; margin:30px 0;"></div>
+
+
                 <h2 id="moreinfo">More Info</h2>
                 <p>If you need more detailed information on how to interact with the API, please refer to our full
                     documentation or contact our support team at <a href="mailto:yourapp@email.com">
@@ -476,6 +594,11 @@
     document.getElementById('shipmentsToggle').addEventListener('click', function(e) {
         e.preventDefault();
         document.getElementById('shipmentsDropdown').classList.toggle('show');
+    });
+
+    document.getElementById('invoiceToggle').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('invoicesDropdown').classList.toggle('show');
     });
 </script>
 

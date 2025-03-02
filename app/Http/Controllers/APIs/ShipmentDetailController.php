@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 
 class ShipmentDetailController extends Controller
@@ -29,27 +30,40 @@ class ShipmentDetailController extends Controller
     {
         // Validate the request data
         $request->validate([
-            'poId' => 'required|string',
-            'shipmentStatus' => 'required|string',
-            'shippingAddress' => 'required|string',
-            'shipmentMethod' => 'required|string',
-            'weight' => 'required|numeric',
+            'poId' => 'required|string|max:255',
+            'shipmentStatus' => 'required|string|in:In Transit,Pending,Delivered,Delayed',
+            'shippingAddress' => 'required|string|max:500',
+            'shipmentMethod' => 'required|string|in:Standard,Express,Overnight',
+            'weight' => 'required|numeric|min:0',
             'actualDeliveryDate' => 'nullable|date',
         ]);
 
         // Generate a tracking number
-        $trackingNumber = 'TRK' . strtoupper(Str::random(10));
+        $date = now()->format('Ymd'); // YYYYMMDD
+        $randomSuffix = Str::upper(Str::random(4));
+        $trackingNumber = 'TRK-' . $date . '-' . $randomSuffix;
 
         // Define the origin and destination
-        $origin = 'Greenwoods Executive Village, Blk 2 Lot 6 Redwood';
+
         $destination = $request->shippingAddress;
 
         // Call the distance matrix API
-        $response = Http::get('https://maps.gomaps.pro/maps/api/distancematrix/json', [
-            'origins' => $origin,
-            'destinations' => $destination,
-            'key' => 'AlzaSyQj0hGu6jyxFCibM7y_ViDRrKBgj3HLLst',
-        ]);
+        try {
+            $response = Http::get('https://maps.gomaps.pro/maps/api/distancematrix/json', [
+                'origins' => env('SHIPPING_ORIGIN'),
+                'destinations' => $destination,
+                'key' => env('GOMAPS_API_KEY'),
+            ]);
+
+            if (!$response->successful()) {
+                throw new \Exception('Failed to fetch distance data.');
+            }
+
+            $data = $response->json();
+        } catch (\Exception $e) {
+            Log::error('Distance Matrix API failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to calculate shipping cost.'], 500);
+        }
 
         // Set defaults
         $estimatedDeliveryDate = now()->addDay();
@@ -176,16 +190,27 @@ class ShipmentDetailController extends Controller
             'destination' => 'required|string',
         ]);
 
-        $origin = 'Greenwoods Executive Village, Blk 2 Lot 6 Redwood';
+
         $destination = $request->input('destination');
         $apiKey = env('GOMAPS_API_KEY');
 
         // Call Distance Matrix API
-        $response = Http::get('https://maps.gomaps.pro/maps/api/distancematrix/json', [
-            'origins' => $origin,
-            'destinations' => $destination,
-            'key' => $apiKey,
-        ]);
+        try {
+            $response = Http::get('https://maps.gomaps.pro/maps/api/distancematrix/json', [
+                'origins' => env('SHIPPING_ORIGIN'),
+                'destinations' => $destination,
+                'key' => env('GOMAPS_API_KEY'),
+            ]);
+
+            if (!$response->successful()) {
+                throw new \Exception('Failed to fetch distance data.');
+            }
+
+            $data = $response->json();
+        } catch (\Exception $e) {
+            Log::error('Distance Matrix API failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to calculate shipping cost.'], 500);
+        }
 
         $data = $response->json();
 
@@ -215,58 +240,29 @@ class ShipmentDetailController extends Controller
 
     private function transformToCamelCase($data)
     {
-        if ($data instanceof \Illuminate\Support\Collection) {
-            // Handle Collections
-            return $data->map(function ($item) {
-                return [
-                    'shipmentId' => $item->shipment_id,
-                    'poId' => $item->po_id,
-                    'carrierName' => $item->carrier_name,
-                    'riderName' => $item->rider_name,
-                    'trackingNumber' => $item->tracking_number,
-                    'shipmentStatus' => $item->shipment_status,
-                    'estimatedDeliveryDate' => $item->estimated_delivery_date,
-                    'actualDeliveryDate' => $item->actual_delivery_date,
-                    'shippingAddress' => $item->shipping_address,
-                    'shipmentMethod' => $item->shipment_method,
-                    'shippingCost' => $item->shipping_cost,
-                    'weight' => $item->weight,
-                ];
-            });
-        } elseif (is_array($data)) {
-            // Handle plain arrays
-            return array_map(function ($item) {
-                return [
-                    'shipmentId' => $item->shipment_id,
-                    'poId' => $item->po_id,
-                    'carrierName' => $item->carrier_name,
-                    'riderName' => $item->rider_name,
-                    'trackingNumber' => $item->tracking_number,
-                    'shipmentStatus' => $item->shipment_status,
-                    'estimatedDeliveryDate' => $item->estimated_delivery_date,
-                    'actualDeliveryDate' => $item->actual_delivery_date,
-                    'shippingAddress' => $item->shipping_address,
-                    'shipmentMethod' => $item->shipment_method,
-                    'shippingCost' => $item->shipping_cost,
-                    'weight' => $item->weight,
-                ];
-            }, $data);
-        } else {
-            // Handle single objects
+        $transform = function ($item) {
             return [
-                'shipmentId' => $data->shipment_id,
-                'poId' => $data->po_id,
-                'carrierName' => $data->carrier_name,
-                'riderName' => $data->rider_name,
-                'trackingNumber' => $data->tracking_number,
-                'shipmentStatus' => $data->shipment_status,
-                'estimatedDeliveryDate' => $data->estimated_delivery_date,
-                'actualDeliveryDate' => $data->actual_delivery_date,
-                'shippingAddress' => $data->shipping_address,
-                'shipmentMethod' => $data->shipment_method,
-                'shippingCost' => $data->shipping_cost,
-                'weight' => $data->weight,
+                'shipmentId' => $item->shipment_id,
+                'poId' => $item->po_id,
+                'carrierName' => $item->carrier_name,
+                'riderName' => $item->rider_name,
+                'trackingNumber' => $item->tracking_number,
+                'shipmentStatus' => $item->shipment_status,
+                'estimatedDeliveryDate' => $item->estimated_delivery_date,
+                'actualDeliveryDate' => $item->actual_delivery_date,
+                'shippingAddress' => $item->shipping_address,
+                'shipmentMethod' => $item->shipment_method,
+                'shippingCost' => $item->shipping_cost,
+                'weight' => $item->weight,
             ];
+        };
+
+        if ($data instanceof \Illuminate\Support\Collection) {
+            return $data->map($transform);
+        } elseif (is_array($data)) {
+            return array_map($transform, $data);
+        } else {
+            return $transform($data);
         }
     }
 }

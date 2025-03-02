@@ -96,7 +96,7 @@
                                                 </p>
                                             </div>
                                             <div class="invoice-rate font-20 weight-600">
-                                                {{-- {{ $invoice->purchaseOrder->}} --}}
+                                                {{ $invoice->due_date }}
                                             </div>
                                             <div class="invoice-subtotal">
                                                 <span

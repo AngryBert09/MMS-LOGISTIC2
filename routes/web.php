@@ -56,11 +56,15 @@ Route::get('/Faqs', function () {
     return view('vendors.faqs');
 })->name('faqs')->middleware('auth:vendor');
 
-Route::get('paypal/checkout', [PayPalController::class, 'checkout'])->name('paypal.checkout');
-Route::get('paypal/confirm', [PayPalController::class, 'confirm'])->name('paypal.confirm');
-Route::get('paypal/cancel', function () {
-    return redirect()->route('paypal.checkout')->with('error', 'Payment was cancelled.');
-})->name('paypal.cancel');
+Route::middleware(['auth:vendor'])->group(function () {
+    Route::get('/paypal/create-order/{invoiceId}', [InvoiceController::class, 'createPayPalOrder'])->name('paypal.createOrder');
+    Route::get('/paypal/capture-order/{orderId}', [InvoiceController::class, 'capturePayPalOrder'])->name('paypal.captureOrder');
+    Route::get('/paypal/cancel', function () {
+        return redirect()->route('invoices.index')->withErrors('Payment was cancelled.');
+    })->name('paypal.cancel');
+});
+
+
 
 Route::post('/send-message', [MessageController::class, 'store'])->name('messages.send')->middleware('auth:vendor');
 Route::get('/chat', [MessageController::class, 'showChat'])->name('chat')->middleware('auth:vendor');

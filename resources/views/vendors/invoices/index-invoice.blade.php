@@ -4,18 +4,6 @@
 @include('layout.head')
 
 <body>
-    {{-- <div class="pre-loader">
-        <div class="pre-loader-box">
-            <div class="loader-logo">
-                <img src="vendors/images/deskapp-logo.svg" alt="" />
-            </div>
-            <div class="loader-progress" id="progress_div">
-                <div class="bar" id="bar1"></div>
-            </div>
-            <div class="percent" id="percent1">0%</div>
-            <div class="loading-text">Loading...</div>
-        </div>
-    </div> --}}
 
     @include('layout.nav')
 
@@ -42,7 +30,7 @@
                                     <th class="table-plus datatable-nosort">Invoice #</th>
                                     <th>Tax Amount</th>
                                     <th>Discount Amount</th>
-                                    <th>Total Amount</th>
+                                    <th>Balance</th>
                                     <th>Invoice Date</th>
                                     <th>Due Date</th>
                                     <th>Status</th>
@@ -82,17 +70,6 @@
                     </div>
                 </div>
 
-
-                <!-- Simple Datatable End -->
-                <!-- multiple select row Datatable start -->
-
-                <!-- multiple select row Datatable End -->
-                <!-- Checkbox select Datatable start -->
-
-                <!-- Checkbox select Datatable End -->
-                <!-- Export Datatable start -->
-
-                <!-- Export Datatable End -->
             </div>
         </div>
     </div>

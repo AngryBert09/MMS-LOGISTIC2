@@ -43,7 +43,7 @@
                                     <th>PO #</th>
                                     <!-- If you want to show PO number, make sure to have a field for it -->
                                     <th>Total Amount</th>
-                                    <th>Date</th>
+                                    <th>Date Issue</th>
                                     <th>Status</th>
                                     <th class="datatable-nosort">Action</th>
                                 </tr>
@@ -52,10 +52,8 @@
                                 @foreach ($receipts as $receipt)
                                     <tr>
                                         <td class="table-plus">{{ $receipt->receipt_number }}</td>
-                                        <!-- Displaying the receipt_id -->
                                         <td>{{ $receipt->vendor->company_name ?? 'N/A' }}</td>
-                                        <!-- Displaying vendor name -->
-                                        <td>{{ $receipt->po_id }}</td> <!-- Displaying PO ID -->
+                                        <td>{{ $receipt->purchaseOrder->purchase_order_number }}</td>
                                         <td>${{ number_format($receipt->total_amount, 2) }}</td>
                                         <td>{{ date('Y-m-d', strtotime($receipt->receipt_date)) }}</td>
 
@@ -67,14 +65,14 @@
                                                     <i class="dw dw-more"></i>
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                                                    <a class="dropdown-item"
+                                                    {{-- <a class="dropdown-item"
                                                         href="{{ route('receipts.show', $receipt->receipt_id) }}">
                                                         <i class="dw dw-eye"></i> View
                                                     </a>
                                                     <a class="dropdown-item"
                                                         href="{{ route('receipts.edit', $receipt->receipt_id) }}">
                                                         <i class="dw dw-edit2"></i> Edit
-                                                    </a>
+                                                    </a> --}}
                                                     <form action="{{ route('receipts.destroy', $receipt->receipt_id) }}"
                                                         method="POST" style="display:inline;">
                                                         @csrf
@@ -91,7 +89,9 @@
                                 @endforeach
                             </tbody>
                         </table>
+
                     </div>
+
                 </div>
 
 

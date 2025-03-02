@@ -11,6 +11,7 @@ class PurchaseReceipt extends Model
 
     // Define the table name if it's not the plural form of the model name
     protected $table = 'purchase_receipts';
+    protected $primaryKey = 'receipt_id';
 
     protected $casts = [
         'receipt_date' => 'date',
@@ -21,6 +22,7 @@ class PurchaseReceipt extends Model
         'receipt_id',      // Unique receipt number
         'po_id', // Foreign key to the related purchase order
         'vendor_id',
+        'receipt_number',
         'invoice_id',
         'receipt_date',       // Foreign key to the vendor
         'total_amount',
@@ -37,6 +39,11 @@ class PurchaseReceipt extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class, 'po_id', 'po_id');
     }
 
     public function invoice()

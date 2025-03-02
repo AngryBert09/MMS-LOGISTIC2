@@ -18,7 +18,8 @@ class Invoice extends Model
         'po_id',              // Foreign key for purchase order
         'vendor_id',          // Foreign key for vendor (supplier)
         'invoice_date',       // Date the invoice was issued
-        'due_date',           // Due date for payment
+        'due_date',
+        'paypal_order_id',       // Due date for payment
         'currency_code',      // Currency used for the invoice
         'subtotal',           // Subtotal before tax and discount
         'tax_rate',           // Tax rate applied

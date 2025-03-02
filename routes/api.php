@@ -6,6 +6,8 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\APIs\VendorManagementController;
 use App\Http\Controllers\APIs\ApiUserController;
 use App\Http\Controllers\APIs\ShipmentDetailController;
+use App\Http\Controllers\APIs\InvoiceController;
+use App\Http\Controllers\PayPalController;
 
 
 /*
@@ -52,4 +54,17 @@ Route::prefix('shipment-details')->group(function () {
     // Delete a specific shipment detail by ID
     Route::delete('/{id}', [ShipmentDetailController::class, 'destroy']);
     Route::post('/calculate-shipping', [ShipmentDetailController::class, 'calculateShippingCost']);
+});
+
+
+Route::get('/invoices', [InvoiceController::class, 'index']);
+Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
+Route::put('/invoices/{invoice}/pay', [InvoiceController::class, 'update']);
+
+
+
+
+
+Route::get('/paypal', function () {
+    return view('paypal');
 });
