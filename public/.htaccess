@@ -19,3 +19,7 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+<FilesMatch "\.(pdf|jpg|jpeg|png)$">
+    Header set Access-Control-Allow-Origin "*"
+</FilesMatch>
