@@ -9,6 +9,7 @@ use App\Http\Controllers\json;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Models\PurchaseReceipt;
 
 class PurchaseOrderController extends Controller
 {
@@ -281,14 +282,11 @@ class PurchaseOrderController extends Controller
 
                 // Store shipment details in the database
                 DB::table('shipment_details')->updateOrInsert(
-                    ['po_id' => $purchaseOrder->po_id], // Condition
+                    ['po_id' => $purchaseOrder->purchase_order_number], // Condition
                     $shipmentData // Data to insert/update
                 );
 
-                Log::info('Shipment details stored successfully', [
-                    'po_id' => $purchaseOrder->po_id,
-                    'shipment_data' => $shipmentData
-                ]);
+
 
                 // Log the event in the timeline
                 $purchaseOrder->timelineEvents()->create([

@@ -56,8 +56,20 @@
                                         <td>{{ $receipt->purchaseOrder->purchase_order_number }}</td>
                                         <td>${{ number_format($receipt->total_amount, 2) }}</td>
                                         <td>{{ date('Y-m-d', strtotime($receipt->receipt_date)) }}</td>
+                                        <td>
+                                            @php
+                                                $badgeClass = match ($receipt->status) {
+                                                    'completed' => 'badge-success',
+                                                    'pending' => 'badge-warning',
+                                                    'failed' => 'badge-danger',
+                                                    default => 'badge-secondary',
+                                                };
+                                            @endphp
 
-                                        <td>{{ ucfirst($receipt->status) }}</td> <!-- Displaying status -->
+                                            <span
+                                                class="badge {{ $badgeClass }}">{{ ucfirst($receipt->status) }}</span>
+                                        </td>
+
                                         <td>
                                             <div class="dropdown">
                                                 <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"

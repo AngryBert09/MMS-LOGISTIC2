@@ -25,6 +25,7 @@ class InvoiceResource extends JsonResource
             'taxAmount' => $this->tax_amount,
             'discountAmount' => $this->discount_amount,
             'status' => $this->status,
+            'order_items' => $this->orderItems,
         ];
     }
 }

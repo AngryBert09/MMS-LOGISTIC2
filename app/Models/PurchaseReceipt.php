@@ -53,7 +53,7 @@ class PurchaseReceipt extends Model
 
     public function purchaseOrder()
     {
-        return $this->belongsTo(PurchaseOrder::class, 'po_id');
+        return $this->belongsTo(PurchaseOrder::class, 'po_id', 'po_id'); // Ensure correct foreign key
     }
 
 

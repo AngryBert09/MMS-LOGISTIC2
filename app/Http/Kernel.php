@@ -71,6 +71,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'sanctum.json' => \App\Http\Middleware\EnsureSanctumJsonResponse::class,
         'restrict.2fa' => \App\Http\Middleware\Restrict2faVerifyAccess::class,
+        'delivery' => \App\Http\Middleware\DeliveryOnly::class,
 
     ];
 }

@@ -101,10 +101,19 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 
-Route::get('/deliveries', [ShipmentController::class, 'index'])->middleware('auth:vendor');
+
+//FOR DELIVERIES
 
 
-Route::post('/assign-rider/{id}', [ShipmentController::class, 'assignRider'])->name('assign.rider');
+Route::get('/deliveries', [DeliveriesController::class, 'getDeliveryLogin'])->name('deliveries.show');
+Route::post('/login-deliveries', [DeliveriesController::class, 'authenticate'])->name('deliveries.auth.login');
+Route::middleware(['delivery'])->group(function () {
+    Route::get('/dashboard/deliveries', [DeliveriesController::class, 'index'])->name('dashboard.deliveries');
+    Route::get('/my-deliveries', [DeliveriesController::class, 'myDeliveries'])->name('deliveries.mydeliveries');
+    Route::put('/deliveries/{id}/update-status', [DeliveriesController::class, 'updateStatus'])->name('deliveries.update');
+});
+
+Route::post('/deliveries/logout', [DeliveriesController::class, 'logout'])->name('deliveries.logout');
 
 
 

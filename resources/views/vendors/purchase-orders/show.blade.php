@@ -191,8 +191,7 @@
                                 '<td>' + item.item_description + '</td>' +
                                 '<td>' + item.quantity + '</td>' +
                                 '<td>' + item.unit_price + '</td>' +
-                                '<td>' + (item.unit_price * item.quantity)
-                                .toFixed(2) + '</td>' +
+                                '<td>' + item.total_price + '</td>' +
                                 '</tr>'
                             );
                         });
@@ -222,11 +221,13 @@
 
                             $('#modal-timeline-events').append(
                                 '<li>' +
-                                '<div class="timeline-date">' + formattedDate +
+                                '<div class="timeline-date">' +
+                                formattedDate +
                                 '</div>' +
                                 '<div class="timeline-desc card-box">' +
                                 '<div class="pd-20">' +
-                                '<h4 class="mb-10 h4">' + event.event_title +
+                                '<h4 class="mb-10 h4">' + event
+                                .event_title +
                                 '</h4>' +
                                 '<p>' + event.event_details + '</p>' +
                                 '</div>' +

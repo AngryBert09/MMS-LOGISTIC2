@@ -4,13 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\Returns; // Assuming the model is named Return
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class ReturnsController extends Controller
 {
     // Display a listing of the returns.
     public function index()
     {
-        $returns = Returns::all();
+        $apiKey = env('LOGISTIC1_API_KEY'); // Get API Key from .env
+
+        $response = Http::withToken($apiKey)->get('https://logistic1.gwamerchandise.com/api/returns');
+
+        // Check if the request was successful
+        if ($response->successful()) {
+            $returns = $response->json()['data']; // Extract data
+        } else {
+            $returns = []; // Empty array if API request fails
+        }
+
         return view('vendors.Returns.index-returns', compact('returns'));
     }
 

@@ -68,13 +68,36 @@
                     </div>
 
                     <!-- Check if vendor has already submitted a bid -->
+                    <!-- Check if vendor has already submitted a bid -->
                     @php
                         $vendorBid = \App\Models\VendorBid::where('vendor_id', auth()->user()->id)
                             ->where('bidding_id', $bidding->id)
                             ->first();
+
+                        // Retrieve the winning bid based on BiddingDetails vendor_id
+                        $winningBid = \App\Models\VendorBid::where('bidding_id', $bidding->id)
+                            ->where('vendor_id', $bidding->vendor_id) // Ensure the winning vendor is assigned in BiddingDetails
+                            ->first();
+
+                        // Check if the authenticated vendor is the winner
+                        $isWinner = $winningBid && $winningBid->vendor_id == auth()->user()->id;
                     @endphp
 
-                    @if (!$vendorBid)
+
+                    @if ($isWinner)
+                        <!-- If the vendor is the winner -->
+                        <div class="mt-4">
+                            <div class="alert alert-success p-4 border-radius-10">
+                                <h5 class="font-weight-bold mb-4">🎉 Congratulations! You Won the Bid</h5>
+                                <p>Congratulations! Your bid has been selected as the winning bid.</p>
+                                <p><strong>Winning Bid Amount:</strong> ${{ number_format($winningBid->bid_amount, 2) }}
+                                </p>
+                                <p><strong>Your Comments:</strong> {{ $winningBid->comments }}</p>
+                                <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding
+                                    List</a>
+                            </div>
+                        </div>
+                    @elseif (!$vendorBid)
                         <!-- Show the form only if the vendor has not submitted a bid -->
                         <div class="mt-4">
                             <div class="alert alert-info p-4 border-radius-10">
@@ -111,8 +134,7 @@
                                 </p>
                                 <p><strong>Your Comments:</strong> {{ $vendorBid->comments }}</p>
                             </div>
-                            <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding
-                                List</a>
+                            <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding List</a>
                         </div>
                     @endif
                 </div>

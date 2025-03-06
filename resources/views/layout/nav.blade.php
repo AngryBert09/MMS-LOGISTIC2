@@ -94,8 +94,8 @@
                             @foreach (auth()->user()->unreadNotifications as $notification)
                                 <li>
                                     <a href="#">
-                                        <img src="images/img.jpg" alt="" />
-                                        <h3>Admin</h3>
+                                        <img src="{{ asset('images/greatwall-logo.png') }}" alt="" />
+                                        <h3>System</h3>
                                         <p>
                                             {{ $notification->data['message'] }}
                                         </p>

@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\Log;
 class ShipmentDetailController extends Controller
 {
 
-    public function __construct()
-    {
-        // Apply Sanctum authentication to all methods
-        $this->middleware('auth:sanctum');
-    }
+    // public function __construct()
+    // {
+    //     // Apply Sanctum authentication to all methods
+    //     $this->middleware('auth:sanctum');
+    // }
 
     public function index()
     {

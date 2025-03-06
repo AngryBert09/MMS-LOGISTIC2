@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Cache;
 class DashboardController extends Controller
 {
 
-    public function index()
+   public function index()
     {
         // Retrieve the authenticated vendor
         $vendor = auth()->user(); // Get the authenticated user (vendor)
@@ -28,7 +28,7 @@ class DashboardController extends Controller
         // Pass both the notifications and the vendor's profile picture to the view
         return view('dashboard', [
             'notifications' => $notifications,
-            'profile_pic' => $vendor->profile_pic // Include the profile picture
+            'profile _pic' => $vendor->profile_pic // Include the profile picture
         ]);
     }
 

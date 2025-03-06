@@ -8,6 +8,7 @@ use App\Http\Controllers\APIs\ApiUserController;
 use App\Http\Controllers\APIs\ShipmentDetailController;
 use App\Http\Controllers\APIs\InvoiceController;
 use App\Http\Controllers\PayPalController;
+use App\Http\Controllers\APIs\BiddingController;
 
 
 /*
@@ -60,6 +61,9 @@ Route::get('/invoices', [InvoiceController::class, 'index']);
 Route::get('/invoices/{invoice}', [InvoiceController::class, 'show']);
 Route::put('/invoices/{invoice}/pay', [InvoiceController::class, 'update']);
 
+
+
+Route::apiResource('biddings', BiddingController::class);
 
 
 

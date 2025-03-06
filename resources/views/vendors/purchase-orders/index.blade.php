@@ -46,7 +46,7 @@
                                     <th>Delivery Date</th>
                                     <th>Order Status</th>
                                     <th>Total Amount</th>
-                                    <th>Payment Terms</th>
+
                                     {{-- <th>Delivery Location</th>
                                     <th>Notes/Instructions</th>
                                     <th>Shipping Method</th> --}}
@@ -85,7 +85,6 @@
                                             @endif
                                         </td>
                                         <td>{{ number_format($order->orderItems->sum('total_price'), 2) }}</td>
-                                        <td>{{ $order->payment_terms }}</td>
                                         {{-- <td>{{ $order->delivery_location }}</td>
                                         <td>{{ $order->notes_instructions }}</td>
                                         <td>{{ $order->shipping_method }}</td> --}}

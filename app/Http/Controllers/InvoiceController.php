@@ -11,38 +11,43 @@ use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PayPalService;
+use Illuminate\Support\Facades\Http;
+use stdClass;
 
 class InvoiceController extends Controller
 {
+    protected $paypalService;
+
+    public function __construct(PayPalService $paypalService)
+    {
+        $this->paypalService = $paypalService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        // Fetch invoices that belong to the authenticated vendor
-        $vendorId = Auth::guard('vendor')->id(); // Get the authenticated vendor ID
-        $invoices = Invoice::where('vendor_id', $vendorId)->get(); // Filter invoices by vendor_id
-
+        $vendorId = Auth::guard('vendor')->id();
+        $invoices = Invoice::where('vendor_id', $vendorId)->get();
         return view('vendors.invoices.index-invoice', compact('invoices'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new invoice.
      */
     public function create(Request $request)
     {
         $poId = $request->input('po_id');
         $vendorId = $request->input('vendor_id');
 
-        // Fetch the necessary data for the invoice creation
         $purchaseOrder = PurchaseOrder::findOrFail($poId);
         $vendor = Vendor::findOrFail($vendorId);
         $orderItems = $purchaseOrder->orderItems;
 
-        // Check if an invoice number already exists for the given purchase order
-        $existingInvoice = Invoice::where('po_id', $poId)->first();
-
-        if ($existingInvoice) {
+        // Check if invoice already exists
+        if (Invoice::where('po_id', $poId)->exists()) {
             return redirect()->route('purchase-orders.index')
                 ->with('error_message', 'An invoice has already been generated for this purchase order.');
         }
@@ -50,97 +55,217 @@ class InvoiceController extends Controller
         return view('vendors.invoices.create-invoice', compact('purchaseOrder', 'vendor', 'orderItems'));
     }
 
-
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created invoice in the database.
      */
-
-
     public function store(Request $request)
     {
-        // Validate the incoming request
         $request->validate([
-            'purchase_order_id' => 'required|exists:purchase_orders,po_id', // Ensure the purchase order exists
+            'purchase_order_id' => 'required|exists:purchase_orders,po_id', // Ensure using correct primary key
         ]);
 
-        // Start a database transaction
         DB::beginTransaction();
 
         try {
-            // Retrieve the purchase order
             $purchaseOrder = PurchaseOrder::findOrFail($request->input('purchase_order_id'));
 
-            Log::info('Purchase Order Retrieved', ['purchase_order_id' => $purchaseOrder->po_id, 'purchase_order_number' => $purchaseOrder->purchase_order_number]);
+            // ✅ Extract PO Code (Corrected)
+            $poCode = str_replace('PO-', '', $purchaseOrder->purchase_order_number); // Extract the PO suffix
+            $invoiceNumber = 'INV-' . $poCode;
 
-            // Extract the numeric part from the purchase order number (e.g., PO-1002 -> 1002)
-            $purchaseOrderNumber = $purchaseOrder->purchase_order_number;
-            preg_match('/\d+/', $purchaseOrderNumber, $matches);
-            $numericPart = $matches[0] ?? '0000'; // Fallback to '0000' if not found
+            // ✅ Ensure due_date is properly set
+            $dueDate = $purchaseOrder->delivery_date ? Carbon::parse($purchaseOrder->delivery_date)->addDays(20) : Carbon::now()->addDays(20);
 
-            // Generate the invoice number
-            $invoiceNumber = 'INV_' . $numericPart;
-            Log::info('Generated Invoice Number', ['invoice_number' => $invoiceNumber]);
-
-            // Create the invoice using details from the purchase order
+            // ✅ Create Invoice
             $invoice = Invoice::create([
                 'invoice_number' => $invoiceNumber,
-                'po_id' => $purchaseOrder->po_id,
-                'vendor_id' => $purchaseOrder->vendor->id,
+                'po_id' => $purchaseOrder->po_id, // Ensure using correct primary key
+                'vendor_id' => $purchaseOrder->vendor_id,
                 'invoice_date' => now(),
-                'due_date' => Carbon::parse($purchaseOrder->due_date)->addDays(20),
+                'due_date' => $dueDate,
                 'total_amount' => $purchaseOrder->orderItems->sum('total_price'),
                 'status' => 'unpaid',
             ]);
 
-            Log::info('Invoice Created', ['invoice_id' => $invoice->invoice_id]);
-
-            // Attach order items to the invoice
-            $orderItems = OrderItem::where('po_id', $purchaseOrder->po_id)->get();
-            Log::info('Order Items Retrieved', ['count' => $orderItems->count()]);
-
-            foreach ($orderItems as $item) {
-                // Check if the item already has an invoice_id before saving
-                $item->invoice_id = $invoice->invoice_id;
-                $item->save();
-
-                Log::info('Attached Order Item to Invoice', ['order_item_id' => $item->id, 'invoice_id' => $invoice->id]);
+            // ✅ Attach Order Items to Invoice
+            foreach ($purchaseOrder->orderItems as $item) {
+                $item->update(['invoice_id' => $invoice->invoice_id]); // Use update for efficiency
             }
 
-            // Update the purchase order with the generated invoice number
+            // ✅ Update Purchase Order
             $purchaseOrder->invoice_number = $invoiceNumber;
             $purchaseOrder->save();
 
-            Log::info('Purchase Order Updated with Invoice Number', ['purchase_order_id' => $purchaseOrder->po_id, 'invoice_number' => $invoiceNumber]);
 
-            // Commit the transaction
             DB::commit();
-            Log::info('Transaction Committed Successfully');
 
-            // Redirect back with a success message
             return redirect()->route('invoices.index')->with('success', 'Invoice created successfully.');
         } catch (\Exception $e) {
-            // Rollback the transaction in case of error
             DB::rollback();
-            Log::error('Transaction Rolled Back', ['error' => $e->getMessage(), 'stack' => $e->getTraceAsString()]);
-
-            // Redirect back with an error message
+            Log::error('Invoice Creation Failed', ['error' => $e->getMessage()]);
             return redirect()->back()->withErrors(['error' => 'Failed to create invoice. Please try again.']);
         }
     }
 
 
+    /**
+     * Display a specific invoice.
+     */
+    public function show(Invoice $invoice)
+    {
+        return view('vendors.invoices.show-invoice', compact('invoice'));
+    }
+
+    /**
+     * Create a PayPal order for invoice payment.
+     */
+    public function createPayPalOrder($invoiceId)
+    {
+        Log::info("Creating PayPal order for invoice ID: {$invoiceId}");
+
+        $invoice = Invoice::findOrFail($invoiceId);
+        $vendor = Vendor::findOrFail($invoice->vendor_id);
+
+        if (!$vendor->paypal_email) {
+            Log::error("Vendor does not have a PayPal email", ['vendor_id' => $vendor->id]);
+            return redirect()->route('invoices.index')->withErrors('Vendor does not have a PayPal email set.');
+        }
+
+        // Get PayPal Access Token
+        $tokenResponse = Http::withBasicAuth(env('PAYPAL_CLIENT_ID'), env('PAYPAL_SECRET'))
+            ->asForm()
+            ->post('https://api-m.sandbox.paypal.com/v1/oauth2/token', [
+                'grant_type' => 'client_credentials'
+            ]);
+
+        if (!$tokenResponse->successful()) {
+            Log::error("PayPal authentication failed", ['response' => $tokenResponse->body()]);
+            return redirect()->route('invoices.index')->withErrors('PayPal authentication failed.');
+        }
+
+        $accessToken = $tokenResponse->json()['access_token'];
+
+        // Create PayPal Order
+        $orderPayload = [
+            'intent' => 'CAPTURE',
+            'purchase_units' => [[
+                'amount' => [
+                    'currency_code' => 'USD',
+                    'value' => number_format($invoice->total_amount, 2, '.', '')
+                ],
+                'payee' => [
+                    'email_address' => $vendor->paypal_email
+                ]
+            ]],
+            'application_context' => [
+                'return_url' => route('paypal.captureOrder', ['orderId' => '__ORDER_ID__']), // Placeholder
+                'cancel_url' => route('paypal.cancel')
+            ]
+        ];
+
+        $response = Http::withToken($accessToken)
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->post('https://api-m.sandbox.paypal.com/v2/checkout/orders', $orderPayload);
+
+        if (!$response->successful()) {
+            Log::error("PayPal order creation failed", ['response' => $response->body()]);
+            return redirect()->route('invoices.index')->withErrors('PayPal order creation failed.');
+        }
+
+        $orderData = $response->json();
+        $orderId = $orderData['id'];
+        $approvalLink = collect($orderData['links'])->firstWhere('rel', 'approve')['href'];
+
+        // 🔹 Now update the return URL with the real order ID
+        $updatedReturnUrl = route('paypal.captureOrder', ['orderId' => $orderId]);
+
+        // 🔹 This step is CRUCIAL: Create a new order with the correct return URL
+        $orderPayload['application_context']['return_url'] = $updatedReturnUrl;
+
+        // 🔹 Send the updated request
+        $response = Http::withToken($accessToken)
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->post('https://api-m.sandbox.paypal.com/v2/checkout/orders', $orderPayload);
+
+        if (!$response->successful()) {
+            Log::error("PayPal order re-creation failed", ['response' => $response->body()]);
+            return redirect()->route('invoices.index')->withErrors('PayPal order re-creation failed.');
+        }
+
+        $orderData = $response->json();
+        $approvalLink = collect($orderData['links'])->firstWhere('rel', 'approve')['href'];
+
+        // 🔹 Save the correct order ID in the database
+        $invoice->paypal_order_id = $orderId;
+        $invoice->save();
+
+        Log::info("PayPal order created successfully", ['order_id' => $orderId, 'approval_url' => $approvalLink]);
+
+        return redirect()->away($approvalLink);
+    }
 
 
 
     /**
-     * Display the specified resource.
+     * Capture PayPal payment and mark invoice as paid.
      */
-    // Show the invoice preview based on the selected purchase order
-    public function show(Invoice $invoice)
+    public function capturePayPalOrder($orderId)
     {
-        // Return the view with the invoice data
-        return view('vendors.invoices.show-invoice', compact('invoice'));
+        Log::info("Capturing PayPal order: {$orderId}");
+
+        // 🔹 Make sure we are receiving the correct order ID
+        if ($orderId == '__ORDER_ID__') {
+            Log::error("Invalid placeholder order ID received in capture.");
+            return redirect()->route('invoices.index')->withErrors('Invalid PayPal order ID.');
+        }
+
+        // Get PayPal Access Token
+        $tokenResponse = Http::withBasicAuth(env('PAYPAL_CLIENT_ID'), env('PAYPAL_SECRET'))
+            ->asForm()
+            ->post('https://api-m.sandbox.paypal.com/v1/oauth2/token', [
+                'grant_type' => 'client_credentials'
+            ]);
+
+        if (!$tokenResponse->successful()) {
+            Log::error("PayPal authentication failed", ['response' => $tokenResponse->body()]);
+            return redirect()->route('invoices.index')->withErrors('PayPal authentication failed.');
+        }
+
+        $accessToken = $tokenResponse->json()['access_token'];
+
+        // 🔹 Retrieve the correct order ID from the database
+        $invoice = Invoice::where('paypal_order_id', $orderId)->first();
+
+        if (!$invoice) {
+            Log::error("Invoice not found for PayPal order ID", ['paypal_order_id' => $orderId]);
+            return redirect()->route('invoices.index')->withErrors('Invalid PayPal order.');
+        }
+
+        // Capture Payment
+        $response = Http::withToken($accessToken)
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->post("https://api-m.sandbox.paypal.com/v2/checkout/orders/{$orderId}/capture");
+
+        $captureData = $response->json();
+
+        if (!$response->successful() || !isset($captureData['status']) || $captureData['status'] !== 'COMPLETED') {
+            Log::error("PayPal order capture failed", ['response' => $response->body()]);
+            return redirect()->route('invoices.index')->withErrors('PayPal order capture failed.');
+        }
+
+        // Mark invoice as paid
+        $invoice->status = 'paid';
+        $invoice->save();
+
+        Log::info("PayPal order captured successfully", ['order_id' => $captureData['id']]);
+
+        return redirect()->route('invoices.index')->with('success', 'Payment successful!');
     }
+
+
+
+
+
 
 
     /**
@@ -153,49 +278,32 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update invoice details.
      */
     public function update(Request $request, Invoice $invoice)
     {
-        // Validate and update only the specified fields
         $validatedData = $request->validate([
-            'tax_amount' => 'required|numeric',  // Validating the tax amount
-            'discount_amount' => 'required|numeric',  // Validating the discount amount
+            'tax_amount' => 'required|numeric',
+            'discount_amount' => 'required|numeric',
         ]);
 
-        // Retrieve the current total amount from the invoice
-        $currentTotalAmount = $invoice->total_amount;
+        $newTotal = ($invoice->total_amount + $validatedData['tax_amount']) - $validatedData['discount_amount'];
 
-        // Apply the tax amount to the current total amount
-        $totalWithTax = $currentTotalAmount + $validatedData['tax_amount']; // Adding tax to the current total
-
-        // Subtract the discount amount from the total with tax
-        $newTotalAmount = $totalWithTax - $validatedData['discount_amount'];
-
-        // Update the invoice with the new values
         $invoice->update([
-            'tax_amount' => $validatedData['tax_amount'],  // Update the tax amount
-            'discount_amount' => $validatedData['discount_amount'],  // Update the discount amount
-            'total_amount' => $newTotalAmount,  // Update the total amount after applying tax and discount
+            'tax_amount' => $validatedData['tax_amount'],
+            'discount_amount' => $validatedData['discount_amount'],
+            'total_amount' => $newTotal,
         ]);
 
-        // Redirect back with a success message
         return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
     }
 
-
-
-
-
-
     /**
-     * Remove the specified resource from storage.
+     * Delete an invoice.
      */
     public function destroy(Invoice $invoice)
     {
-        // Delete the invoice
         $invoice->delete();
-
         return redirect()->route('invoices.index')->with('success', 'Invoice deleted successfully.');
     }
 }

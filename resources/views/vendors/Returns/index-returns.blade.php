@@ -46,7 +46,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($returns as $return)
+                                {{-- @foreach ($returns as $return)
                                     <tr>
                                         <td class="table-plus">{{ $return->return_id }}</td>
                                         <td>{{ $return->quantity_return }}</td>
@@ -69,7 +69,7 @@
                                             @include('vendors.Returns.actions-returns') <!-- Dropdown Actions -->
                                         </td>
                                     </tr>
-                                @endforeach
+                                @endforeach --}}
                             </tbody>
 
 

@@ -12,6 +12,7 @@ class BiddingDetail extends Model
     protected $fillable = [
         'item_name',
         'starting_price',
+        'quantity',
         'deadline',
         'vendor_id',
         'description',

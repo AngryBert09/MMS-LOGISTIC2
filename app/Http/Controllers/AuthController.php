@@ -35,7 +35,6 @@ class AuthController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
             ],
             'fullName' => 'required|string|max:255',
             'gender' => 'required|string',

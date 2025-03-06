@@ -19,21 +19,23 @@ use Illuminate\Support\Facades\Log;
 class InvoiceController extends Controller
 {
 
-    public function __construct()
-    {
-        // Apply Sanctum authentication to all methods
-        $this->middleware('auth:sanctum');
-    }
+    // public function __construct()
+    // {
+    //     // Apply Sanctum authentication to all methods
+    //     $this->middleware('auth:sanctum');
+    // }
 
     public function index()
     {
-        $invoices = Invoice::all();
+        // Fetch invoices with their related order items
+        $invoices = Invoice::with('orderItems')->get();
 
         return response()->json([
             'success' => true,
             'data' => InvoiceResource::collection($invoices),
         ]);
     }
+
 
     public function show(Invoice $invoice)
     {
@@ -54,7 +56,7 @@ class InvoiceController extends Controller
 
         if ($paymentAmount > $invoice->total_amount) {
             Log::warning('Payment amount exceeds balance', [
-                'invoice_id' => $invoice->id,
+                'invoice_id' => $invoice->invoice_id,
                 'payment_amount' => $paymentAmount,
                 'remaining_balance' => $invoice->total_amount
             ]);
@@ -65,7 +67,7 @@ class InvoiceController extends Controller
             ], 400);
         }
 
-        $originalTotalAmount = $invoice->orderItems->sum('total_price'); // Store original total from order items
+        $originalTotalAmount = $invoice->orderItems->sum('total_price');
         $remainingBalance = $invoice->total_amount - $paymentAmount;
         $status = $remainingBalance == 0 ? 'paid' : 'partial';
 
@@ -79,48 +81,45 @@ class InvoiceController extends Controller
         DB::beginTransaction();
 
         try {
-            // Update invoice
+            // ✅ Update invoice
             $invoice->update([
                 'total_amount' => $remainingBalance,
                 'status' => $status,
             ]);
 
-
             $receiptNumber = null;
 
             if ($status === 'paid') {
-                // Generate receipt number from invoice number
-                preg_match('/\d+/', $invoice->invoice_number, $matches);
-                $numericPart = isset($matches[0]) ? $matches[0] : '0000';
-                $receiptNumber = 'RCP-' . $numericPart;
+                // ✅ Extract Invoice Code (Handling INV-QL4FAJEC Format)
+                $poCode = str_replace('INV-', '', $invoice->invoice_number);
+                $receiptNumber = 'RCP-' . strtoupper($poCode);
 
                 Log::info('Generating Receipt', [
-                    'invoice_id' => $invoice->id,
+                    'invoice_id' => $invoice->invoice_id,
                     'receipt_number' => $receiptNumber,
                 ]);
 
-                // Create the receipt
+                // ✅ Create the receipt
                 $receipt = PurchaseReceipt::create([
                     'receipt_number' => $receiptNumber,
                     'vendor_id' => $invoice->vendor_id,
                     'invoice_id' => $invoice->invoice_id,
                     'po_id' => $invoice->po_id,
                     'receipt_date' => now(),
-                    'total_amount' => $originalTotalAmount, // Use the original total amount
+                    'total_amount' => $originalTotalAmount,
                     'tax_amount' => $invoice->tax_amount ?? 0,
                     'payment_method' => $validatedData['paymentMethod'] ?? null,
                     'status' => 'completed',
                 ]);
 
-
-                // Update order items to store receipt_id
+                // ✅ Update order items with receipt ID
                 OrderItem::where('po_id', $invoice->po_id)->update([
-                    'receipt_id' => $receipt->id,
+                    'receipt_id' => $receipt->receipt_id,
                 ]);
 
                 Log::info('Order Items Updated with Receipt ID', [
                     'po_id' => $invoice->po_id,
-                    'receipt_id' => $receipt->id,
+                    'receipt_id' => $receipt->receipt_id,
                 ]);
             }
 
