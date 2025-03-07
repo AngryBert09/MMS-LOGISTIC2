@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use GuzzleHttp\Client;
 
 class AuthController extends Controller
 {
@@ -123,12 +124,6 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
-    use Illuminate\Http\Request;
-    use Illuminate\Support\Facades\Cache;
-    use Illuminate\Support\Facades\Log;
-    use Illuminate\Support\Facades\DB;
-    use Illuminate\Support\Facades\Mail;
-    use GuzzleHttp\Client;
 
     public function authenticate(Request $request)
     {
