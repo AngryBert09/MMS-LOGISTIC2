@@ -69,15 +69,21 @@ class ReturnsController extends Controller
     }
 
     // Update the specified return in storage.
-    public function update(Request $request, Returns $return)
+    public function update(Request $request, $returnId)
     {
         $request->validate([
-            'return_status' => 'required|in:Pending,Approved,Rejected,Processed',
+            'status' => 'required|in:Approved,Rejected',
         ]);
 
-        $return->update(['return_status' => $request->return_status]);
+        $response = Http::put("https://logistic1.gwamerchandise.com/api/returns/{$returnId}", [
+            'return_status' => $request->status,
+        ]);
 
-        return response()->json(['message' => 'Return status updated successfully.']); // ✅ Ensure JSON response
+        if ($response->successful()) {
+            return response()->json(['message' => 'Return status updated successfully'], 200);
+        }
+
+        return response()->json(['message' => 'Failed to update return status'], $response->status());
     }
 
 

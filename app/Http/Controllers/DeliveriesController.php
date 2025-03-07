@@ -62,9 +62,12 @@ class DeliveriesController extends Controller
         // Log the start of fetching shipment details
         Log::info('Fetching shipment details from database');
 
-        // Fetch shipments from the database
-        $shipments = DB::table('shipment_details')->get();
-        Log::info('Fetched shipments', ['count' => $shipments->count()]);
+        // Fetch shipments where vendor_id is NULL (not assigned to a vendor)
+        $shipments = DB::table('shipment_details')
+            ->whereNull('vendor_id') // Exclude shipments with a vendor
+            ->get();
+
+        Log::info('Fetched shipments (excluding vendor-assigned)', ['count' => $shipments->count()]);
 
         // Fetch users from API
         Log::info('Fetching users from API: https://admin.gwamerchandise.com/api/users');
@@ -77,7 +80,7 @@ class DeliveriesController extends Controller
             $users = $usersArray['users'] ?? [];
             Log::info('Fetched users from API', ['count' => count($users)]);
 
-            // Filter delivery riders
+            // Filter only delivery riders
             $deliveryRiders = collect($users)
                 ->filter(fn($user) => strtolower($user['role'] ?? '') === 'delivery')
                 ->values(); // Reset array keys
@@ -93,8 +96,8 @@ class DeliveriesController extends Controller
                 $totalRiders = $deliveryRiders->count();
 
                 foreach ($shipments as $shipment) {
-                    // Only assign riders to shipments with "Pending" status
-                    if ($shipment->shipment_status !== 'Pending' && $shipment->shipment_status == 'In Transit') {
+                    // Only assign riders to "Pending" shipments
+                    if ($shipment->shipment_status !== 'Pending') {
                         Log::info('Skipping non-pending shipment', [
                             'shipment_id' => $shipment->shipment_id,
                             'status' => $shipment->shipment_status
@@ -102,7 +105,7 @@ class DeliveriesController extends Controller
                         continue;
                     }
 
-                    // Skip if rider is already assigned
+                    // Skip if a rider is already assigned
                     if (!is_null($shipment->rider_id)) {
                         Log::info('Skipping shipment as rider is already assigned', [
                             'shipment_id' => $shipment->shipment_id,
@@ -113,7 +116,7 @@ class DeliveriesController extends Controller
 
                     $rider = $deliveryRiders[$riderIndex];
 
-                    // Update shipment with rider details in the database
+                    // Assign rider to shipment
                     DB::table('shipment_details')
                         ->where('shipment_id', $shipment->shipment_id)
                         ->update([
@@ -139,6 +142,7 @@ class DeliveriesController extends Controller
 
         return view('deliveries.index-deliveries', compact('shipments'));
     }
+
 
 
 

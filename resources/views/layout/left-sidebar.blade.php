@@ -28,6 +28,7 @@
                                 <li><a href="{{ route('purchase-orders.index') }}">Customer PO</a></li>
                                 <li><a href="{{ route('receipts.index') }}">Customer RN</a></li>
                                 <li><a href="{{ route('returns.index') }}">Returns</a></li>
+                                <li><a href="{{ route('shipments.index') }}">Deliveries</a></li>
                             @else
                                 <li><a href="{{ route('profiles.show', $vendorId) }}">Complete Profile</a></li>
                             @endif

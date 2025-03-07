@@ -14,6 +14,7 @@ use App\Http\Controllers\ReturnsController;
 use App\Http\Controllers\APIs\ApiUserController;
 
 
+
 /*
 
 
@@ -82,6 +83,9 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 
 // Add this to your web.php or routes file
 Route::get('/shipment-details/{orderId}', [ShipmentController::class, 'getShipmentDetails']);
+Route::get('/shipments', [ShipmentController::class, 'index'])->name('shipments.index')->middleware('auth:vendor');
+Route::post('/shipments/assign-rider', [ShipmentController::class, 'assignRider'])->name('shipments.assign-rider')->middleware('auth:vendor');
+
 
 Route::get('/getMyPerformance', [DashboardController::class, 'getMyPerformance'])->middleware('auth:vendor');
 Route::get('/getTopSuppliers', [DashboardController::class, 'getTopSuppliers'])->middleware('auth:vendor');
@@ -115,7 +119,7 @@ Route::middleware(['delivery'])->group(function () {
 
 Route::post('/deliveries/logout', [DeliveriesController::class, 'logout'])->name('deliveries.logout');
 
-
+Route::put('/returns/update/{returnId}', [ReturnsController::class, 'update'])->name('returns.update');
 
 use App\Http\Controllers\RouteController;
 

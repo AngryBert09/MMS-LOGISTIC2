@@ -233,7 +233,10 @@ class PurchaseOrderController extends Controller
 
                 $updateData = ['order_status' => 'In Transit'];
 
-                $shipmentData = ['po_id' => $purchaseOrder->po_id]; // Using po_id here
+                $shipmentData = [
+                    'po_id' => $purchaseOrder->po_id, // Using po_id here
+                    'vendor_id' => $purchaseOrder->vendor_id, // Store the vendor_id
+                ];
 
                 // Handle Third-Party Delivery (e.g., Lalamove)
                 if ($request->delivery_service === 'third_party') {
@@ -257,7 +260,6 @@ class PurchaseOrderController extends Controller
                         'weight' => 'required|numeric|min:0',
                     ]);
 
-
                     $updateData['shipment_method'] = $request->shipment_method; // Updated column name here
                     $updateData['shipping_cost'] = $request->shipping_cost;
                     $updateData['weight'] = $request->weight;
@@ -266,6 +268,7 @@ class PurchaseOrderController extends Controller
                     $shipmentData['actual_delivery_date'] = $purchaseOrder->delivery_date;
                     $shipmentData['shipment_method'] = $request->shipment_method; // Updated column name here
                     $shipmentData['shipping_cost'] = $request->shipping_cost;
+                    $shipmentData['shipping_address'] = env('SHIPPING_ORIGIN');
                     $shipmentData['weight'] = $request->weight;
                 }
 
@@ -285,8 +288,6 @@ class PurchaseOrderController extends Controller
                     ['po_id' => $purchaseOrder->purchase_order_number], // Condition
                     $shipmentData // Data to insert/update
                 );
-
-
 
                 // Log the event in the timeline
                 $purchaseOrder->timelineEvents()->create([
@@ -315,6 +316,7 @@ class PurchaseOrderController extends Controller
                     ->with('error', 'An unexpected error occurred while marking the order as In Transit.');
             }
         }
+
 
         // If action is not recognized
         return redirect()->route('purchase-orders.index')->with('error', 'Invalid action.');

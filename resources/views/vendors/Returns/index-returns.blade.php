@@ -38,7 +38,7 @@
                             <thead>
                                 <tr>
                                     <th class="table-plus datatable-nosort">Return ID</th>
-                                    <th>Return Reference</th>
+
                                     <th>Material Name</th>
                                     <th>Quantity Returned</th>
                                     <th>Return Reason</th>
@@ -51,10 +51,10 @@
                                 @foreach ($returns['data'] as $return)
                                     <tr>
                                         <td class="table-plus">{{ $return['id'] }}</td>
-                                        <td>{{ $return['return_reference'] ?? 'N/A' }}</td>
+
                                         <td>{{ $return['material']['name'] ?? 'N/A' }}</td>
-                                        <td>{{ $return['quantity'] ?? 'N/A' }}</td>
-                                        <td>{{ $return['reason'] ?? 'N/A' }}</td>
+                                        <td>{{ $return['quantity_returned'] ?? 'N/A' }}</td>
+                                        <td>{{ $return['return_reason'] ?? 'N/A' }}</td>
 
                                         <!-- Status Column with Unique ID -->
                                         <td>
@@ -63,6 +63,7 @@
                                                 @if ($return['return_status'] == 'Approved') badge-success
                                                 @elseif ($return['return_status'] == 'Processed') badge-primary
                                                 @elseif ($return['return_status'] == 'Rejected') badge-danger
+                                                      @elseif ($return['return_status'] == 'Pending') badge-warning
                                                 @else badge-warning @endif">
                                                 {{ ucfirst($return['return_status'] ?? 'Pending') }}
                                             </span>
