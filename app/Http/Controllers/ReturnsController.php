@@ -5,25 +5,35 @@ namespace App\Http\Controllers;
 use App\Models\Returns; // Assuming the model is named Return
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ReturnsController extends Controller
 {
     // Display a listing of the returns.
     public function index()
     {
-        $apiKey = env('LOGISTIC1_API_KEY'); // Get API Key from .env
+        try {
+            $apiKey = env('LOGISTIC1_API_KEY'); // Get API Key from .env
 
-        $response = Http::withToken($apiKey)->get('https://logistic1.gwamerchandise.com/api/returns');
+            $response = Http::withToken($apiKey)->get('https://logistic1.gwamerchandise.com/api/returns');
 
-        // Check if the request was successful
-        if ($response->successful()) {
-            $returns = $response->json()['data']; // Extract data
-        } else {
-            $returns = []; // Empty array if API request fails
+            if ($response->successful()) {
+                $returns = $response->json(); // Get full API response (data, links, meta)
+            } else {
+                Log::error('Failed to fetch returns from API', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                $returns = ['data' => []]; // Default structure to avoid errors
+            }
+        } catch (\Exception $e) {
+            Log::error('API Request Failed', ['error' => $e->getMessage()]);
+            $returns = ['data' => []]; // Default structure
         }
 
         return view('vendors.Returns.index-returns', compact('returns'));
     }
+
 
     // Show the form for creating a new return.
     public function create()

@@ -39,9 +39,8 @@
                             <thead>
                                 <tr>
                                     <th class="table-plus datatable-nosort">Receipt No</th>
-                                    <th>Vendor Name</th> <!-- Adjusted the column header -->
+                                    <th>Vendor Name</th>
                                     <th>PO #</th>
-                                    <!-- If you want to show PO number, make sure to have a field for it -->
                                     <th>Total Amount</th>
                                     <th>Date Issue</th>
                                     <th>Status</th>
@@ -53,7 +52,7 @@
                                     <tr>
                                         <td class="table-plus">{{ $receipt->receipt_number }}</td>
                                         <td>{{ $receipt->vendor->company_name ?? 'N/A' }}</td>
-                                        <td>{{ $receipt->purchaseOrder->purchase_order_number }}</td>
+                                        <td>{{ $receipt->purchaseOrder->purchase_order_number ?? 'N/A' }}</td>
                                         <td>${{ number_format($receipt->total_amount, 2) }}</td>
                                         <td>{{ date('Y-m-d', strtotime($receipt->receipt_date)) }}</td>
                                         <td>
@@ -77,12 +76,12 @@
                                                     <i class="dw dw-more"></i>
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                                                    {{-- <a class="dropdown-item"
+                                                    <a class="dropdown-item"
                                                         href="{{ route('receipts.show', $receipt->receipt_id) }}">
                                                         <i class="dw dw-eye"></i> View
                                                     </a>
-                                                    <a class="dropdown-item"
-                                                        href="{{ route('receipts.edit', $receipt->receipt_id) }}">
+                                                    {{-- Uncomment below if you also want to enable edit functionality --}}
+                                                    {{-- <a class="dropdown-item" href="{{ route('receipts.edit', $receipt->receipt_id) }}">
                                                         <i class="dw dw-edit2"></i> Edit
                                                     </a> --}}
                                                     <form action="{{ route('receipts.destroy', $receipt->receipt_id) }}"
@@ -101,6 +100,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+
 
                     </div>
 

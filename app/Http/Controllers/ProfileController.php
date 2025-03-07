@@ -243,9 +243,12 @@ class ProfileController extends Controller
         }
 
         // Check if the token has expired (assuming created_at stores the timestamp of the token creation)
-        $tokenExpirationTime = $verifiedVendor->created_at->addMinutes(1);
+        $tokenExpirationTime = $verifiedVendor->created_at->addMinutes(30);
         if (now()->greaterThan($tokenExpirationTime)) {
+            // Set the verification_token to null before redirecting
             $verifiedVendor->verification_token = null;
+            $verifiedVendor->save(); // Save the changes to the database
+
             return redirect()->route('profiles.show', $vendorId)->withErrors(['error', 'This link has expired. Please request a new verification email.']);
         }
 

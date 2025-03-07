@@ -113,11 +113,12 @@
                 <div id="aiResponse" class="pd-20">
                     <p>Loading insights...</p>
                 </div>
+                <div class="pd-20 text-right">
+                    <button id="downloadPDF" class="btn btn-primary" style="display: none;">Download as PDF</button>
+                </div>
             </div>
 
-
-
-
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
             <script>
                 document.addEventListener("DOMContentLoaded", function() {
@@ -130,20 +131,48 @@
                         })
                         .then(response => response.json())
                         .then(data => {
+                            let aiResponseDiv = document.getElementById("aiResponse");
+                            let downloadButton = document.getElementById("downloadPDF");
+
                             if (data.error) {
-                                document.getElementById("aiResponse").innerHTML =
-                                    `<p class="text-danger">${data.error}</p>`;
+                                aiResponseDiv.innerHTML = `<p class="text-danger">${data.error}</p>`;
                             } else {
-                                document.getElementById("aiResponse").innerHTML = `<p>${data.ai_insights}</p>`;
+                                aiResponseDiv.innerHTML = `<p>${data.ai_insights}</p>`;
+                                downloadButton.style.display = "inline-block"; // Show the download button
                             }
                         })
                         .catch(error => {
                             console.error("Error fetching AI response:", error);
                             document.getElementById("aiResponse").innerHTML =
-                                `<p class="text-danger">Failed to load insights.</p>`;
+                                `<p class="text-danger">No available data to analyze.</p>`;
                         });
                 });
+
+                document.getElementById("downloadPDF").addEventListener("click", function() {
+                    const {
+                        jsPDF
+                    } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    // Get the AI response text
+                    let content = document.getElementById("aiResponse").innerText;
+
+                    // Add title and content to PDF
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(16);
+                    doc.text("AI Supplier Performance Analysis", 10, 20);
+
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(12);
+                    doc.text(content, 10, 40, {
+                        maxWidth: 180
+                    });
+
+                    // Save the PDF
+                    doc.save("Supplier_Performance_Analysis.pdf");
+                });
             </script>
+
 
 
         </div>

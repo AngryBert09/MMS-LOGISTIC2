@@ -30,78 +30,88 @@
                             <div class="logo text-center">
                                 <img src="{{ asset('images/greatwall-logo.png') }}" alt="Logo" width="100"
                                     height="40" />
+
                             </div>
                         </div>
-                        <h4 class="text-center mb-30 weight-600">INVOICE</h4>
+                        <h4 class="text-center mb-30 weight-600">RECEIPT</h4>
                         <div class="row pb-30">
                             <div class="col-md-6">
-                                <h5 class="mb-15">Great Wall Arts</h5>
+                                <h5 class="mb-15">{{ $receipt->vendor->company_name ?? 'N/A' }}</h5>
                                 <p class="font-14 mb-5">
                                     Date Issued: <strong
-                                        class="weight-600">{{ $invoice->purchaseOrder->created_at->format('F j, Y') }}
-
-                                    </strong>
+                                        class="weight-600">{{ date('F j, Y', strtotime($receipt->receipt_date)) }}</strong>
                                 </p>
                                 <p class="font-14 mb-5">
-                                    Invoice No: <strong class="weight-600">{{ $invoice->invoice_number }}</strong>
+                                    Receipt No: <strong class="weight-600">{{ $receipt->receipt_number }}</strong>
+                                </p>
+                                <p class="font-14 mb-5">
+                                    PO Number: <strong
+                                        class="weight-600">{{ $receipt->purchaseOrder->purchase_order_number ?? 'N/A' }}</strong>
+                                </p>
+                                <p class="font-14 mb-5">
+                                    Invoice ID: <strong class="weight-600">{{ $receipt->invoice_id ?? 'N/A' }}</strong>
                                 </p>
                             </div>
-                            {{-- <div class="col-md-6">
-                                <div class="text-right">
-                                    <p class="font-14 mb-5">{{ $vendor->company_name }}</p>
-                                    <p class="font-14 mb-5">{{ $vendor->address }}</p>
-                                    <p class="font-14 mb-5">{{ $vendor->city }}</p>
-                                    <p class="font-14 mb-5">{{ $vendor->postcode }}</p>
-                                </div>
-                            </div> --}}
                         </div>
+
                         <div class="invoice-desc pb-30">
                             <div class="invoice-desc-head clearfix">
                                 <div class="invoice-sub">Item Description</div>
-                                <div class="invoice-rate">Unit Price</div>
+                                <div class="invoice-rate">Unit Price (₱)</div>
                                 <div class="invoice-hours">Quantity</div>
-                                <div class="invoice-subtotal">Total Price</div>
+                                <div class="invoice-subtotal">Total Price (₱)</div>
                             </div>
                             <div class="invoice-desc-body">
                                 <ul>
-                                    @foreach ($invoice->orderItems as $item)
-                                        <!-- Iterate over each order item -->
+                                    @foreach ($receipt->orderItems as $item)
                                         <li class="clearfix">
                                             <div class="invoice-sub">{{ $item->item_description }}</div>
-                                            <div class="invoice-rate">${{ number_format($item->unit_price, 2) }}</div>
+                                            <div class="invoice-rate">{{ number_format($item->unit_price, 2) }}</div>
                                             <div class="invoice-hours">{{ $item->quantity }}</div>
                                             <div class="invoice-subtotal">
                                                 <span
-                                                    class="weight-600">${{ number_format($item->total_price, 2) }}</span>
+                                                    class="weight-600">{{ number_format($item->total_price, 2) }}</span>
                                             </div>
                                         </li>
                                     @endforeach
                                 </ul>
                             </div>
+
                             <div class="invoice-desc-footer">
                                 <div class="invoice-desc-head clearfix">
-                                    <div class="invoice-sub">Bank Info</div>
-                                    <div class="invoice-rate">Due By</div>
-                                    <div class="invoice-subtotal">Total Due</div>
+                                    <div class="invoice-sub">Payment Details</div>
+                                    <div class="invoice-rate">Paid On</div>
+                                    <div class="invoice-subtotal">Total Paid ({{ $receipt->currency }})</div>
                                 </div>
                                 <div class="invoice-desc-body">
                                     <ul>
                                         <li class="clearfix">
                                             <div class="invoice-sub">
                                                 <p class="font-14 mb-5">
-                                                    Account No:
-                                                    <strong class="weight-600">123 456 789</strong>
+                                                    Payment Method:
+                                                    <strong
+                                                        class="weight-600">{{ ucfirst($receipt->payment_method) ?? 'N/A' }}</strong>
                                                 </p>
                                                 <p class="font-14 mb-5">
-                                                    Code: <strong class="weight-600">4556</strong>
+                                                    Tax Amount:
+                                                    <strong
+                                                        class="weight-600">{{ number_format($receipt->tax_amount, 2) }}
+                                                        {{ $receipt->currency }}</strong>
+                                                </p>
+                                                <p class="font-14 mb-5">
+                                                    Status:
+                                                    <strong
+                                                        class="weight-600 text-uppercase">{{ $receipt->status }}</strong>
                                                 </p>
                                             </div>
                                             <div class="invoice-rate font-20 weight-600">
-                                                {{ $invoice->due_date }}
+                                                {{ date('F j, Y', strtotime($receipt->updated_at)) }}
                                             </div>
                                             <div class="invoice-subtotal">
-                                                <span
-                                                    class="weight-600 font-24 text-danger">${{ number_format($invoice->orderItems->sum('total_price'), 2) }}</span>
+                                                <span class="weight-600 font-24 text-success">
+                                                    {{ number_format($receipt->total_amount, 2) }}
+                                                    {{ $receipt->currency }}
+                                                </span>
                                             </div>
                                         </li>
                                     </ul>
@@ -109,11 +119,22 @@
                             </div>
                         </div>
 
-                        <div class="text-center">
-                            <button id="download-btn" class="btn btn-warning" onclick="printInvoice()">Download
-                                Invoice</button>
+                        @if (!empty($receipt->notes))
+                            <div class="invoice-desc-footer">
+                                <div class="invoice-desc-head clearfix">
+                                    <div class="invoice-sub">Notes</div>
+                                </div>
+                                <div class="invoice-desc-body">
+                                    <p class="font-14">{{ $receipt->notes }}</p>
+                                </div>
+                            </div>
+                        @endif
 
+                        <div class="text-center">
+                            <button id="download-btn" class="btn btn-success" onclick="printReceipt()">Download
+                                Receipt</button>
                         </div>
+
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul>
@@ -125,6 +146,20 @@
                         @endif
                     </div>
                 </div>
+
+                <script>
+                    function printReceipt() {
+                        window.print();
+                    }
+                </script>
+
+
+                <script>
+                    function printReceipt() {
+                        window.print();
+                    }
+                </script>
+
             </div>
         </div>
         <script>

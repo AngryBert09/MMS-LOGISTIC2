@@ -43,8 +43,12 @@
 
                     <div class="row mb-4">
                         <div class="col-md-6">
+                            <strong>Quantity:</strong> {{ $bidding->quantity }}
+                        </div>
+                        <div class="col-md-6">
                             <strong>Deadline:</strong> {{ \Carbon\Carbon::parse($bidding->deadline)->format('Y-m-d') }}
                         </div>
+
                         <div class="col-md-6">
                             <strong>Description:</strong> {{ $bidding->description }}
                         </div>

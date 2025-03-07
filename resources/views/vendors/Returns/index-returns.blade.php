@@ -38,6 +38,8 @@
                             <thead>
                                 <tr>
                                     <th class="table-plus datatable-nosort">Return ID</th>
+                                    <th>Return Reference</th>
+                                    <th>Material Name</th>
                                     <th>Quantity Returned</th>
                                     <th>Return Reason</th>
                                     <th>Return Status</th>
@@ -46,34 +48,35 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- @foreach ($returns as $return)
+                                @foreach ($returns['data'] as $return)
                                     <tr>
-                                        <td class="table-plus">{{ $return->return_id }}</td>
-                                        <td>{{ $return->quantity_return }}</td>
-                                        <td>{{ $return->return_reason }}</td>
+                                        <td class="table-plus">{{ $return['id'] }}</td>
+                                        <td>{{ $return['return_reference'] ?? 'N/A' }}</td>
+                                        <td>{{ $return['material']['name'] ?? 'N/A' }}</td>
+                                        <td>{{ $return['quantity'] ?? 'N/A' }}</td>
+                                        <td>{{ $return['reason'] ?? 'N/A' }}</td>
 
                                         <!-- Status Column with Unique ID -->
                                         <td>
-                                            <span id="status-{{ $return->return_id }}"
+                                            <span id="status-{{ $return['id'] }}"
                                                 class="badge
-                                                @if ($return->return_status == 'Approved') badge-success
-                                                @elseif ($return->return_status == 'Processed') badge-primary
-                                                @elseif ($return->return_status == 'Rejected') badge-danger
+                                                @if ($return['status'] == 'Approved') badge-success
+                                                @elseif ($return['status'] == 'Processed') badge-primary
+                                                @elseif ($return['status'] == 'Rejected') badge-danger
                                                 @else badge-warning @endif">
-                                                {{ ucfirst($return->return_status) }}
+                                                {{ ucfirst($return['status'] ?? 'Pending') }}
                                             </span>
                                         </td>
 
-                                        <td>{{ date('Y-m-d', strtotime($return->return_date)) }}</td>
+                                        <td>{{ date('Y-m-d', strtotime($return['return_date'])) }}</td>
                                         <td>
                                             @include('vendors.Returns.actions-returns') <!-- Dropdown Actions -->
                                         </td>
                                     </tr>
-                                @endforeach --}}
+                                @endforeach
                             </tbody>
-
-
                         </table>
+
 
                     </div>
                 </div>

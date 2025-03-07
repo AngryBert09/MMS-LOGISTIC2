@@ -25,6 +25,7 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -49,33 +50,51 @@ class AuthController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $vendor = new Vendor([
-            'company_name' => $request->companyName,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'full_name' => $request->fullName,
-            'gender' => $request->gender,
-            'address' => $request->address,
-        ]);
+        DB::beginTransaction(); // Start a database transaction
 
-        $errorMessages = $this->handleFileUploads($request, $vendor);
+        try {
+            $vendor = new Vendor([
+                'company_name' => $request->companyName,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'full_name' => $request->fullName,
+                'gender' => $request->gender,
+                'address' => $request->address,
+            ]);
 
-        if (!empty($errorMessages)) {
-            return back()->withErrors(['error' => $errorMessages])->withInput();
+            $errorMessages = $this->handleFileUploads($request, $vendor);
+
+            if (!empty($errorMessages)) {
+                return back()->withErrors(['error' => $errorMessages])->withInput();
+            }
+
+            $vendor->save();
+
+            VerifiedVendor::create([
+                'vendor_id' => $vendor->id,
+                'is_verified' => false,
+                'verified_at' => null,
+            ]);
+
+            // Store vendor_id in the supplier_performance table
+            DB::table('supplier_performance')->insert([
+                'vendor_id' => $vendor->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Notify the vendor
+            $vendor->notify(new WelcomeVendorNotification($vendor->full_name));
+
+            DB::commit(); // Commit transaction if everything is successful
+
+            return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback the transaction in case of an error
+            return back()->withErrors(['error' => 'An error occurred while processing your request. Please try again.'])->withInput();
         }
-
-        $vendor->save();
-
-        VerifiedVendor::create([
-            'vendor_id' => $vendor->id,
-            'is_verified' => false,
-            'verified_at' => null,
-        ]);
-
-        $vendor->notify(new WelcomeVendorNotification($vendor->full_name));
-
-        return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
     }
+
 
     private function handleFileUploads(Request $request, Vendor $vendor): array
     {
@@ -189,14 +208,7 @@ class AuthController extends Controller
             broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
 
             // Define cache keys for analyze and getMyPerformance
-            $analysisCacheKey = "vendor_{$vendor->id}_supplier_analysis";
-            $performanceCacheKey = "vendor_{$vendor->id}_performance";
-            $profileCacheKey = "vendor_profile_{$vendor->id}";
-
-            // Clear the caches if they exist
-            Cache::forget($analysisCacheKey);
-            Cache::forget($performanceCacheKey);
-            Cache::forget($profileCacheKey);
+            Cache::flush();
         }
 
         auth()->logout();

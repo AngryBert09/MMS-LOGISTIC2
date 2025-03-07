@@ -58,7 +58,7 @@ class PurchaseReceiptController extends Controller
     public function show($id)
     {
         $receipt = PurchaseReceipt::with(['vendor', 'invoice', 'purchaseOrder'])->findOrFail($id);
-        return view('receipts.show', compact('receipt'));
+        return view('vendors.purchase-receipts.show-receipt', compact('receipt'));
     }
 
     // Show the form for editing the specified receipt

@@ -5,10 +5,10 @@
     </a>
     <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
         <!-- View Action (Always Available) -->
-        <a class="dropdown-item" href="{{ route('returns.show', $return->return_id) }}">
+        {{-- <a class="dropdown-item" href="{{ route('returns.show', $return->return_id) }}">
             <i class="dw dw-eye"></i> View
-        </a>
-
+        </a> --}}
+        {{--
         @if ($return->return_status !== 'Rejected')
             @if ($return->return_status === 'Approved')
                 <!-- Show Process Action if Status is Approved -->
@@ -28,7 +28,7 @@
                     <i class="dw dw-trash"></i> Reject
                 </a>
             @endif
-        @endif
+        @endif --}}
     </div>
 </div>
 
