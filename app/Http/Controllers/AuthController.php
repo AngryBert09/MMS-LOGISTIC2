@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
-use GuzzleHttp\Client;
 
 class AuthController extends Controller
 {
@@ -124,31 +123,12 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
-
-    public function authenticate(Request $request)
+    public function authenticate()
     {
-        // Validate the request including reCAPTCHA
-        $validated = $request->validate([
+        $validated = request()->validate([
             'email' => 'required|email',
             'password' => 'required|min:8',
-            'g-recaptcha-response' => 'required', // Add reCAPTCHA validation
         ]);
-
-        // Verify reCAPTCHA
-        // Verify reCAPTCHA
-        $client = new Client();
-        $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
-            'form_params' => [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
-                'response' => $validated['g-recaptcha-response'],
-                'remoteip' => $request->ip(),
-            ],
-        ]);
-
-        $body = json_decode((string)$response->getBody());
-        if (!$body->success) {
-            return response()->json(['errors' => ['captcha' => 'Invalid reCAPTCHA. Please try again.']], 422);
-        }
 
         $email = $validated['email'];
         $cacheKey = "vendor_auth_{$email}";
@@ -185,13 +165,13 @@ class AuthController extends Controller
         }
 
         // Attempt authentication
-        $remember = $request->has('remember');
+        $remember = request()->has('remember');
         if (!auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
             Cache::forget($cacheKey);
             return response()->json(['errors' => ['password' => 'Invalid password.']], 422);
         }
 
-        $request->session()->regenerate();
+        request()->session()->regenerate();
         Log::info('Vendor login successful', ['vendor_id' => $vendor->id]);
 
         // Mark vendor as online and update cache
