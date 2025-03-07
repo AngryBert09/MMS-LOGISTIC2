@@ -82,7 +82,7 @@
 
 
                             <div class="g-recaptcha mt-3 ml-4" name="g-recaptcha-response"
-                                data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
+                                data-sitekey="6Ld58OwqAAAAADk4EGg6DV31gdUgbux_w_oOZC55">
                             </div>
                             <div class="row mt-3">
                                 <div class="col-sm-12">
