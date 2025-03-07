@@ -81,7 +81,7 @@
                             </div>
 
                             <!-- Google reCAPTCHA Widget -->
-                            <div class="g-recaptcha mt-3" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                            <div class="g-recaptcha mt-3" data-sitekey="6LcVxewqAAAAAP-gifg2RJjh8nboTweRGXYDUCqC"></div>
                             <div class="row mt-3">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
