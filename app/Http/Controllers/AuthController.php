@@ -135,10 +135,11 @@ class AuthController extends Controller
         ]);
 
         // Verify reCAPTCHA
+        // Verify reCAPTCHA
         $client = new Client();
         $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
             'form_params' => [
-                'secret' => env('RECAPTCHA_SECRET_KEY'), // Ensure this is in your .env
+                'secret' => env('RECAPTCHA_SECRET_KEY'),
                 'response' => $validated['g-recaptcha-response'],
                 'remoteip' => $request->ip(),
             ],

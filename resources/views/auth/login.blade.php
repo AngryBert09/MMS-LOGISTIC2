@@ -82,6 +82,7 @@
 
                             <!-- Google reCAPTCHA Widget -->
                             <div class="g-recaptcha mt-3" data-sitekey="6LcVxewqAAAAAP-gifg2RJjh8nboTweRGXYDUCqC"></div>
+
                             <div class="row mt-3">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
@@ -95,6 +96,9 @@
                                 </div>
                             </div>
                         </form>
+
+                        <!-- Include reCAPTCHA Script -->
+                        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
                         <!-- Include reCAPTCHA Script -->
                         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
