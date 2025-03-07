@@ -60,11 +60,11 @@
                                         <td>
                                             <span id="status-{{ $return['id'] }}"
                                                 class="badge
-                                                @if ($return['status'] == 'Approved') badge-success
-                                                @elseif ($return['status'] == 'Processed') badge-primary
-                                                @elseif ($return['status'] == 'Rejected') badge-danger
+                                                @if ($return['return_status'] == 'Approved') badge-success
+                                                @elseif ($return['return_status'] == 'Processed') badge-primary
+                                                @elseif ($return['return_status'] == 'Rejected') badge-danger
                                                 @else badge-warning @endif">
-                                                {{ ucfirst($return['status'] ?? 'Pending') }}
+                                                {{ ucfirst($return['return_status'] ?? 'Pending') }}
                                             </span>
                                         </td>
 
