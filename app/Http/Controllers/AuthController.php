@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use GuzzleHttp\Client;
 
 class AuthController extends Controller
 {
@@ -123,12 +124,41 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
-    public function authenticate()
+    public function authenticate(Request $request)
     {
-        $validated = request()->validate([
+        // Validate the request including reCAPTCHA
+        $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:8',
+            'g-recaptcha-response' => 'required', // Add reCAPTCHA validation
         ]);
+
+        Log::info('reCAPTCHA Response Received:', ['response' => $validated['g-recaptcha-response']]);
+
+        // Verify reCAPTCHA
+        $client = new Client();
+        try {
+            $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
+                'form_params' => [
+                    'secret' => env('RECAPTCHA_SECRET_KEY'), // Ensure this is in your .env
+                    'response' => $validated['g-recaptcha-response'],
+                    'remoteip' => $request->ip(),
+                ],
+            ]);
+
+            $body = json_decode((string)$response->getBody());
+            Log::info('reCAPTCHA Verification API Response:', ['response' => $body]);
+
+            if (!$body->success) {
+                Log::error('reCAPTCHA Verification Failed:', ['errors' => $body->{'error-codes'}]);
+                return response()->json(['errors' => ['captcha' => 'Invalid reCAPTCHA. Please try again.']], 422);
+            }
+
+            Log::info('reCAPTCHA Verification Successful');
+        } catch (\Exception $e) {
+            Log::error('reCAPTCHA Verification API Error:', ['error' => $e->getMessage()]);
+            return response()->json(['errors' => ['captcha' => 'Failed to verify reCAPTCHA. Please try again.']], 422);
+        }
 
         $email = $validated['email'];
         $cacheKey = "vendor_auth_{$email}";
@@ -143,12 +173,14 @@ class AuthController extends Controller
 
         if (!$vendor) {
             Cache::forget($cacheKey); // Ensure outdated cache is cleared
+            Log::error('No vendor found with this email:', ['email' => $email]);
             return response()->json(['errors' => ['email' => 'No vendor found with this email.']], 422);
         }
 
         $vendor = Vendor::find($vendor->id);
         if (!$vendor) {
             Cache::forget($cacheKey);
+            Log::error('No vendor found with this ID:', ['id' => $vendor->id]);
             return response()->json(['errors' => ['email' => 'No vendor found with this email.']], 422);
         }
 
@@ -161,17 +193,19 @@ class AuthController extends Controller
             };
 
             Cache::forget($cacheKey);
+            Log::error('Vendor status not approved:', ['status' => $vendor->status]);
             return response()->json(['errors' => ['email' => $statusMessage]], 422);
         }
 
         // Attempt authentication
-        $remember = request()->has('remember');
+        $remember = $request->has('remember');
         if (!auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
             Cache::forget($cacheKey);
+            Log::error('Invalid password for vendor:', ['email' => $vendor->email]);
             return response()->json(['errors' => ['password' => 'Invalid password.']], 422);
         }
 
-        request()->session()->regenerate();
+        $request->session()->regenerate();
         Log::info('Vendor login successful', ['vendor_id' => $vendor->id]);
 
         // Mark vendor as online and update cache
@@ -182,6 +216,7 @@ class AuthController extends Controller
 
         // Handle 2FA authentication
         if ($vendor->last_2fa_at && $vendor->last_2fa_at->gt(now()->subDay())) {
+            Log::info('2FA already verified within the last day:', ['vendor_id' => $vendor->id]);
             return response()->json(['redirect' => route('dashboard')], 200);
         }
 
@@ -193,7 +228,11 @@ class AuthController extends Controller
             ['code' => $twoFactorCode, 'expires_at' => $twoFactorExpiresAt, 'created_at' => now()]
         );
 
+        Log::info('2FA code generated and saved:', ['vendor_id' => $vendor->id, 'code' => $twoFactorCode]);
+
         Mail::to($vendor->email)->send(new \App\Mail\TwoFactorCodeMail($twoFactorCode));
+
+        Log::info('2FA code sent to vendor email:', ['email' => $vendor->email]);
 
         return response()->json(['redirect' => route('2fa.verify')], 200);
     }

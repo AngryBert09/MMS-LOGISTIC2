@@ -80,6 +80,10 @@
                                 </div>
                             </div>
 
+                            <!-- Google reCAPTCHA Widget -->
+                            <div class="g-recaptcha mt-3 ml-4" data-sitekey="6Ld58OwqAAAAADk4EGg6DV31gdUgbux_w_oOZC55">
+                            </div>
+
                             <div class="row mt-3">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
@@ -93,6 +97,9 @@
                                 </div>
                             </div>
                         </form>
+
+                        <!-- Include reCAPTCHA Script -->
+                        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
                         <div class="font-16 weight-600 pt-10 pb-10 text-center" data-color="#707373">
                             OR
                         </div>
