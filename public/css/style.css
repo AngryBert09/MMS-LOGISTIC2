@@ -1606,7 +1606,7 @@ table.dataTable.dtr-inline.collapsed>tbody>tr.parent>th:first-child:before {
 .contact-directory-box:hover .view-contact a,
 .header-left .header-search .dropdown .dropdown-toggle:hover,
 .header-left .header-search .dropdown.show .dropdown-toggle {
-    background: #1b00ff;
+    background: #ffc107;
     color     : #fff
 }
 
@@ -2338,7 +2338,7 @@ body.IE .register-page-wrap .container {
 .select-role .btn-group .btn.active:focus,
 .select-role .btn-group .btn.focus.active {
     background-color: rgba(27, 0, 255, .05);
-    border-color    : rgba(27, 0, 255, .5);
+    border-color    : #ffc107;
     color           : #FFC107
 }
 
@@ -4096,7 +4096,7 @@ body.IE .register-page-wrap .container {
     content   : "";
     width     : 80px;
     height    : 1px;
-    background: #1b00ff;
+    background: #ffc107;
     position  : absolute;
     left      : 0;
     right     : 0;

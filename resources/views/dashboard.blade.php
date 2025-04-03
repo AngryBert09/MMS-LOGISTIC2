@@ -104,7 +104,7 @@
             </div>
             <div class="card-box mb-30">
                 <h5 class="h5 pd-20">
-                    AI Supplier Performance Analysis
+                    My Performance Analysis <span style="font-size: 10px;">powered by AI</span>
                     <span style="color:blue; cursor: pointer;" data-toggle="tooltip" data-placement="right"
                         title="This feature is under development and improvement. Expect changes and enhancements.">
                         [BETA]

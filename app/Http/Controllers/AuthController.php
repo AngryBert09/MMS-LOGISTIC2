@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Crypt;
+use App\Mail\TwoFactorCodeMail;
 
 class AuthController extends Controller
 {
@@ -29,9 +31,12 @@ class AuthController extends Controller
 
     public function store(Request $request)
     {
+        Log::info('Store method called', ['request' => $request->all()]);
+
+        // Validate the request
         $validator = Validator::make($request->all(), [
-            'companyName' => 'required|string|max:255',
-            'email' => 'required|email|unique:vendors,email',
+            'companyName' => 'required|string|max:255', // Make companyName optional
+            'email' => 'required|email|unique:vendors,email', // Make email optional
             'password' => [
                 'required',
                 'string',
@@ -47,54 +52,119 @@ class AuthController extends Controller
             'proof_of_identity' => 'required|file|mimes:pdf,jpg,jpeg,png|mimetypes:application/pdf,image/jpeg,image/png|max:2048',
         ]);
 
+        // If validation fails, return with errors
         if ($validator->fails()) {
+            Log::error('Validation failed', ['errors' => $validator->errors()]);
             return back()->withErrors($validator)->withInput();
         }
 
-        DB::beginTransaction(); // Start a database transaction
+        // Begin database transaction
+        DB::beginTransaction();
 
         try {
+            // Default status
+            $status = 'Pending';
+            $companyName = $request->companyName; // Default company name
+            $email = $request->email; // Default email
+
+            // Check if encrypted data exists in the request
+            if ($request->has('data')) {
+                try {
+                    Log::info('Encrypted data found in request', ['data' => $request->data]);
+
+                    // Decrypt data
+                    $decryptedData = Crypt::decryptString($request->data);
+                    [$invitedEmail, $invitedName] = explode('|', $decryptedData);
+
+                    Log::info('Decrypted data', ['invitedEmail' => $invitedEmail, 'invitedName' => $invitedName]);
+
+                    // Use the decrypted email and name
+                    $email = $invitedEmail; // Override email with decrypted email
+                    $companyName = $invitedName; // Use decrypted name as company name
+
+                    // Trim and convert both values to lowercase for accurate comparison
+                    $trimmedRequestEmail = strtolower(trim($request->email));
+                    $trimmedInvitedEmail = strtolower(trim($invitedEmail));
+
+                    Log::info('Comparing emails:', [
+                        'trimmedRequestEmail' => $trimmedRequestEmail,
+                        'trimmedInvitedEmail' => $trimmedInvitedEmail,
+                    ]);
+
+                    // Check if email matches
+                    if ($trimmedRequestEmail === $trimmedInvitedEmail) {
+                        Log::info('Email matched! Approving vendor.');
+                        $status = 'Approved';
+                    } else {
+                        Log::warning('Email mismatch. Keeping status as Pending.', [
+                            'requestEmail' => $request->email,
+                            'decryptedEmail' => $invitedEmail,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Decryption failed', ['error' => $e->getMessage()]);
+                }
+            }
+
+            // Create vendor
             $vendor = new Vendor([
-                'company_name' => $request->companyName,
-                'email' => $request->email,
+                'company_name' => $companyName, // Use decrypted or request company name
+                'email' => $email, // Use decrypted or request email
                 'password' => Hash::make($request->password),
                 'full_name' => $request->fullName,
                 'gender' => $request->gender,
                 'address' => $request->address,
+                'status' => $status, // Set status dynamically
             ]);
 
-            $errorMessages = $this->handleFileUploads($request, $vendor);
+            Log::info('Vendor instance created', ['vendor' => $vendor]);
 
+            // Handle file uploads
+            $errorMessages = $this->handleFileUploads($request, $vendor);
             if (!empty($errorMessages)) {
+                Log::error('File upload errors', ['errors' => $errorMessages]);
                 return back()->withErrors(['error' => $errorMessages])->withInput();
             }
 
+            // Save vendor
             $vendor->save();
+            Log::info('Vendor saved', ['vendor_id' => $vendor->id]);
 
+            // Create verified vendor record
             VerifiedVendor::create([
                 'vendor_id' => $vendor->id,
-                'is_verified' => false,
-                'verified_at' => null,
+                'is_verified' => ($status === 'Approved'),
+                'verified_at' => ($status === 'Approved') ? now() : null,
             ]);
 
-            // Store vendor_id in the supplier_performance table
+            Log::info('VerifiedVendor record created', ['vendor_id' => $vendor->id]);
+
+            // Store vendor_id in supplier performance table
             DB::table('supplier_performance')->insert([
                 'vendor_id' => $vendor->id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            // Notify the vendor
+            Log::info('Supplier performance record created', ['vendor_id' => $vendor->id]);
+
+            // Notify vendor
             $vendor->notify(new WelcomeVendorNotification($vendor->full_name));
+            Log::info('Welcome notification sent', ['vendor_id' => $vendor->id]);
 
-            DB::commit(); // Commit transaction if everything is successful
+            // Commit the transaction
+            DB::commit();
 
+            // Redirect to login with success message
             return redirect()->route('login')->with('confirmation_message', 'You have registered successfully! Please wait for confirmation from the admin in your email.');
         } catch (\Exception $e) {
-            DB::rollBack(); // Rollback the transaction in case of an error
+            // Rollback the transaction on error
+            DB::rollBack();
+            Log::error('Transaction failed', ['error' => $e->getMessage()]);
             return back()->withErrors(['error' => 'An error occurred while processing your request. Please try again.'])->withInput();
         }
     }
+
 
 
     private function handleFileUploads(Request $request, Vendor $vendor): array
@@ -124,118 +194,101 @@ class AuthController extends Controller
     {
         return view('auth.login');
     }
+
     public function authenticate(Request $request)
     {
-        // Validate the request including reCAPTCHA
+        // Validate the request
         $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:8',
-            'g-recaptcha-response' => 'required', // Add reCAPTCHA validation
+            'role' => 'required|in:vendor,employee', // Ensure the role is either vendor or employee
         ]);
 
-        Log::info('reCAPTCHA Response Received:', ['response' => $validated['g-recaptcha-response']]);
-
-        // Verify reCAPTCHA
-        $client = new Client();
-        try {
-            $response = $client->post('https://www.google.com/recaptcha/api/siteverify', [
-                'form_params' => [
-                    'secret' => env('RECAPTCHA_SECRET_KEY'), // Ensure this is in your .env
-                    'response' => $validated['g-recaptcha-response'],
-                    'remoteip' => $request->ip(),
-                ],
-            ]);
-
-            $body = json_decode((string)$response->getBody());
-            Log::info('reCAPTCHA Verification API Response:', ['response' => $body]);
-
-            if (!$body->success) {
-                Log::error('reCAPTCHA Verification Failed:', ['errors' => $body->{'error-codes'}]);
-                return response()->json(['errors' => ['captcha' => 'Invalid reCAPTCHA. Please try again.']], 422);
-            }
-
-            Log::info('reCAPTCHA Verification Successful');
-        } catch (\Exception $e) {
-            Log::error('reCAPTCHA Verification API Error:', ['error' => $e->getMessage()]);
-            return response()->json(['errors' => ['captcha' => 'Failed to verify reCAPTCHA. Please try again.']], 422);
-        }
-
         $email = $validated['email'];
-        $cacheKey = "vendor_auth_{$email}";
+        $role = $validated['role'];
 
-        Log::info('Attempting to retrieve vendor from cache', ['email' => $email]);
+        Log::info('Attempting to authenticate', ['email' => $email, 'role' => $role]);
 
-        // Retrieve vendor from cache or database
-        $vendor = Cache::remember($cacheKey, now()->addMinutes(2), function () use ($email) {
-            Log::info('Cache miss: Retrieving vendor from database', ['email' => $email]);
-            return Vendor::where('email', $email)->first(['id', 'email']);
-        });
+        // Determine the guard and model based on the selected role
+        $guard = $role === 'vendor' ? 'vendor' : 'web';
+        $model = $role === 'vendor' ? Vendor::class : User::class;
 
-        if (!$vendor) {
-            Cache::forget($cacheKey); // Ensure outdated cache is cleared
-            Log::error('No vendor found with this email:', ['email' => $email]);
-            return response()->json(['errors' => ['email' => 'No vendor found with this email.']], 422);
+        // Retrieve the user/vendor from the database
+        $user = $model::where('email', $email)->first(['id', 'email', 'status']);
+
+        if (!$user) {
+            Log::error('No user found with this email:', ['email' => $email]);
+            return response()->json(['errors' => ['email' => 'No user found with this email.']], 422);
         }
 
-        $vendor = Vendor::find($vendor->id);
-        if (!$vendor) {
-            Cache::forget($cacheKey);
-            Log::error('No vendor found with this ID:', ['id' => $vendor->id]);
-            return response()->json(['errors' => ['email' => 'No vendor found with this email.']], 422);
-        }
-
-        // Check vendor status
-        if ($vendor->status !== 'Approved') {
-            $statusMessage = match ($vendor->status) {
+        // Check status for vendors
+        if ($role === 'vendor' && $user->status !== 'Approved') {
+            $statusMessage = match ($user->status) {
                 'Pending'  => 'Your application is still pending. Please wait for approval.',
                 'Rejected' => 'Your application has been rejected. Please contact support.',
-                default    => 'Unexpected vendor status. Please contact support.',
+                default    => 'Unexpected status. Please contact support.',
             };
 
-            Cache::forget($cacheKey);
-            Log::error('Vendor status not approved:', ['status' => $vendor->status]);
+            Log::error('Vendor status not approved:', ['status' => $user->status]);
+            return response()->json(['errors' => ['email' => $statusMessage]], 422);
+        }
+
+        // Check status for employees
+        if ($role === 'employee' && $user->status !== 'active') {
+            $statusMessage = match ($user->status) {
+                'inactive' => 'Your account is inactive. Please contact support.',
+                default    => 'Unexpected status. Please contact support.',
+            };
+
+            Log::error('Employee status not active:', ['status' => $user->status]);
             return response()->json(['errors' => ['email' => $statusMessage]], 422);
         }
 
         // Attempt authentication
         $remember = $request->has('remember');
-        if (!auth()->guard('vendor')->attempt(['email' => $vendor->email, 'password' => $validated['password']], $remember)) {
-            Cache::forget($cacheKey);
-            Log::error('Invalid password for vendor:', ['email' => $vendor->email]);
+        if (!Auth::guard($guard)->attempt(['email' => $user->email, 'password' => $validated['password']], $remember)) {
+            Log::error('Invalid password for user:', ['email' => $user->email]);
             return response()->json(['errors' => ['password' => 'Invalid password.']], 422);
         }
 
         $request->session()->regenerate();
-        Log::info('Vendor login successful', ['vendor_id' => $vendor->id]);
+        Log::info('Login successful', ['user_id' => $user->id, 'role' => $role]);
 
-        // Mark vendor as online and update cache
-        $vendor->update(['is_online' => true]);
-        broadcast(new VendorStatusUpdated($vendor->id, $vendor->is_online));
-
-        Cache::put($cacheKey, $vendor, now()->addMinutes(2)); // Refresh cache after successful login
-
-        // Handle 2FA authentication
-        if ($vendor->last_2fa_at && $vendor->last_2fa_at->gt(now()->subDay())) {
-            Log::info('2FA already verified within the last day:', ['vendor_id' => $vendor->id]);
-            return response()->json(['redirect' => route('dashboard')], 200);
+        // Mark user as online (only for vendors)
+        if ($role === 'vendor') {
+            $user->update(['is_online' => true]);
+            broadcast(new VendorStatusUpdated($user->id, $user->is_online));
         }
 
-        $twoFactorCode = random_int(100000, 999999);
-        $twoFactorExpiresAt = now()->addMinutes(10);
+        // Handle 2FA authentication (only for vendors)
+        if ($role === 'vendor') {
+            if ($user->last_2fa_at && $user->last_2fa_at->gt(now()->subDay())) {
+                Log::info('2FA already verified within the last day:', ['user_id' => $user->id]);
+                return response()->json(['redirect' => route('dashboard')], 200);
+            }
 
-        DB::table('vendor_2fa_codes')->updateOrInsert(
-            ['vendor_id' => $vendor->id],
-            ['code' => $twoFactorCode, 'expires_at' => $twoFactorExpiresAt, 'created_at' => now()]
-        );
+            $twoFactorCode = random_int(100000, 999999);
+            $twoFactorExpiresAt = now()->addMinutes(10);
 
-        Log::info('2FA code generated and saved:', ['vendor_id' => $vendor->id, 'code' => $twoFactorCode]);
+            DB::table('vendor_2fa_codes')->updateOrInsert(
+                ['vendor_id' => $user->id],
+                ['code' => $twoFactorCode, 'expires_at' => $twoFactorExpiresAt, 'created_at' => now()]
+            );
 
-        Mail::to($vendor->email)->send(new \App\Mail\TwoFactorCodeMail($twoFactorCode));
+            Log::info('2FA code generated and saved:', ['user_id' => $user->id, 'code' => $twoFactorCode]);
 
-        Log::info('2FA code sent to vendor email:', ['email' => $vendor->email]);
+            Mail::to($user->email)->send(new TwoFactorCodeMail($twoFactorCode));
 
-        return response()->json(['redirect' => route('2fa.verify')], 200);
+            Log::info('2FA code sent to user email:', ['email' => $user->email]);
+
+            return response()->json(['redirect' => route('2fa.verify')], 200);
+        }
+
+        // Redirect employees to the dashboard
+        return response()->json(['redirect' => route('employee.dashboard')], 200);
     }
+
+
 
     public function logout()
     {

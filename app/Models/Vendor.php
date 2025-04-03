@@ -91,4 +91,9 @@ class Vendor extends Authenticatable implements AuthenticatableContract
         $resetUrl = url(route('password.reset', ['token' => $token, 'email' => $this->email], false));
         Mail::to($this->email)->send(new ResetPasswordMail($resetUrl));
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

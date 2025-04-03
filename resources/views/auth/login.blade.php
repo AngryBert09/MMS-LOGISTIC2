@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 @include('layout.head')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <body class="login-page">
     @include('layout.login-header')
     <div class="pre-loader">
-        <div class="pre-loader-box">
+        {{-- <div class="pre-loader-box">
             <!-- Welcome Message -->
             <div class="welcome-message">
                 <div class="loader-logo">
@@ -18,7 +19,7 @@
             <div class="loader-progress" id="progress_div">
                 <div class="bar" id="bar1"></div>
             </div>
-        </div>
+        </div> --}}
     </div>
 
 
@@ -36,6 +37,34 @@
                         </div>
                         <form action="{{ route('login') }}" method="post" id="loginForm">
                             @csrf
+                            <div class="select-role">
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <!-- Vendor Option -->
+                                    <label class="btn active">
+                                        <input type="radio" name="role" id="vendor" value="vendor" checked />
+                                        <div class="icon">
+                                            <i class="fas fa-briefcase" style="font-size: 30px; color:#ffc107"></i>
+                                        </div>
+                                        <span>I'm</span>
+                                        Vendor
+                                    </label>
+
+                                    <!-- Employee Option -->
+                                    <label class="btn">
+                                        <input type="radio" name="role" id="employee" value="employee" />
+                                        <div class="icon">
+                                            <i class="fas fa-user-tie" style="font-size: 30px; color:#ffc107;"></i>
+                                        </div>
+                                        <span>I'm</span>
+                                        Employee
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Hidden input to store the selected role -->
+                            <input type="hidden" name="role" id="selectedRole" value="vendor" />
+
+
                             <!-- Error Message Container -->
                             <div id="errorMessage" class="alert alert-danger d-none mt-3"></div>
 
@@ -80,10 +109,6 @@
                                 </div>
                             </div>
 
-                            <!-- Google reCAPTCHA Widget -->
-                            <div class="g-recaptcha mt-3 ml-4" data-sitekey="6Ld58OwqAAAAADk4EGg6DV31gdUgbux_w_oOZC55">
-                            </div>
-
                             <div class="row mt-3">
                                 <div class="col-sm-12">
                                     <div class="input-group mb-0">
@@ -98,16 +123,11 @@
                             </div>
                         </form>
 
+
+
                         <!-- Include reCAPTCHA Script -->
                         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-                        <div class="font-16 weight-600 pt-10 pb-10 text-center" data-color="#707373">
-                            OR
-                        </div>
-                        <div class="input-group mb-0">
-                            <a class="btn btn-outline-warning btn-lg btn-block" href="{{ route('register') }}">Register
-                                To
-                                Create Account</a>
-                        </div>
+
                     </div>
                 </div>
 
@@ -118,6 +138,12 @@
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                 <script>
                     $(document).ready(function() {
+                        // Handle role selection
+                        $('input[name="role"]').change(function() {
+                            $('#selectedRole').val($(this).val());
+                        });
+
+                        // Handle form submission
                         $('#loginForm').on('submit', function(e) {
                             e.preventDefault();
 

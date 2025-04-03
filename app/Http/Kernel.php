@@ -72,6 +72,8 @@ class Kernel extends HttpKernel
         'sanctum.json' => \App\Http\Middleware\EnsureSanctumJsonResponse::class,
         'restrict.2fa' => \App\Http\Middleware\Restrict2faVerifyAccess::class,
         'delivery' => \App\Http\Middleware\DeliveryOnly::class,
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'employee' => \App\Http\Middleware\EmployeeMiddleware::class,
 
     ];
 }

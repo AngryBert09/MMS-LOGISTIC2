@@ -54,4 +54,9 @@ class Invoice extends Model
     {
         return $this->hasMany(OrderItem::class, 'invoice_id'); // Specify 'invoice_id' if it's the correct foreign key
     }
+
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class);
+    }
 }

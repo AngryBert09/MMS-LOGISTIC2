@@ -15,8 +15,15 @@ class BiddingDetail extends Model
         'quantity',
         'deadline',
         'vendor_id',
+        'employee_id',
         'description',
         'comments',
         'bid_amount'
     ];
+
+
+    public function vendorBids()
+    {
+        return $this->hasMany(VendorBid::class, 'bidding_id');
+    }
 }

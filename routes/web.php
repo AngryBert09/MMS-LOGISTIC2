@@ -12,11 +12,17 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\ReturnsController;
 use App\Http\Controllers\APIs\ApiUserController;
-
-
-
-/*
-
+use App\Http\Controllers\Admin\AdminVendorController;
+use App\Http\Controllers\Admin\AdminBiddingController;
+use App\Http\Controllers\Admin\AdminOrderManagement;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminInvoiceController;
+use App\Http\Controllers\Employee\EmployeeDashboardController;
+use App\Http\Controllers\Employee\ProcurementController;
+use App\Http\Controllers\RouteController;
+use App\Http\Controllers\Employee\Auth\EmployeeAuthController;
+use App\Http\Controllers\Admin\AdminProcurementController;
+use App\Http\Controllers\Employee\EmployeeBiddingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +37,66 @@ use App\Http\Controllers\APIs\ApiUserController;
 
 // Language route
 
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
+    Route::group(['middleware' => 'admin'], function () {
+        //DASHBOARD
+        Route::get('/recent-approved-vendors', [AdminDashboardController::class, 'getRecentApprovedVendors']);
+        Route::get('/get-total-purchase-orders', [AdminDashboardController::class, 'getTotalPurchaseOrders']);
+        Route::get('/get-vendor-count', [AdminDashboardController::class, 'getVendorCount']);
+        Route::get('/get-total-biddings', [AdminDashboardController::class, 'getTotalBiddings']);
+        Route::get('/get-total-invoice-amount', [AdminDashboardController::class, 'getTotalEarnings']);
+        Route::get('/get-ongoing-biddings', [AdminDashboardController::class, 'countOngoingBiddings']);
+        Route::get('/vendor-performance/{id}', [AdminVendorController::class, 'getVendorPerformance']);
 
+        //VENDORS
+        Route::get('/vendor-management', [AdminVendorController::class, 'index'])->name('vendors');
+        Route::get('/vendor-list', [AdminVendorController::class, 'getVendorList'])->name('vendors-list');
+        Route::post('/analyze-supplier-performance', [AdminVendorController::class, 'analyzeSupplierPerformance'])
+            ->name('analyzeSupplierPerformance');
+        Route::get('/vendor-profile/{id}', [AdminVendorController::class, 'getVendorDetails'])->name('vendor-profile');
+        Route::post('/vendors/invite', [AdminVendorController::class, 'inviteVendor'])->name('vendors-invite');
+        Route::post('/vendors/{id}/update-status', [AdminVendorController::class, 'updateVendorStatus'])
+            ->name('vendors.updateStatus');
+
+        //BIDDINGS
+        Route::get('/biddings-overview', [AdminBiddingController::class, 'index'])->name('biddings');
+        Route::get('/bidding/{id}/vendor-bids', [AdminBiddingController::class, 'getVendorBids'])->name('bidding.vendorBids');
+
+
+        //ORDERS
+        Route::get('/order-management', [AdminOrderManagement::class, 'index'])->name('orders');
+        Route::get('/order-details/{id}', [AdminOrderManagement::class, 'show'])->name('show');
+
+        //INVOICES
+        Route::get('/invoices', [AdminInvoiceController::class, 'index'])->name('invoices');
+        Route::get('/invoice-details/{id}', [AdminInvoiceController::class, 'show'])->name('invoice.show');
+
+        //PROCUREMENT
+        Route::get('/procurements', [AdminProcurementController::class, 'index'])->name('procurements');
+        Route::put('/procurement-request/{id}/update-status', [AdminProcurementController::class, 'updateStatus'])->name('procurement.updateStatus');
+    });
+});
+
+
+
+Route::group(['prefix' => 'employee', 'as' => 'employee.'], function () {
+    Route::group(['middleware' => 'employee'], function () {
+        Route::get('/dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/notifications', [EmployeeDashboardController::class, 'getEmployeeNotifications']);
+
+
+        //PROCUREMENT
+        Route::get('/procurement-request', [ProcurementController::class, 'index'])->name('procurement.request');
+        Route::post('/procurements/store', [ProcurementController::class, 'store'])->name('procurement.store');
+        Route::get('/my-procurements', [ProcurementController::class, 'myProcurements'])->name('procurements');
+
+        //BIDDINGS
+        Route::get('/biddings', [EmployeeBiddingController::class, 'index'])->name('biddings');
+        Route::get('/bidding/{id}/vendors', [EmployeeBiddingController::class, 'showVendors'])->name('bidding.showVendors');
+    });
+    // FOR EMPLOYEES
+    Route::post('/logout', [EmployeeAuthController::class, 'logout'])->middleware('employee')->name('logout');
+});
 
 
 Route::middleware(['auth:vendor'])->group(function () {
@@ -52,11 +117,10 @@ Route::get('/verify-email/{vendor}/{token}', [ProfileController::class, 'verifyE
 
 
 
-
-Route::get('/Faqs', function () {
-    return view('vendors.faqs');
-})->name('faqs')->middleware('auth:vendor');
-
+Route::middleware(['auth:vendor', '2fa'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Add other authenticated routes here
+});
 Route::middleware(['auth:vendor'])->group(function () {
     Route::get('/paypal/create-order/{invoiceId}', [InvoiceController::class, 'createPayPalOrder'])->name('paypal.createOrder');
     Route::get('/paypal/capture-order/{orderId}', [InvoiceController::class, 'capturePayPalOrder'])->name('paypal.captureOrder');
@@ -106,9 +170,8 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 
+
 //FOR DELIVERIES
-
-
 Route::get('/deliveries', [DeliveriesController::class, 'getDeliveryLogin'])->name('deliveries.show');
 Route::post('/login-deliveries', [DeliveriesController::class, 'authenticate'])->name('deliveries.auth.login');
 Route::middleware(['delivery'])->group(function () {
@@ -118,13 +181,9 @@ Route::middleware(['delivery'])->group(function () {
 });
 
 Route::post('/deliveries/logout', [DeliveriesController::class, 'logout'])->name('deliveries.logout');
-
 Route::put('/returns/update/{returnId}', [ReturnsController::class, 'update'])->name('returns.update');
 
-use App\Http\Controllers\RouteController;
 
-// Show the form
+
 Route::get('/route', [RouteController::class, 'showForm'])->name('route.form');
-
-// Handle the form submission
 Route::post('/route', [RouteController::class, 'getRoute'])->name('get.route');

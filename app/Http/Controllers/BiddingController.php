@@ -62,13 +62,18 @@ class BiddingController extends Controller
         $bidding = BiddingDetail::findOrFail($id);
 
         // Get the authenticated vendor ID (assuming the vendor is logged in)
-        $vendorId = auth()->user()->id; // Modify based on how the authenticated vendor's ID is stored
+        $vendorId = auth()->user()->id;
 
         // Validate the input fields
         $request->validate([
-            'bid_amount' => 'required|numeric|min:1', // Ensure the bid amount is valid
-            'comments' => 'nullable|string|max:1000', // Allow empty comments but limit length
+            'bid_amount' => 'required|numeric|min:1',
+            'comments' => 'nullable|string|max:1000',
         ]);
+
+        // Check if the bid amount is lower than the starting price
+        if ($request->input('bid_amount') < $bidding->starting_price) {
+            return back()->withErrors(['bid_amount' => 'The bid amount must be equal to or greater than the starting price ($' . number_format($bidding->starting_price, 2) . ').']);
+        }
 
         // Check if a record for this vendor and bidding already exists in the vendor_bids table
         $existingBid = VendorBid::where('vendor_id', $vendorId)
@@ -76,24 +81,24 @@ class BiddingController extends Controller
             ->first();
 
         if ($existingBid) {
-            // If the vendor has already placed a bid, update it
+            // Update existing bid
             $existingBid->bid_amount = $request->input('bid_amount');
             $existingBid->comments = $request->input('comments');
             $existingBid->save();
         } else {
-            // If no bid exists, create a new record in the vendor_bids table
+            // Create a new bid
             VendorBid::create([
                 'vendor_id' => $vendorId,
                 'bidding_id' => $bidding->id,
                 'bid_amount' => $request->input('bid_amount'),
                 'comments' => $request->input('comments'),
-                'shortname' => 'Vendor' . $vendorId . '_Bid_' . $bidding->id, // Generate shortname based on vendor and bidding IDs
+                'shortname' => 'Vendor' . $vendorId . '_Bid_' . $bidding->id,
             ]);
         }
 
-        // Redirect back to the bidding details page with a success message
         return redirect()->route('biddings.index')->with('success', 'Your bid has been updated successfully!');
     }
+
 
 
 

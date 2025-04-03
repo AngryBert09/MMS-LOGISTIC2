@@ -20,11 +20,13 @@
                                 <!-- Step 1: Basic Account Credentials -->
                                 <h5>Basic Account Credentials</h5>
                                 <section>
+                                    <input type="hidden" name="data" value="{{ request()->input('data') }}">
                                     <div class="form-wrap max-width-600 mx-auto">
                                         <!-- Email Input -->
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label">Email</label>
                                             <div class="col-sm-8">
+
                                                 <input type="email" name="email"
                                                     class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}"
                                                     value="{{ old(

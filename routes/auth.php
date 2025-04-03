@@ -3,8 +3,29 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\TwoFactorController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\APIs\ApiUserController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\Auth\AdminAuthController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Employee\Auth\EmployeeAuthController;
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
+    Route::group(['middleware' => 'guest'], function () {
+        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [AdminAuthController::class, 'login']);
+    });
+
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->middleware('admin')->name('logout');
+
+    Route::group(['middleware' => 'admin'], function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    });
+});
+
+
+
+
+
 
 Route::group(['middleware' => 'guest:vendor'], function () {
     Route::get('/register', [AuthController::class, 'register'])->name('register');
@@ -13,9 +34,9 @@ Route::group(['middleware' => 'guest:vendor'], function () {
 
     Route::get('/login', [AuthController::class, 'login'])->name('login');
 
-    Route::get('/', function () {
-        return redirect()->route('login');
-    });
+    // Route::get('/', function () {
+    //     return redirect()->route('login');
+    // });
 
 
     Route::post('/login', [AuthController::class, 'authenticate']);
@@ -47,10 +68,7 @@ Route::middleware(['auth:vendor', 'restrict.2fa'])->group(function () {
 });
 
 // Routes that require 2FA authentication
-Route::middleware(['auth:vendor', '2fa'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // Add other authenticated routes here
-});
+
 
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:vendor')->name('logout');

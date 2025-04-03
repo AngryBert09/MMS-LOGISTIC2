@@ -1,8 +1,6 @@
 <div class="left-side-bar">
     <div class="brand-logo">
-        <a href="{{ route('dashboard') }}">
-            <img src="{{ asset('images/greatwall-logo.png') }}" style="height:90px" />
-        </a>
+    
         <div class="close-sidebar" data-toggle="left-sidebar-close">
             <i class="ion-close-round"></i>
         </div>
@@ -25,8 +23,8 @@
 
                             @if ($verifiedVendor && $verifiedVendor->is_verified)
                                 <li><a href="{{ route('invoices.index') }}">Invoices</a></li>
-                                <li><a href="{{ route('purchase-orders.index') }}">Customer PO</a></li>
-                                <li><a href="{{ route('receipts.index') }}">Customer RN</a></li>
+                                <li><a href="{{ route('purchase-orders.index') }}">Purchase Orders</a></li>
+                                <li><a href="{{ route('receipts.index') }}">Receipts</a></li>
                                 <li><a href="{{ route('returns.index') }}">Returns</a></li>
                                 <li><a href="{{ route('shipments.index') }}">Deliveries</a></li>
                             @else
