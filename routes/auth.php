@@ -10,10 +10,10 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Employee\Auth\EmployeeAuthController;
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
-    Route::group(['middleware' => 'guest'], function () {
-        Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
-        Route::post('/login', [AdminAuthController::class, 'login']);
-    });
+
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login']);
+
 
     Route::post('/logout', [AdminAuthController::class, 'logout'])->middleware('admin')->name('logout');
 
