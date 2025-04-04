@@ -17,8 +17,8 @@
                     <ul class="submenu">
                         <li><a href="{{ route('employee.dashboard') }}">Dashboard</a></li>
                         <li><a href="{{ route('employee.biddings') }}">Bidding & Offers</a></li>
-                        <li><a href="">Orders and Deliveries</a></li>
-                        <li><a href="">Invoices</a></li>
+                        <li><a href="{{ route('employee.orders') }}">Orders and Deliveries</a></li>
+                        <li><a href="{{ route('employee.invoices') }}">Invoices</a></li>
                     </ul>
                 </li>
 

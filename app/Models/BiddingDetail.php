@@ -26,4 +26,10 @@ class BiddingDetail extends Model
     {
         return $this->hasMany(VendorBid::class, 'bidding_id');
     }
+
+    // Define the vendor relationship
+    public function vendor()
+    {
+        return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
 }

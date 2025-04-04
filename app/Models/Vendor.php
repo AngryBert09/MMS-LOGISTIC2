@@ -96,4 +96,9 @@ class Vendor extends Authenticatable implements AuthenticatableContract
     {
         return $this->hasMany(Invoice::class);
     }
+
+    public function vendorBids()
+    {
+        return $this->hasMany(VendorBid::class);
+    }
 }

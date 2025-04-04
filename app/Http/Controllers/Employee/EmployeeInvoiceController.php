@@ -1,49 +1,37 @@
 <?php
 
+namespace App\Http\Controllers\Employee;
 
-namespace App\Http\Controllers\APIs;
-
-use App\Http\Resources\InvoiceResource;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Invoice;
+use App\Models\PurchaseReceipt;
+use App\Models\OrderItem;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\PurchaseOrder;
 use App\Models\Vendor;
-use App\Models\OrderItem;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
-use App\Models\PurchaseReceipt;
-use Illuminate\Support\Facades\Log;
 
-class InvoiceController extends Controller
+class EmployeeInvoiceController extends Controller
 {
-
-    // public function __construct()
-    // {
-    //     // Apply Sanctum authentication to all methods
-    //     $this->middleware('auth:sanctum');
-    // }
-
     public function index()
     {
-        // Fetch invoices with their related order items
-        $invoices = Invoice::with('orderItems')->get();
+        // Fetch all invoices from the database
+        $invoices = Invoice::all(); // You can use pagination if needed: Invoice::paginate(10);
 
-        return response()->json([
-            'success' => true,
-            'data' => InvoiceResource::collection($invoices),
-        ]);
+        // Pass the invoices to the view
+        return view('employee.invoices.index-invoice', compact('invoices'));
     }
 
-
-    public function show(Invoice $invoice)
+    public function show($id)
     {
-        return response()->json([
-            'success' => true,
-            'data' => new InvoiceResource($invoice),
-        ]);
+
+        $invoice = Invoice::findOrFail($id);
+
+        return view('employee.invoices.view-invoice', compact('invoice'));
     }
+
     public function update(Request $request, Invoice $invoice)
     {
         $validatedData = $request->validate([
@@ -78,6 +66,7 @@ class InvoiceController extends Controller
         DB::beginTransaction();
 
         try {
+            // Update invoice with new balance and status
             $invoice->update([
                 'total_amount' => $remainingBalance,
                 'status' => $status,
@@ -86,6 +75,7 @@ class InvoiceController extends Controller
             $receiptNumber = null;
 
             if ($status === 'paid') {
+                // Generate receipt number from the invoice number
                 $poCode = str_replace('INV-', '', $invoice->invoice_number);
                 $receiptNumber = 'RCP-' . strtoupper($poCode);
 
@@ -94,6 +84,7 @@ class InvoiceController extends Controller
                     'receipt_number' => $receiptNumber,
                 ]);
 
+                // Create the purchase receipt
                 $receipt = PurchaseReceipt::create([
                     'receipt_number' => $receiptNumber,
                     'vendor_id' => $invoice->vendor_id,
@@ -106,6 +97,7 @@ class InvoiceController extends Controller
                     'status' => 'completed',
                 ]);
 
+                // Update order items with the receipt id
                 OrderItem::where('po_id', $invoice->po_id)->update([
                     'receipt_id' => $receipt->receipt_id,
                 ]);
@@ -120,7 +112,7 @@ class InvoiceController extends Controller
             Log::info('Transaction Committed Successfully', ['invoice_id' => $invoice->id]);
 
             return redirect()
-                ->route('employee.invoice.show', $invoice->invoice_id)
+                ->route('employee.invoice', $invoice->invoice_id)
                 ->with('success', 'Payment applied successfully. Status: ' . $status . ($receiptNumber ? " | Receipt #: $receiptNumber" : ''));
         } catch (\Exception $e) {
             DB::rollback();

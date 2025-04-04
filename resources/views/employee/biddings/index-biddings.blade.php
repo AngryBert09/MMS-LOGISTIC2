@@ -48,7 +48,7 @@
                                     <th>Status</th>
                                     <th>Deadline</th>
                                     <th>Description</th>
-                                    <th>Bid Amount</th>
+                                    <th>Amount</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -68,14 +68,30 @@
                                         </td>
                                         <td>{{ $bidding->deadline }}</td>
                                         <td>{{ $bidding->description }}</td>
-                                        <td>{{ $bidding->bid_amount }}</td>
                                         <td>
-                                            <a href="{{ route('employee.bidding.showVendors', $bidding->id) }}"
-                                                class="btn btn-success btn-sm">
-                                                Offers
-                                            </a>
+                                            @if ($bidding->vendorBids->isNotEmpty())
+                                                <!-- Display the winning bid amount, if available -->
+                                                {{ number_format($bidding->vendorBids->max('bid_amount'), 2) }}
+                                            @else
+                                                <!-- If no bids, display N/A or leave it empty -->
+                                                N/A
+                                            @endif
                                         </td>
-
+                                        <td>
+                                            @if (!$bidding->vendor_id)
+                                                <!-- Show Offers button if no vendor is assigned -->
+                                                <a href="{{ route('employee.bidding.showVendors', $bidding->id) }}"
+                                                    class="btn btn-success btn-sm">
+                                                    Offers
+                                                </a>
+                                            @else
+                                                <!-- Change button to View if a vendor is assigned -->
+                                                <a href="{{ route('employee.bidding.showVendors', $bidding->id) }}"
+                                                    class="btn btn-primary btn-sm">
+                                                    View
+                                                </a>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

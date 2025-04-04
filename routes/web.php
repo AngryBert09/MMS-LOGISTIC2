@@ -23,6 +23,8 @@ use App\Http\Controllers\RouteController;
 use App\Http\Controllers\Employee\Auth\EmployeeAuthController;
 use App\Http\Controllers\Admin\AdminProcurementController;
 use App\Http\Controllers\Employee\EmployeeBiddingController;
+use App\Http\Controllers\Employee\EmployeeOrderController;
+use App\Http\Controllers\Employee\EmployeeInvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +95,17 @@ Route::group(['prefix' => 'employee', 'as' => 'employee.'], function () {
         //BIDDINGS
         Route::get('/biddings', [EmployeeBiddingController::class, 'index'])->name('biddings');
         Route::get('/bidding/{id}/vendors', [EmployeeBiddingController::class, 'showVendors'])->name('bidding.showVendors');
+        Route::post('/bidding/bid/{bidId}/update', [EmployeeBiddingController::class, 'updateBidStatus'])->name('bidding.updateBidStatus');
+
+        //ORDERS
+        Route::get('/orders', [EmployeeOrderController::class, 'index'])->name('orders');
+        Route::get('/order-details/{id}', [EmployeeOrderController::class, 'show'])->name('orders.show');
+
+        //INVOICE
+        Route::get('/invoices', [EmployeeInvoiceController::class, 'index'])->name('invoices');
+        Route::get('/invoice-details/{id}', [EmployeeInvoiceController::class, 'show'])->name('invoice.show');
+        // Invoice Payment Update Route (used in the modal form)
+        Route::put('/invoice/{invoice}', [EmployeeInvoiceController::class, 'update'])->name('invoice.update');
     });
     // FOR EMPLOYEES
     Route::post('/logout', [EmployeeAuthController::class, 'logout'])->middleware('employee')->name('logout');

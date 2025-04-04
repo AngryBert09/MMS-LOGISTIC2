@@ -42,9 +42,9 @@
                                 @foreach ($invoices as $invoice)
                                     <tr>
                                         <td class="table-plus">{{ $invoice->invoice_number }}</td>
-                                        <td>${{ number_format($invoice->tax_amount, 2) }}</td>
-                                        <td>${{ number_format($invoice->discount_amount, 2) }}</td>
-                                        <td>${{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->tax_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->discount_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->total_amount, 2) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}</td>
                                         <td>
@@ -65,31 +65,92 @@
                                         </td>
                                         <td>
                                             <div class="dropdown">
-                                                {{-- <a class="dropdown-item" href="{{ route('paypal.createOrder', $invoice->invoice_id) }}">
-                                                    <i class="dw dw-money"></i> Pay Now
-                                                </a> --}} <a
-                                                    class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+                                                <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
                                                     href="#" role="button" data-toggle="dropdown">
                                                     <i class="dw dw-more"></i>
                                                 </a>
 
+
+
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                                                     <a class="dropdown-item"
-                                                        href="{{ route('admin.invoice.show', $invoice->invoice_id) }}">
-                                                        <i class="dw dw-eye"></i> View
+                                                        href="{{ route('employee.invoice.show', $invoice->invoice_id) }}">
+                                                        <i class="dw dw-eye"></i> Invoice
                                                     </a>
 
-                                                    {{-- <!-- Pay Now Button (Direct Redirect) -->
-                                                    <a class="dropdown-item" href="{{ route('paypal.createOrder', $invoice->invoice_id) }}">
-                                                        <i class="dw dw-money"></i> Pay Now
-                                                    </a> --}}
-                                                </div>
-                                                {{-- </div>class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" --}}
+                                                    <!-- Pay Now Button -->
+                                                    @if ($invoice->status === 'unpaid' || $invoice->status === 'partial')
+                                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                                            data-target="#payModal{{ $invoice->invoice_id }}">
+                                                            <i class="dw dw-money"></i> Pay Now
+                                                        </a>
+                                                    @endif
 
+
+                                                    @if ($invoice->status === 'paid')
+                                                        <a class="dropdown-item" href="">
+                                                            <i class="icon-copy ion-ios-list-outline"></i>Receipt
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            <!-- Pay Now Modal -->
+                                            <div class="modal fade" id="payModal{{ $invoice->invoice_id }}"
+                                                tabindex="-1" role="dialog"
+                                                aria-labelledby="payModalLabel{{ $invoice->invoice_id }}"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <form method="POST"
+                                                        action="{{ route('employee.invoice.update', $invoice->invoice_id) }}">
+                                                        @csrf
+                                                        @method('PUT')
+
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title"
+                                                                    id="payModalLabel{{ $invoice->invoice_id }}">Pay
+                                                                    Invoice - {{ $invoice->invoice_number }}</h5>
+                                                                <button type="button" class="close"
+                                                                    data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+
+                                                            <div class="modal-body">
+                                                                <div class="form-group">
+                                                                    <label>Amount to Pay</label>
+                                                                    <input type="number" name="paymentAmount"
+                                                                        class="form-control" step="0.01"
+                                                                        max="{{ $invoice->total_amount }}"
+                                                                        value="{{ $invoice->total_amount }}" required>
+                                                                </div>
+
+                                                                <div class="form-group">
+                                                                    <label>Payment Method</label>
+                                                                    <input type="text" name="paymentMethod"
+                                                                        class="form-control"
+                                                                        placeholder="e.g. Bank Transfer, PayPal, Cash"
+                                                                        required>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="modal-footer">
+                                                                <button type="submit" class="btn btn-primary">Submit
+                                                                    Payment</button>
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Cancel</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         </td>
+
                                     </tr>
                                 @endforeach
                             </tbody>
+
 
                         </table>
                     </div>

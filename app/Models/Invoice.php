@@ -59,4 +59,9 @@ class Invoice extends Model
     {
         return $this->belongsTo(Vendor::class);
     }
+
+    public function receipt()
+    {
+        return $this->hasOne(PurchaseReceipt::class, 'invoice_id', 'invoice_id');
+    }
 }
