@@ -27,7 +27,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
 
 
-Route::group(['middleware' => ['guest', 'guest:vendor']], function () {
+Route::group(['middleware' => ['guest:vendor']], function () {
     Route::get('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/register', [AuthController::class, 'store']);
 
