@@ -26,7 +26,7 @@
                         </p>
                     </div>
                     <div class="pb-20">
-                        <table class="table table-striped table-hover nowrap dt-responsive" style="width:100%">
+                        <table class="table table-striped table-hover nowrap" id="mainBiddingsTable" style="width:100%">
                             <thead>
                                 <tr>
                                     <th class="table-plus">ID</th>
@@ -61,8 +61,8 @@
                                         <td>{{ $bidding->bid_amount }}</td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm viewBiddingBtn"
-                                                data-id="{{ $bidding->id }}" data-toggle="modal"
-                                                data-target="#viewBiddingModal">
+                                                data-id="{{ $bidding->id }}" data-vendor-id="{{ $bidding->vendor_id }}"
+                                                data-toggle="modal" data-target="#viewBiddingModal">
                                                 View
                                             </button>
                                         </td>
@@ -89,7 +89,15 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <table class="table table-bordered">
+
+                    <!-- 🏆 Winning Vendor Section - Only shown when there's an actual winner -->
+                    <div class="alert alert-success" id="winningVendor" style="display: none;">
+                        <strong>🏆 Winning Vendor:</strong> <span id="winningVendorName"></span> -
+                        <strong>Bid:</strong> ₱<span id="winningBidAmount"></span>
+                    </div>
+
+                    <!-- Vendor Bids Table -->
+                    <table id="vendorBidsDataTable" class="table table-bordered" style="width:100%">
                         <thead>
                             <tr>
                                 <th>Vendor Name</th>
@@ -103,6 +111,7 @@
                         </tbody>
                     </table>
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
@@ -120,16 +129,11 @@
     <script src="{{ asset('src/plugins/datatables/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('src/plugins/datatables/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('src/plugins/datatables/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('src/plugins/datatables/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('src/plugins/datatables/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('src/plugins/datatables/js/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('src/plugins/datatables/js/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('src/plugins/datatables/js/buttons.flash.min.js') }}"></script>
-    <script src="{{ asset('src/plugins/datatables/js/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('src/plugins/datatables/js/vfs_fonts.js') }}"></script>
-    {{-- <script>
+
+    <script>
         $(document).ready(function() {
-            $('.table').DataTable({
+            // Initialize main table
+            var mainTable = $('#mainBiddingsTable').DataTable({
                 responsive: true,
                 paging: true,
                 searching: true,
@@ -137,87 +141,99 @@
                 info: true,
                 autoWidth: false
             });
-        });
-    </script> --}}
-    <script>
-        $(document).ready(function() {
-            // Ensure DataTables initializes only when needed
-            let dataTableInitialized = false;
 
-            $('.viewBiddingBtn').click(function() {
+            // Handle view bidding button click
+            $(document).on('click', '.viewBiddingBtn', function() {
                 let biddingId = $(this).data('id');
-
-                console.log("🔍 Button Clicked. Bidding ID:", biddingId);
+                let hasWinner = $(this).data('vendor-id') !== null && $(this).data('vendor-id') !== '';
 
                 if (!biddingId) {
                     alert("⚠️ Bidding ID is missing!");
                     return;
                 }
 
-                // Fix: Laravel route in JavaScript
                 let url = "{{ url('/admin/bidding') }}/" + biddingId + "/vendor-bids";
-
-                console.log("🔗 API URL:", url);
 
                 $.ajax({
                     url: url,
                     type: 'GET',
                     dataType: 'json',
                     beforeSend: function() {
-                        console.log(`📡 Fetching data from: ${url}`);
                         $('#vendorBidsTable').html(
                             '<tr><td colspan="4" class="text-center text-primary">⏳ Loading...</td></tr>'
                         );
+                        $('#winningVendor').hide();
                     },
                     success: function(response) {
-                        console.log("✅ Received Response:", response);
+                        console.log('AJAX Response:', response); // Debugging
 
-                        if (!response || typeof response !== 'object') {
-                            console.error("❌ Invalid response format:", response);
-                            alert('Unexpected server response. Please try again.');
-                            return;
-                        }
-
+                        // Clear previous data
                         $('#vendorBidsTable').empty();
 
                         if (response.vendorBids && response.vendorBids.length > 0) {
-                            console.log(
-                                `📊 Populating ${response.vendorBids.length} vendor bids...`
-                            );
-                            $.each(response.vendorBids, function(index, bid) {
-                                console.log(`🔹 Bid #${index + 1}:`, bid);
+                            // Only show winner section if there's an actual winner (vendor_id is not null)
+                            if (hasWinner) {
+                                // Find the winning vendor (the one with the lowest bid amount)
+                                let winningBid = response.vendorBids.reduce((prev, current) => {
+                                    return (prev.bid_amount < current.bid_amount) ?
+                                        prev : current;
+                                });
+
+                                $('#winningVendorName').text(winningBid.company_name || 'N/A');
+                                $('#winningBidAmount').text(winningBid.bid_amount || '0.00');
+                                $('#winningVendor').show();
+                            } else {
+                                $('#winningVendor').hide();
+                            }
+
+                            // Populate all bids
+                            response.vendorBids.forEach(function(bid) {
                                 let row = `
-                            <tr>
-                                <td>${bid.company_name || 'Unknown'}</td>
-                                <td>${bid.bid_amount || 'N/A'}</td>
-                                <td>${bid.comments || 'N/A'}</td>
-                                <td>${bid.shortname || 'N/A'}</td>
-                            </tr>`;
+                                <tr>
+                                    <td>${bid.company_name || 'Unknown'}</td>
+                                    <td>${bid.bid_amount || 'N/A'}</td>
+                                    <td>${bid.comments || 'N/A'}</td>
+                                    <td>${bid.shortname || 'N/A'}</td>
+                                </tr>`;
                                 $('#vendorBidsTable').append(row);
                             });
 
-                            // Initialize DataTable only once
-                            if (!dataTableInitialized) {
-                                $('.table').DataTable();
-                                dataTableInitialized = true;
+                            // Initialize or reinitialize DataTable
+                            if ($.fn.DataTable.isDataTable('#vendorBidsDataTable')) {
+                                $('#vendorBidsDataTable').DataTable().destroy();
                             }
+
+                            $('#vendorBidsDataTable').DataTable({
+                                searching: false,
+                                paging: false,
+                                info: false,
+                                ordering: true,
+                                responsive: true
+                            });
                         } else {
-                            console.warn("⚠️ No vendor bids available.");
                             $('#vendorBidsTable').html(
                                 '<tr><td colspan="4" class="text-center text-danger">No bids available</td></tr>'
                             );
+                            $('#winningVendor').hide();
                         }
-
-                        console.log("📌 Opening modal...");
-                        $('#viewBiddingModal').modal('show');
                     },
                     error: function(xhr, status, error) {
-                        console.error("🚨 AJAX Error:", error);
-                        console.log("🛑 XHR Status:", status);
-                        console.log("📄 Full Response:", xhr.responseText);
-                        alert('❌ Failed to load vendor bids. Check console for details.');
+                        console.error("🚨 AJAX Error:", error, xhr.responseText);
+                        $('#vendorBidsTable').html(
+                            '<tr><td colspan="4" class="text-center text-danger">Error loading bids</td></tr>'
+                        );
+                        $('#winningVendor').hide();
                     }
                 });
+            });
+
+            // Clean up when modal closes
+            $('#viewBiddingModal').on('hidden.bs.modal', function() {
+                if ($.fn.DataTable.isDataTable('#vendorBidsDataTable')) {
+                    $('#vendorBidsDataTable').DataTable().destroy();
+                }
+                $('#vendorBidsTable').empty();
+                $('#winningVendor').hide();
             });
         });
     </script>
