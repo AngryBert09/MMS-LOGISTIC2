@@ -41,11 +41,11 @@
                         </a>
 
                     </li>
-                    <li>
+                    {{-- <li>
                         <a href="{{ route('chat') }}" class="dropdown-toggle no-arrow">
                             <span class="micon bi bi-chat-right-dots"></span><span class="mtext">Chat</span>
                         </a>
-                    </li>
+                    </li> --}}
                 @endif
                 <li>
                     <div class="dropdown-divider"></div>

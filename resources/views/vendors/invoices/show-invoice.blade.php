@@ -58,7 +58,7 @@
                         <div class="invoice-desc pb-30">
                             <div class="invoice-desc-head clearfix">
                                 <div class="invoice-sub">Item Description</div>
-                                <div class="invoice-rate">Unit Price</div>
+
                                 <div class="invoice-hours">Quantity</div>
                                 <div class="invoice-subtotal">Total Price</div>
                             </div>
@@ -68,11 +68,11 @@
                                         <!-- Iterate over each order item -->
                                         <li class="clearfix">
                                             <div class="invoice-sub">{{ $item->item_description }}</div>
-                                            <div class="invoice-rate">${{ number_format($item->unit_price, 2) }}</div>
+
                                             <div class="invoice-hours">{{ $item->quantity }}</div>
                                             <div class="invoice-subtotal">
                                                 <span
-                                                    class="weight-600">${{ number_format($item->total_price, 2) }}</span>
+                                                    class="weight-600">₱{{ number_format($item->total_price, 2) }}</span>
                                             </div>
                                         </li>
                                     @endforeach
@@ -101,7 +101,7 @@
                                             </div>
                                             <div class="invoice-subtotal">
                                                 <span
-                                                    class="weight-600 font-24 text-danger">${{ number_format($invoice->orderItems->sum('total_price'), 2) }}</span>
+                                                    class="weight-600 font-24 text-danger">{{ number_format($invoice->orderItems->sum('total_price'), 2) }}</span>
                                             </div>
                                         </li>
                                     </ul>

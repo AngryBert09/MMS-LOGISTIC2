@@ -45,7 +45,7 @@
                                     <tr>
                                         <td class="table-plus">{{ $request->id }}</td>
                                         <td>{{ $request->item_name }}</td>
-                                        <td>{{ number_format($request->starting_price, 2) }}</td>
+                                        <td>₱{{ number_format($request->starting_price, 2) }}</td>
                                         <td>{{ $request->quantity }}</td>
                                         <td>
                                             @switch($request->status)

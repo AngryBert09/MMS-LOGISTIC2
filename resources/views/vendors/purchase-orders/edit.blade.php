@@ -210,13 +210,13 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-warning">
-                    <h5 class="modal-title" id="initiateFulfillmentModalLabel">Initiate Fulfillment</h5>
+                    <h5 class="modal-title" id="initiateFulfillmentModalLabel">Process Order</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to initiate fulfillment for the following purchase order?</p>
+                    <p>Are you sure you want to process the order for the following purchase order?</p>
                     <strong>Purchase Order Number:</strong> <span id="fulfillment-po-number"></span><br>
                     <strong>Total Amount:</strong> <span id="fulfillment-total-amount"></span>
                     <form id="initiateFulfillmentForm" method="POST" action="">
@@ -226,7 +226,7 @@
                         <input type="hidden" name="po_id" id="fulfillment-po-id" value="">
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-warning">Initiate Fulfillment</button>
+                            <button type="submit" class="btn btn-warning">Confirm</button>
                         </div>
                     </form>
                 </div>

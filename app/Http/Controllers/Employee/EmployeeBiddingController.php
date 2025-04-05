@@ -118,6 +118,15 @@ class EmployeeBiddingController extends Controller
                     'purchase_order_id' => $purchaseOrder->po_id,
                 ]);
 
+                // Store the Purchase Order ID on BiddingDetail
+                $bidding->po_id = $purchaseOrder->po_id;
+                $bidding->save();
+
+                Log::info('Purchase Order ID saved to BiddingDetail', [
+                    'purchase_order_id' => $purchaseOrder->po_id,
+                    'bidding_id' => $bidding->id,
+                ]);
+
                 // Notify the selected vendor
                 $vendor = Vendor::find($vendorBid->vendor_id);
                 $vendor->notify(new VendorChosenNotification($bidding));

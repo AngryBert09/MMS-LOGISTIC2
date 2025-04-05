@@ -12,6 +12,7 @@ class BiddingDetail extends Model
     protected $fillable = [
         'item_name',
         'starting_price',
+        'po_id',
         'quantity',
         'deadline',
         'vendor_id',
@@ -31,5 +32,12 @@ class BiddingDetail extends Model
     public function vendor()
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
+    // Bidding Model
+
+    public function purchaseOrder()
+    {
+        return $this->belongsTo(PurchaseOrder::class, 'po_id', 'po_id');
     }
 }

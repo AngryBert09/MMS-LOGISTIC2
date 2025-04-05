@@ -20,8 +20,8 @@ fetch("/getMyPerformance")
                     : Math.round(supplier.overall_quality_metrics);
             let responseTime =
                 supplier.response_time <= 1
-                    ? Math.round(supplier.response_time * 100)
-                    : Math.round(supplier.response_time);
+                    ? Math.round(supplier.return_rate * 100)
+                    : Math.round(supplier.return_rate);
 
             let overallRating =
                 supplier.overall_rating <= 1
@@ -70,12 +70,11 @@ fetch("/getMyPerformance")
                 responseTime: {
                     thresholds: [1, 3, 6, 12, 24],
                     labels: [
-                        "INSTANT RESPONSE",
-                        "VERY FAST",
-                        "FAST",
+                        "EXCELLENT",
+                        "GOOD",
                         "AVERAGE",
-                        "SLOW",
-                        "VERY SLOW",
+                        "POOR",
+                        "VERY POOR",
                     ],
                 },
             };

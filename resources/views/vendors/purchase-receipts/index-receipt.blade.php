@@ -53,7 +53,7 @@
                                         <td class="table-plus">{{ $receipt->receipt_number }}</td>
                                         <td>{{ $receipt->vendor->company_name ?? 'N/A' }}</td>
                                         <td>{{ $receipt->purchaseOrder->purchase_order_number ?? 'N/A' }}</td>
-                                        <td>${{ number_format($receipt->total_amount, 2) }}</td>
+                                        <td>₱{{ number_format($receipt->total_amount, 2) }}</td>
                                         <td>{{ date('Y-m-d', strtotime($receipt->receipt_date)) }}</td>
                                         <td>
                                             @php

@@ -144,8 +144,8 @@
                     <div class="card-box height-100-p widget-style3">
                         <div class="d-flex flex-wrap">
                             <div class="widget-data">
-                                <div class="weight-700 font-24 text-dark earnings-amount">$0.00</div>
-                                <div class="font-14 text-secondary weight-500">Total Earnings</div>
+                                <div class="weight-700 font-24 text-dark earnings-amount">₱</div>
+                                <div class="font-14 text-secondary weight-500">Invoice Amount</div>
                             </div>
                             <div class="widget-icon">
                                 <div class="icon" data-color="#09cc06">
@@ -165,7 +165,7 @@
                                 success: function(response) {
                                     let formattedEarnings = new Intl.NumberFormat('en-US', {
                                         style: 'currency',
-                                        currency: 'USD'
+                                        currency: 'PHP'
                                     }).format(response.total);
 
                                     $(".earnings-amount").text(formattedEarnings);

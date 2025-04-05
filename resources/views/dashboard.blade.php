@@ -81,7 +81,7 @@
                             </div>
                             <div class="widget-data">
                                 <div id="responseTime" class="h4 mb-0 text-uppercase"></div>
-                                <div class="weight-600 font-14">Communications</div>
+                                <div class="weight-600 font-14">Returns</div>
                             </div>
                         </div>
                     </div>

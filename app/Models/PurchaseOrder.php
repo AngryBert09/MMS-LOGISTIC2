@@ -51,4 +51,10 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany(PurchaseReceipt::class, 'po_id');
     }
+
+    // PurchaseOrder Model
+    public function bidding()
+    {
+        return $this->hasOne(BiddingDetail::class, 'po_id', 'po_id');
+    }
 }

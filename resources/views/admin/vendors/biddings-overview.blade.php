@@ -36,7 +36,6 @@
                                     <th>Status</th>
                                     <th>Deadline</th>
                                     <th>Description</th>
-                                    <th>Comments</th>
                                     <th>Bid Amount</th>
                                     <th>Action</th>
                                 </tr>
@@ -57,8 +56,15 @@
                                         </td>
                                         <td>{{ $bidding->deadline }}</td>
                                         <td>{{ $bidding->description }}</td>
-                                        <td>{{ $bidding->comments }}</td>
-                                        <td>{{ $bidding->bid_amount }}</td>
+                                        <td>
+                                            @if ($bidding->vendorBids->isNotEmpty())
+                                                <!-- Display the winning bid amount, if available -->
+                                                ₱{{ number_format($bidding->vendorBids->max('bid_amount'), 2) }}
+                                            @else
+                                                <!-- If no bids, display N/A or leave it empty -->
+                                                N/A
+                                            @endif
+                                        </td>
                                         <td>
                                             <button type="button" class="btn btn-primary btn-sm viewBiddingBtn"
                                                 data-id="{{ $bidding->id }}" data-vendor-id="{{ $bidding->vendor_id }}"
