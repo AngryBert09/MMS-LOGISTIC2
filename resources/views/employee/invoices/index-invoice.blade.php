@@ -31,6 +31,7 @@
                                     <th>Tax Amount</th>
                                     <th>Discount Amount</th>
                                     <th>Balance</th>
+                                    <th>Total Amount</th>
                                     <th>Invoice Date</th>
                                     <th>Due Date</th>
                                     <th>Status</th>
@@ -45,10 +46,10 @@
                                         <td>₱{{ number_format($invoice->tax_amount, 2) }}</td>
                                         <td>₱{{ number_format($invoice->discount_amount, 2) }}</td>
                                         <td>₱{{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->purchaseOrder->total_amount, 2) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}</td>
                                         <td>
-                                            <!-- Status Badge for Invoices -->
                                             @if ($invoice->status === 'paid')
                                                 <span class="badge badge-success">{{ ucfirst($invoice->status) }}</span>
                                             @elseif ($invoice->status === 'unpaid')
@@ -60,9 +61,7 @@
                                                     class="badge badge-secondary">{{ ucfirst($invoice->status) }}</span>
                                             @endif
                                         </td>
-                                        <td>
-                                            {{ $invoice->vendor->company_name }}
-                                        </td>
+                                        <td>{{ $invoice->vendor->company_name }}</td>
                                         <td>
                                             <div class="dropdown">
                                                 <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
@@ -70,15 +69,12 @@
                                                     <i class="dw dw-more"></i>
                                                 </a>
 
-
-
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
                                                     <a class="dropdown-item"
                                                         href="{{ route('employee.invoice.show', $invoice->invoice_id) }}">
                                                         <i class="dw dw-eye"></i> Invoice
                                                     </a>
 
-                                                    <!-- Pay Now Button -->
                                                     @if ($invoice->status === 'unpaid' || $invoice->status === 'partial')
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
                                                             data-target="#payModal{{ $invoice->invoice_id }}">
@@ -86,16 +82,21 @@
                                                         </a>
                                                     @endif
 
-
                                                     @if ($invoice->status === 'paid')
-                                                        <a class="dropdown-item" href="">
-                                                            <i class="icon-copy ion-ios-list-outline"></i>Receipt
+                                                        <a class="dropdown-item"
+                                                            href="{{ route('employee.receipt', $invoice->invoice_id) }}">
+                                                            <i class="icon-copy ion-ios-list-outline"></i> Receipt
                                                         </a>
                                                     @endif
+
+                                                    <a class="dropdown-item" href="#" data-toggle="modal"
+                                                        data-target="#historyModal{{ $invoice->invoice_id }}">
+                                                        <i class="icon-copy ion-clock"></i> Transaction History
+                                                    </a>
                                                 </div>
                                             </div>
 
-                                            <!-- Pay Now Modal -->
+
                                             <div class="modal fade" id="payModal{{ $invoice->invoice_id }}"
                                                 tabindex="-1" role="dialog"
                                                 aria-labelledby="payModalLabel{{ $invoice->invoice_id }}"
@@ -109,8 +110,8 @@
                                                         <div class="modal-content">
                                                             <div class="modal-header">
                                                                 <h5 class="modal-title"
-                                                                    id="payModalLabel{{ $invoice->invoice_id }}">Pay
-                                                                    Invoice - {{ $invoice->invoice_number }}</h5>
+                                                                    id="payModalLabel{{ $invoice->invoice_id }}">
+                                                                    Pay Invoice - {{ $invoice->invoice_number }}</h5>
                                                                 <button type="button" class="close"
                                                                     data-dismiss="modal" aria-label="Close">
                                                                     <span aria-hidden="true">&times;</span>
@@ -145,12 +146,66 @@
                                                     </form>
                                                 </div>
                                             </div>
-                                        </td>
 
+                                            <!-- Transaction History Modal -->
+                                            <div class="modal fade" id="historyModal{{ $invoice->invoice_id }}"
+                                                tabindex="-1" role="dialog"
+                                                aria-labelledby="historyModalLabel{{ $invoice->invoice_id }}"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog modal-lg" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title"
+                                                                id="historyModalLabel{{ $invoice->invoice_id }}">
+                                                                Transaction History - {{ $invoice->invoice_number }}
+                                                            </h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            @if ($invoice->transactionHistories->count())
+                                                                <table class="table table-bordered">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>#</th>
+                                                                            <th>Amount Paid</th>
+                                                                            <th>Payment Method</th>
+                                                                            <th>Date & Time</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($invoice->transactionHistories as $index => $history)
+                                                                            <tr>
+                                                                                <td>{{ $index + 1 }}</td>
+                                                                                <td>₱{{ number_format($history->amount_paid, 2) }}
+                                                                                </td>
+                                                                                <td>{{ $history->payment_method }}</td>
+                                                                                <td>{{ \Carbon\Carbon::parse($history->paid_at)->format('d-m-Y h:i A') }}
+                                                                                </td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            @else
+                                                                <p class="text-muted">No transaction history available.
+                                                                </p>
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
-
 
                         </table>
                     </div>

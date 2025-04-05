@@ -48,7 +48,7 @@
                                     <th>Delivery Date</th>
                                     <th>Order Status</th>
                                     <th>Total Amount</th>
-                                    <th>Issued to</th>
+                                    <th>Issued by</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -61,7 +61,13 @@
                                                 {{ $order->invoices->first()->invoice_number }}
                                             @endif
                                         </td>
-                                        <td>{{ $order->order_date }}</td>
+                                        <td>
+                                            {{ $order->order_date }}
+                                            <!-- Check if the order date is within the last 2 days -->
+                                            @if (\Carbon\Carbon::parse($order->order_date)->diffInDays(now()) <= 2)
+                                                <span class="badge badge-info ml-2">NEW</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $order->delivery_date }}</td>
                                         <td>
                                             <!-- Status Badge -->
@@ -107,7 +113,6 @@
     <!-- Ensure jQuery is loaded before this script -->
     <!-- View Order Modal -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <div class="modal fade" id="viewPurchaseOrderModal" tabindex="-1" role="dialog"
         aria-labelledby="viewPurchaseOrderModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -215,10 +220,11 @@
                 <!-- Modal Footer -->
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="markReceivedButton" class="btn btn-primary"
+                        style="display: none;">Mark as Received</button>
                     <form id="viewInvoiceForm" action="{{ route('invoices.create') }}" method="GET"
                         style="display:inline;">
                         @csrf
-                        <!-- Hidden fields for PO ID and Vendor ID -->
                         <input type="hidden" id="modal-po-id" name="po_id">
                         <input type="hidden" id="modal-vendor-id" name="vendor_id">
                     </form>
@@ -226,7 +232,6 @@
             </div>
         </div>
     </div>
-
     <script>
         $(document).ready(function() {
             // Handle the purchase order modal display
@@ -257,43 +262,28 @@
                         $('#modal-delivery-date').text(data.delivery_date || 'N/A');
                         $('#modal-order-status').text(data.order_status || 'N/A');
 
-                        // Ensure totalAmount is initialized as a number
-                        var totalAmount = 0; // Initialize as number (in case it's undefined)
+                        var totalAmount = 0;
                         if (data.order_items && data.order_items.length > 0) {
                             data.order_items.forEach(function(item) {
-                                totalAmount += parseFloat(item.total_price) ||
-                                    0; // Ensure total_price is treated as a number
+                                totalAmount += parseFloat(item.total_price) || 0;
                             });
                         }
-
-                        $('#modal-total-amount').text(totalAmount.toFixed(
-                            2)); // Display the calculated total amount
+                        $('#modal-total-amount').text(totalAmount.toFixed(2));
 
                         $('#modal-payment-terms').text(data.payment_terms || 'N/A');
                         $('#modal-delivery-location').text(data.delivery_location || 'N/A');
                         $('#modal-notes').text(data.notes_instructions || 'N/A');
                         $('#modal-shipping-method').text(data.shipping_method || 'N/A');
 
-                        // Disable "Create Invoice" button if the status is "Rejected" or an invoice already exists
-                        if (data.order_status === 'Rejected' || data.invoice_number) {
-                            $('#createInvoiceButton').prop('disabled',
-                                true); // Disable button by ID
-                            $('#invoiceStatusMessage').text(
-                                'Invoice has already been issued.'); // Display message
-                        } else if (data.order_status === 'Pending Approval' || data
-                            .invoice_number) {
-                            $('#createInvoiceButton').prop('disabled',
-                                true); // Disable button by ID
-                            $('#invoiceStatusMessage').text(
-                                'Invoice has already been issued.'); // Display message
+                        // Enable "Mark as Received" button if the status is "Delivered"
+                        if (data.order_status === 'Delivered') {
+                            $('#markReceivedButton').show(); // Show button
                         } else {
-                            $('#createInvoiceButton').prop('disabled',
-                                false); // Enable button by ID
-                            $('#invoiceStatusMessage').text(''); // Clear message
+                            $('#markReceivedButton').hide(); // Hide button if not Delivered
                         }
 
                         // Populate order items
-                        $('#modal-order-items-body').empty(); // Clear previous items
+                        $('#modal-order-items-body').empty();
                         if (data.order_items && data.order_items.length > 0) {
                             data.order_items.forEach(function(item) {
                                 $('#modal-order-items-body').append(
@@ -312,22 +302,19 @@
                         }
 
                         // Populate timeline events
-                        $('#modal-timeline-events').empty(); // Clear previous events
+                        $('#modal-timeline-events').empty();
                         if (data.timeline_events && data.timeline_events.length > 0) {
-                            console.log("Timeline Events:", data.timeline_events);
                             data.timeline_events.forEach(function(event) {
-                                // Format the event date
                                 var eventDate = new Date(event.event_date);
-                                var options = {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
-                                };
                                 var formattedDate = eventDate.toLocaleDateString(
-                                    'en-US', options);
+                                    'en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                        hour12: false
+                                    });
 
                                 $('#modal-timeline-events').append(
                                     '<li>' +
@@ -336,8 +323,7 @@
                                     '</div>' +
                                     '<div class="timeline-desc card-box">' +
                                     '<div class="pd-20">' +
-                                    '<h4 class="mb-10 h4">' + event
-                                    .event_title +
+                                    '<h4 class="mb-10 h4">' + event.event_title +
                                     '</h4>' +
                                     '<p>' + event.event_details + '</p>' +
                                     '</div>' +
@@ -360,38 +346,70 @@
                 });
             });
 
-            // Handle create invoice button click
-            $('#createInvoiceButton').on('click', function() {
-                // Get PO ID and Vendor ID from modal hidden inputs
-                var poId = $('#modal-po-id').val(); // Use .val() to get the value from the hidden input
-                var vendorId = $('#modal-vendor-id').val(); // This is already correct
+            // Handle mark received button click
 
-                // Debugging: Log the values to the console
-                console.log("PO ID: " + poId);
-                console.log("Vendor ID: " + vendorId);
+            // Handle mark received button click
+            $('#markReceivedButton').on('click', function() {
+                var poId = $('#modal-po-id').val(); // Get PO ID from hidden input
 
-                // Check if both values exist before submitting the form
-                if (poId && vendorId) {
-                    $('#viewInvoiceForm').submit(); // Submit the form to the preview route
+                // Check if PO ID exists
+                if (poId) {
+                    // AJAX request to update the order status to "Completed"
+                    $.ajax({
+                        url: '{{ route('employee.orders.update') }}', // Route to update the status
+                        type: 'POST',
+                        data: {
+                            po_id: poId, // Send PO ID
+                            _token: '{{ csrf_token() }}' // CSRF token for security
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                // Update the modal UI to reflect the new status
+                                $('#modal-order-status').text(
+                                    'Completed'); // Update order status text
+                                $('#markReceivedButton')
+                                    .hide(); // Hide the "Mark as Received" button
+                                alert(
+                                    'Purchase Order marked as Received and status updated to Completed.'
+                                );
+                            } else {
+                                alert('Error: ' + response
+                                    .message); // Show error message if failed
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error updating order status:", error);
+                            alert(
+                                'An error occurred while updating the status. Please check the console for more details.'
+                            );
+                        }
+                    });
                 } else {
-                    alert('Error: PO ID or Vendor ID is missing!');
+                    alert('Error: PO ID is missing!');
                 }
             });
+
         });
     </script>
 
 
-    <!-- Edit Purchase Order Modal
-         Confirm Purchase Order Modal
-         Reject Purchase Order Modal
-         Resubmission Purchase Order Modal -->
 
+    <script>
+        $(document).ready(function() {
+            $('.table').DataTable({
+                order: [
+                    [3, "desc"]
+                ],
 
-    <!-- VIEW MODAL -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-
-
+                responsive: true,
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false
+            });
+        });
+    </script>
 
     <!-- welcome modal end -->
     <!-- js -->
@@ -412,23 +430,6 @@
     <script src="{{ asset('src/plugins/datatables/js/buttons.flash.min.js') }}"></script>
     <script src="{{ asset('src/plugins/datatables/js/pdfmake.min.js') }}"></script>
     <script src="{{ asset('src/plugins/datatables/js/vfs_fonts.js') }}"></script>
-
-    <script>
-        $(document).ready(function() {
-            $('.table').DataTable({
-                responsive: true,
-                paging: true,
-                searching: true,
-                ordering: true,
-                info: true,
-                autoWidth: false
-            });
-        });
-    </script>
-
-    <!-- Datatable Setting js -->
-    <script src="{{ asset('js/datatable-setting.js') }}"></script>
-    <!-- Google Tag Manager (noscript) -->
 
     <!-- End Google Tag Manager (noscript) -->
 </body>

@@ -35,7 +35,7 @@
             <a class="dropdown-item initiate-fulfillment" href="#" data-po-id="{{ $order->po_id }}"
                 data-po-number="{{ $order->purchase_order_number }}" data-total-amount="{{ $order->total_amount }}"
                 data-toggle="modal" data-target="#initiateFulfillmentModal">
-                <i class="dw dw-check"></i> Initiate Fulfillment
+                <i class="dw dw-check"></i> Process Order
             </a>
 
 
@@ -65,11 +65,25 @@
                 href="{{ route('invoices.create', ['po_id' => $order->po_id, 'vendor_id' => $order->vendor->id]) }}">
                 <i class="dw dw-invoice"></i> Generate Invoice
             </a>
+
+            <a class="dropdown-item mark-as-delivered" href="#" data-toggle="modal"
+                data-target="#markAsDeliveredModal" data-po-id="{{ $order->po_id }}">
+                <i class="icon-copy ion-ios-filing-outline"></i> Mark as Delivered
+            </a>
+        @elseif ($order->order_status === 'Delivered')
+            <!-- New Action for Delivered Status -->
+            <a class="dropdown-item view-delivery-details" href="#" data-order-id="{{ $order->po_id }}"
+                data-toggle="modal" data-target="#viewDeliveryDetailsModal">
+                <i class="dw dw-package"></i> View Delivery Details
+            </a>
+            <a class="dropdown-item generate-invoice"
+                href="{{ route('invoices.create', ['po_id' => $order->po_id, 'vendor_id' => $order->vendor->id]) }}">
+                <i class="dw dw-invoice"></i> Generate Invoice
+            </a>
         @else
             <span class="dropdown-item disabled">No actions available</span>
         @endif
 
-        <!-- Delete Action: Only show if order is cancellable -->
-        @include('vendors.purchase-orders.destroy')
+
     </div>
 </div>

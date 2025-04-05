@@ -37,10 +37,10 @@
                         <p class="text-muted">All purchase orders are for Great Wall Arts.</p>
                     </div>
                     <div class="pb-20">
-                        <table class="data-table table stripe hover nowrap">
+                        <table class="data-table  table stripe hover nowrap">
                             <thead>
                                 <tr>
-                                    <th class="table-plus">PO #</th>
+                                    <th class="table-plus ">PO #</th>
                                     <th>Invoice Number</th>
                                     <th>Order Date</th>
                                     <th>Delivery Date</th>
@@ -56,13 +56,20 @@
                             <tbody>
                                 @foreach ($purchaseOrders as $order)
                                     <tr>
+                                        <!-- Hidden column for PO ID -->
                                         <td class="table-plus">{{ $order->purchase_order_number }}</td>
                                         <td>
                                             @if ($order->invoices->isNotEmpty())
                                                 {{ $order->invoices->first()->invoice_number }}
                                             @endif
                                         </td>
-                                        <td>{{ $order->order_date }}</td>
+                                        <td>
+                                            {{ $order->order_date }}
+                                            <!-- Check if the order date is within the last 2 days -->
+                                            @if (\Carbon\Carbon::parse($order->order_date)->diffInDays(now()) <= 2)
+                                                <span class="badge badge-info ml-2">NEW</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $order->delivery_date }}</td>
                                         <td>
                                             <!-- Status Badge -->
@@ -80,14 +87,18 @@
                                                 <span class="badge badge-info">{{ $order->order_status }}</span>
                                             @elseif ($order->order_status === 'In Progress')
                                                 <span class="badge badge-light">{{ $order->order_status }}</span>
+                                            @elseif ($order->order_status === 'Delivered')
+                                                <!-- New Delivered Status with a badge color -->
+                                                <span class="badge badge-dark">{{ $order->order_status }}</span>
                                             @else
                                                 <span class="badge badge-dark">{{ $order->order_status }}</span>
                                             @endif
                                         </td>
+
                                         <td>{{ number_format($order->orderItems->sum('total_price'), 2) }}</td>
                                         {{-- <td>{{ $order->delivery_location }}</td>
-                                        <td>{{ $order->notes_instructions }}</td>
-                                        <td>{{ $order->shipping_method }}</td> --}}
+                                    <td>{{ $order->notes_instructions }}</td>
+                                    <td>{{ $order->shipping_method }}</td> --}}
                                         <td>
                                             @include('vendors.purchase-orders.actions')
                                         </td>

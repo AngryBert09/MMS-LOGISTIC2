@@ -10,9 +10,10 @@ class AdminOrderManagement extends Controller
 {
     public function index()
     {
-        $purchaseOrders = PurchaseOrder::all();
+        $purchaseOrders = PurchaseOrder::orderBy('po_id', 'desc')->get();
         return view('admin.vendors.orders.index-orders', compact('purchaseOrders'));
     }
+
 
     public function show($id)
     {

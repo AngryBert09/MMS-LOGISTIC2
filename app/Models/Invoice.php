@@ -64,4 +64,9 @@ class Invoice extends Model
     {
         return $this->hasOne(PurchaseReceipt::class, 'invoice_id', 'invoice_id');
     }
+
+    public function transactionHistories()
+    {
+        return $this->hasMany(TransactionHistory::class, 'invoice_id', 'invoice_id');
+    }
 }

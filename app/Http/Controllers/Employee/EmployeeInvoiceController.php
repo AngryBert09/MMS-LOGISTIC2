@@ -12,13 +12,14 @@ use Illuminate\Support\Facades\Log;
 use App\Models\PurchaseOrder;
 use App\Models\Vendor;
 use Carbon\Carbon;
+use App\Models\TransactionHistory;
 
 class EmployeeInvoiceController extends Controller
 {
     public function index()
     {
         // Fetch all invoices from the database
-        $invoices = Invoice::all(); // You can use pagination if needed: Invoice::paginate(10);
+        $invoices = Invoice::with(['vendor', 'purchaseOrder', 'transactionHistories'])->get(); // You can use pagination if needed: Invoice::paginate(10);
 
         // Pass the invoices to the view
         return view('employee.invoices.index-invoice', compact('invoices'));
@@ -100,6 +101,7 @@ class EmployeeInvoiceController extends Controller
                 // Update order items with the receipt id
                 OrderItem::where('po_id', $invoice->po_id)->update([
                     'receipt_id' => $receipt->receipt_id,
+                    // 'invoice_id' => $invoice->invoice_id,
                 ]);
 
                 Log::info('Order Items Updated with Receipt ID', [
@@ -108,11 +110,19 @@ class EmployeeInvoiceController extends Controller
                 ]);
             }
 
+            // Log the transaction history
+            TransactionHistory::create([
+                'invoice_id' => $invoice->invoice_id,
+                'amount_paid' => $paymentAmount,
+                'payment_method' => $validatedData['paymentMethod'] ?? null,
+                'paid_at' => now(),
+            ]);
+
             DB::commit();
             Log::info('Transaction Committed Successfully', ['invoice_id' => $invoice->id]);
 
             return redirect()
-                ->route('employee.invoice', $invoice->invoice_id)
+                ->route('employee.invoices', $invoice->invoice_id)
                 ->with('success', 'Payment applied successfully. Status: ' . $status . ($receiptNumber ? " | Receipt #: $receiptNumber" : ''));
         } catch (\Exception $e) {
             DB::rollback();
@@ -121,7 +131,7 @@ class EmployeeInvoiceController extends Controller
                 'stack_trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect()->back()->with('error', 'Failed to apply payment: ' . $e->getMessage());
+            return redirect()->route('employee.invoices')->with('error', 'Failed to apply payment: ' . $e->getMessage());
         }
     }
 }

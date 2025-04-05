@@ -18,17 +18,17 @@ class PurchaseOrderController extends Controller
         // Get authenticated vendor ID
         $vendorId = auth()->user()->id;
 
-        // Fetch purchase orders for this vendor and format the dates
         $purchaseOrders = PurchaseOrder::where('vendor_id', $vendorId)
+            ->orderBy('po_id', 'desc') // 👈 Sort by poid descending
             ->get()
             ->map(function ($order) {
-                $order->order_date = Carbon::parse($order->order_date)->format('Y-m-d'); // Format to date only
-                $order->delivery_date = Carbon::parse($order->delivery_date)->format('Y-m-d'); // Format to date only
+                $order->order_date = Carbon::parse($order->order_date)->format('Y-m-d');
+                $order->delivery_date = Carbon::parse($order->delivery_date)->format('Y-m-d');
                 return $order;
             });
-
         return view('vendors.purchase-orders.index', compact('purchaseOrders'));
     }
+
 
 
 
@@ -165,23 +165,26 @@ class PurchaseOrderController extends Controller
             }
         }
 
-        // Handle cancellation (Cancel)
-        if ($action === 'cancel') {
-            if ($purchaseOrder->order_status !== 'Canceled') {
+
+        // Handle deliver action
+        if ($request->action === 'deliver') {
+            // Check if the order is not already marked as delivered
+            if ($purchaseOrder->order_status !== 'Delivered') {
+                // Update the order status to Delivered
                 $purchaseOrder->update([
-                    'order_status' => 'Canceled', // Change status to Canceled
+                    'order_status' => 'Delivered',
                 ]);
 
                 // Log the event to the timeline
                 $purchaseOrder->timelineEvents()->create([
                     'event_date' => now(),
-                    'event_title' => 'Purchase Order Canceled',
-                    'event_details' => 'Purchase order has been canceled.',
+                    'event_title' => 'Purchase Order Delivered',
+                    'event_details' => 'Purchase order has been marked as delivered.',
                 ]);
 
-                return redirect()->route('purchase-orders.index')->with('success', 'Purchase order canceled successfully.');
+                return redirect()->route('purchase-orders.index')->with('success', 'Purchase order marked as delivered successfully.');
             } else {
-                return redirect()->route('purchase-orders.index')->with('error', 'This order is already canceled.');
+                return redirect()->route('purchase-orders.index')->with('error', 'This order is already marked as delivered.');
             }
         }
 
@@ -213,14 +216,15 @@ class PurchaseOrderController extends Controller
                 'request_data' => $request->all()
             ]);
 
-            if ($purchaseOrder->order_status !== 'In Progress') {
-                Log::warning('Attempted to mark order not in progress as In Transit', [
+            // Allow update if the order status is either 'In Progress' or 'On Hold'
+            if ($purchaseOrder->order_status !== 'In Progress' && $purchaseOrder->order_status !== 'On Hold') {
+                Log::warning('Attempted to mark order not in progress or on hold as In Transit', [
                     'po_id' => $purchaseOrder->po_id,
                     'current_status' => $purchaseOrder->order_status
                 ]);
 
                 return redirect()->route('purchase-orders.index')
-                    ->with('error', 'Only orders in progress can be marked as In Transit.');
+                    ->with('error', 'Only orders in progress or on hold can be marked as In Transit.');
             }
 
             DB::beginTransaction(); // Start a database transaction
@@ -316,6 +320,7 @@ class PurchaseOrderController extends Controller
                     ->with('error', 'An unexpected error occurred while marking the order as In Transit.');
             }
         }
+
 
 
         // If action is not recognized

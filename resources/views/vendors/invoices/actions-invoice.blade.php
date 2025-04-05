@@ -13,10 +13,7 @@
         <a class="dropdown-item" href="{{ route('invoices.edit', $invoice->invoice_id) }}">
             <i class="dw dw-edit2"></i> Edit
         </a>
-        {{-- <!-- Pay Now Button (Direct Redirect) -->
-        <a class="dropdown-item" href="{{ route('paypal.createOrder', $invoice->invoice_id) }}">
-            <i class="dw dw-money"></i> Pay Now
-        </a> --}}
+
     </div>
     {{-- </div>class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" --}}
 

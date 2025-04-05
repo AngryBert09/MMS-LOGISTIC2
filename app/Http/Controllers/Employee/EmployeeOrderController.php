@@ -31,4 +31,25 @@ class EmployeeOrderController extends Controller
         // Return the purchase order with order items and timeline events as JSON
         return response()->json($purchaseOrder);
     }
+
+    public function updateOrderStatus(Request $request)
+    {
+        $poId = $request->input('po_id'); // Get the Purchase Order ID
+        $purchaseOrder = PurchaseOrder::find($poId); // Find the PO in the database
+
+        if ($purchaseOrder) {
+            $purchaseOrder->order_status = 'Completed'; // Update the status
+            $purchaseOrder->save(); // Save the changes
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Purchase Order status updated to Completed'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Purchase Order not found'
+        ]);
+    }
 }

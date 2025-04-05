@@ -61,7 +61,13 @@
                                                 {{ $order->invoices->first()->invoice_number }}
                                             @endif
                                         </td>
-                                        <td>{{ $order->order_date }}</td>
+                                        <td>
+                                            {{ $order->order_date }}
+                                            <!-- Check if the order date is within the last 2 days -->
+                                            @if (\Carbon\Carbon::parse($order->order_date)->diffInDays(now()) <= 2)
+                                                <span class="badge badge-info ml-2">NEW</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $order->delivery_date }}</td>
                                         <td>
                                             <!-- Status Badge -->
@@ -416,6 +422,10 @@
     <script>
         $(document).ready(function() {
             $('.table').DataTable({
+                order: [
+                    [3, "desc"]
+                ],
+
                 responsive: true,
                 paging: true,
                 searching: true,

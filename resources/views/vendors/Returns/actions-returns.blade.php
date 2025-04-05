@@ -4,7 +4,7 @@
         <i class="dw dw-more"></i>
     </a>
     <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-        @if ($return['return_status'] == 'Pending')
+        @if ($return['return_status'] == 'PENDING')
             <!-- Show Approve & Reject Actions if Pending -->
             <a href="javascript:void(0);" class="dropdown-item update-status" data-id="{{ $return['id'] }}"
                 data-status="Approved">

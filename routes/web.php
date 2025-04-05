@@ -25,6 +25,8 @@ use App\Http\Controllers\Admin\AdminProcurementController;
 use App\Http\Controllers\Employee\EmployeeBiddingController;
 use App\Http\Controllers\Employee\EmployeeOrderController;
 use App\Http\Controllers\Employee\EmployeeInvoiceController;
+use App\Http\Controllers\Employee\EmployeeReceiptController;
+use App\Http\Controllers\Admin\AdminReceiptController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +74,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         //INVOICES
         Route::get('/invoices', [AdminInvoiceController::class, 'index'])->name('invoices');
         Route::get('/invoice-details/{id}', [AdminInvoiceController::class, 'show'])->name('invoice.show');
+        Route::get('/invoice/{invoice}/transactions', [InvoiceController::class, 'transactions'])->name('transactions');
+
+
+        //RECEIPT
+        Route::get('/receipt/{id}', [AdminReceiptController::class, 'show'])->name('receipt');
 
         //PROCUREMENT
         Route::get('/procurements', [AdminProcurementController::class, 'index'])->name('procurements');
@@ -100,12 +107,19 @@ Route::group(['prefix' => 'employee', 'as' => 'employee.'], function () {
         //ORDERS
         Route::get('/orders', [EmployeeOrderController::class, 'index'])->name('orders');
         Route::get('/order-details/{id}', [EmployeeOrderController::class, 'show'])->name('orders.show');
+        Route::post('/update-order-status', [EmployeeOrderController::class, 'updateOrderStatus'])->name('orders.update');
+
 
         //INVOICE
         Route::get('/invoices', [EmployeeInvoiceController::class, 'index'])->name('invoices');
         Route::get('/invoice-details/{id}', [EmployeeInvoiceController::class, 'show'])->name('invoice.show');
         // Invoice Payment Update Route (used in the modal form)
         Route::put('/invoice/{invoice}', [EmployeeInvoiceController::class, 'update'])->name('invoice.update');
+        Route::get('/invoice/{invoice}/transactions', [InvoiceController::class, 'transactions'])->name('transactions');
+
+
+        //RECEIPT
+        Route::get('/receipt/{id}', [EmployeeReceiptController::class, 'show'])->name('receipt');
     });
     // FOR EMPLOYEES
     Route::post('/logout', [EmployeeAuthController::class, 'logout'])->middleware('employee')->name('logout');

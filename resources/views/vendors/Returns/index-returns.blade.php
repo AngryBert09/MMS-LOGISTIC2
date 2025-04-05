@@ -63,7 +63,7 @@
                                                 @if ($return['return_status'] == 'Approved') badge-success
                                                 @elseif ($return['return_status'] == 'Processed') badge-primary
                                                 @elseif ($return['return_status'] == 'Rejected') badge-danger
-                                                      @elseif ($return['return_status'] == 'Pending') badge-warning
+                                                      @elseif ($return['return_status'] == 'PENDING') badge-warning
                                                 @else badge-warning @endif">
                                                 {{ ucfirst($return['return_status'] ?? 'Pending') }}
                                             </span>

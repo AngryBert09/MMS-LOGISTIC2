@@ -40,7 +40,6 @@ class AdminProcurementController extends Controller
                 'starting_price' => $procurement->starting_price,
                 'quantity' => $procurement->quantity,
                 'deadline' => $procurement->deadline,
-                'employee_id' => $procurement->employee_id,
                 'description' => $procurement->description,
             ]);
         }

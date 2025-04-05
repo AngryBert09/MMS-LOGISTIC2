@@ -57,7 +57,7 @@
                                     <tr>
                                         <td class="table-plus">{{ $bidding->id }}</td>
                                         <td>{{ $bidding->item_name }}</td>
-                                        <td>{{ $bidding->starting_price }}</td>
+                                        <td>₱{{ $bidding->starting_price }}</td>
                                         <td>{{ $bidding->quantity }}</td>
                                         <td>
                                             @if ($bidding->vendor_id)
@@ -71,7 +71,7 @@
                                         <td>
                                             @if ($bidding->vendorBids->isNotEmpty())
                                                 <!-- Display the winning bid amount, if available -->
-                                                {{ number_format($bidding->vendorBids->max('bid_amount'), 2) }}
+                                                ₱{{ number_format($bidding->vendorBids->max('bid_amount'), 2) }}
                                             @else
                                                 <!-- If no bids, display N/A or leave it empty -->
                                                 N/A

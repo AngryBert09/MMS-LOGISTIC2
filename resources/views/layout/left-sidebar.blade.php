@@ -1,6 +1,6 @@
 <div class="left-side-bar">
     <div class="brand-logo">
-    
+
         <div class="close-sidebar" data-toggle="left-sidebar-close">
             <i class="ion-close-round"></i>
         </div>
@@ -26,7 +26,7 @@
                                 <li><a href="{{ route('purchase-orders.index') }}">Purchase Orders</a></li>
                                 <li><a href="{{ route('receipts.index') }}">Receipts</a></li>
                                 <li><a href="{{ route('returns.index') }}">Returns</a></li>
-                                <li><a href="{{ route('shipments.index') }}">Deliveries</a></li>
+                                {{-- <li><a href="{{ route('shipments.index') }}">Deliveries</a></li> --}}
                             @else
                                 <li><a href="{{ route('profiles.show', $vendorId) }}">Complete Profile</a></li>
                             @endif

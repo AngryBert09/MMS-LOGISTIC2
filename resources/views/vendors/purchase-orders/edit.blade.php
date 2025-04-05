@@ -806,3 +806,42 @@
             @endif
         });
     </script>
+
+    <!-- Modal for Deliver Message -->
+
+    <div class="modal fade" id="markAsDeliveredModal" tabindex="-1" role="dialog"
+        aria-labelledby="markAsDeliveredModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="markAsDeliveredModalLabel">Mark Purchase Order as Delivered</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to mark this purchase order as delivered?</p>
+                    <!-- Form to update purchase order -->
+                    <form id="markDeliveredForm" action="{{ route('purchase-orders.update', ':po_id') }}"
+                        method="POST">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="po_id" id="po_id">
+                        <input type="hidden" name="action" value="deliver"> <!-- Hidden input to specify action -->
+                        <button type="submit" class="btn btn-success">Yes, Mark as Delivered</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).on('click', '.mark-as-delivered', function() {
+            var poId = $(this).data('po-id');
+            var formAction = '{{ route('purchase-orders.update', ':po_id') }}'.replace(':po_id',
+                poId); // Update route with PO ID
+            $('#po_id').val(poId); // Set the PO ID in the hidden field
+            $('#markDeliveredForm').attr('action', formAction); // Dynamically update the form action URL
+        });
+    </script>
