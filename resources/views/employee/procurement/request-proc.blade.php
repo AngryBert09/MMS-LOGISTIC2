@@ -132,7 +132,7 @@
                             <input type="number" class="form-control" id="quantity" name="quantity" required>
                         </div>
                         <div class="form-group">
-                            <label for="starting_price">Starting Price</label>
+                            <label for="starting_price">Budget</label>
                             <input type="number" class="form-control" id="starting_price" name="starting_price"
                                 required>
                         </div>

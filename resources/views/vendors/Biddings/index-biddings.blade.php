@@ -47,7 +47,7 @@
                                 @foreach ($biddings as $bidding)
                                     <tr>
                                         <td>{{ $bidding->item_name }}</td>
-                                        <td>${{ number_format($bidding->starting_price, 2) }}</td>
+                                        <td>₱{{ number_format($bidding->starting_price, 2) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($bidding->deadline)->format('Y-m-d') }}</td>
                                         <td>
                                             <a href="{{ route('biddings.edit', $bidding->id) }}"

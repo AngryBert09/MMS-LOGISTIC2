@@ -283,11 +283,31 @@ class InvoiceController extends Controller
     public function update(Request $request, Invoice $invoice)
     {
         $validatedData = $request->validate([
-            'tax_amount' => 'required|numeric',
-            'discount_amount' => 'required|numeric',
+            'tax_amount' => 'required|numeric|min:0',
+            'discount_amount' => [
+                'required',
+                'numeric',
+                'min:0',
+                function ($attribute, $value, $fail) use ($invoice) {
+                    // Ensure discount doesn't make subtotal negative
+                    $subtotalAfterDiscount = $invoice->total_amount - $value;
+                    if ($subtotalAfterDiscount < 0) {
+                        $fail('Discount amount cannot be greater than the subtotal amount ($' . number_format($invoice->subtotal_amount, 2) . ').');
+                    }
+                }
+            ],
         ]);
 
-        $newTotal = ($invoice->total_amount + $validatedData['tax_amount']) - $validatedData['discount_amount'];
+        // Calculate new total
+        $subtotalAfterDiscount = $invoice->total_amount - $validatedData['discount_amount'];
+        $newTotal = $subtotalAfterDiscount + $validatedData['tax_amount'];
+
+        // Additional validation to prevent negative totals
+        if ($newTotal < 0) {
+            return back()
+                ->withErrors(['total' => 'The combination of tax and discount would result in a negative total amount.'])
+                ->withInput();
+        }
 
         $invoice->update([
             'tax_amount' => $validatedData['tax_amount'],
@@ -295,7 +315,9 @@ class InvoiceController extends Controller
             'total_amount' => $newTotal,
         ]);
 
-        return redirect()->route('invoices.index')->with('success', 'Invoice updated successfully.');
+        return redirect()
+            ->route('invoices.index')
+            ->with('success', 'Invoice updated successfully.');
     }
 
     /**

@@ -38,9 +38,9 @@
                             <strong>Item Name:</strong> <span class="text-dark">{{ $bidding->item_name }}</span>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <strong>Starting Price:</strong>
+                            <strong>Budget</strong>
                             <span
-                                class="text-success font-weight-bold">${{ number_format($bidding->starting_price, 2) }}</span>
+                                class="text-success font-weight-bold">₱{{ number_format($bidding->starting_price, 2) }}</span>
                         </div>
                     </div>
 
@@ -88,19 +88,20 @@
                             ->first();
 
                         $isWinner = $winningBid && $winningBid->vendor_id == auth()->user()->id;
+                        $bidClosed = !is_null($bidding->vendor_id); // Bidding has been decided
                     @endphp
 
                     @if ($isWinner)
+                        {{-- WINNER MESSAGE --}}
                         <div class="alert alert-success p-4 border-radius-10 mt-4">
                             <h5 class="font-weight-bold text-success">🎉 Congratulations! You Won the Bid</h5>
                             <p>Your bid has been selected as the winning bid.</p>
                             <p><strong>Winning Bid Amount:</strong>
                                 <span
-                                    class="text-success font-weight-bold">${{ number_format($winningBid->bid_amount, 2) }}</span>
+                                    class="text-success font-weight-bold">₱{{ number_format($winningBid->bid_amount, 2) }}</span>
                             </p>
                             <p><strong>Your Comments:</strong> {{ $winningBid->comments }}</p>
 
-                            <!-- Display Purchase Order Number for Winning Vendor -->
                             @if ($bidding->purchaseOrder)
                                 <p><strong>Purchase Order Number:</strong>
                                     <span
@@ -108,14 +109,13 @@
                                 </p>
                             @endif
 
-
                             <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding List</a>
                         </div>
-                    @elseif (!$vendorBid)
+                    @elseif (!$vendorBid && !$bidClosed)
+                        {{-- BID FORM --}}
                         <div class="alert alert-warning p-4 border-radius-10 mt-4">
                             <h5 class="font-weight-bold text-warning">Place Your Bid</h5>
 
-                            <!-- ✅ Display validation errors -->
                             @if ($errors->any())
                                 <div class="alert alert-danger border-radius-10 alert-dismissible fade show mt-2"
                                     role="alert">
@@ -137,7 +137,7 @@
                                 <div class="form-group">
                                     <label for="bid_amount" class="font-weight-bold">Bid Amount</label>
                                     <input type="number" id="bid_amount" name="bid_amount" class="form-control"
-                                        placeholder="Enter your bid amount" required>
+                                        placeholder="Enter your bid amount" required step="0.01" min="0">
                                 </div>
 
                                 <div class="form-group">
@@ -151,30 +151,35 @@
                                     List</a>
                             </form>
                         </div>
-                    @elseif ($vendorBid && !is_null($bidding->vendor_id))
-                        @if ($isWinner)
-                            <div class="alert alert-success p-4 border-radius-10 mt-4">
-                                <h5 class="font-weight-bold text-success">Congratulations! You Have Been Selected</h5>
-                                <p>We are pleased to inform you that your bid has been selected as the winning bid for
-                                    this project.</p>
-                                <p><strong>Your Bid Amount:</strong>
-                                    <span
-                                        class="text-success font-weight-bold">${{ number_format($vendorBid->bid_amount, 2) }}</span>
-                                </p>
-                                <p><strong>Your Comments:</strong> {{ $vendorBid->comments }}</p>
-                                <a href="{{ route('biddings.index') }}" class="btn btn-success">Back to Bidding
-                                    List</a>
-                            </div>
+                    @elseif ($vendorBid)
+                        {{-- BID STATUS MESSAGE --}}
+                        @if ($bidClosed)
+                            {{-- BIDDING CLOSED --}}
+                            @if ($isWinner)
+                                {{-- This condition is redundant since we already checked $isWinner at the top --}}
+                            @else
+                                <div class="alert alert-danger p-4 border-radius-10 mt-4">
+                                    <h5 class="font-weight-bold text-danger">Bid Not Selected</h5>
+                                    <p>Thank you for your participation. While your bid was not the winning one this
+                                        time,
+                                        we appreciate your effort and look forward to future opportunities.</p>
+                                    <p><strong>Your Bid Amount:</strong>
+                                        <span
+                                            class="text-danger font-weight-bold">₱{{ number_format($vendorBid->bid_amount, 2) }}</span>
+                                    </p>
+                                    <p><strong>Your Comments:</strong> {{ $vendorBid->comments }}</p>
+                                    <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding
+                                        List</a>
+                                </div>
+                            @endif
                         @else
-                            <div class="alert alert-danger p-4 border-radius-10 mt-4">
-                                <h5 class="font-weight-bold text-danger">Unfortunately, Your Bid Was Not Selected</h5>
-                                <p>Thank you for your participation. While your bid was not the winning one this time,
-                                    we
-                                    appreciate your effort and look forward to working with you on future opportunities.
-                                </p>
+                            {{-- BID SUBMITTED BUT NOT DECIDED YET --}}
+                            <div class="alert alert-info p-4 border-radius-10 mt-4">
+                                <h5 class="font-weight-bold text-info">Bid Submitted</h5>
+                                <p>Your bid has been received and is under review.</p>
                                 <p><strong>Your Bid Amount:</strong>
                                     <span
-                                        class="text-danger font-weight-bold">${{ number_format($vendorBid->bid_amount, 2) }}</span>
+                                        class="text-info font-weight-bold">₱{{ number_format($vendorBid->bid_amount, 2) }}</span>
                                 </p>
                                 <p><strong>Your Comments:</strong> {{ $vendorBid->comments }}</p>
                                 <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding

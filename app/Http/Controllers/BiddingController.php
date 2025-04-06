@@ -61,42 +61,49 @@ class BiddingController extends Controller
         // Find the bidding by ID
         $bidding = BiddingDetail::findOrFail($id);
 
-        // Get the authenticated vendor ID (assuming the vendor is logged in)
+        // Get the authenticated vendor ID
         $vendorId = auth()->user()->id;
 
         // Validate the input fields
         $request->validate([
-            'bid_amount' => 'required|numeric|min:1',
+            'bid_amount' => 'required|numeric|min:0.01', // Must be at least 1 cent
             'comments' => 'nullable|string|max:1000',
         ]);
 
-        // Check if the bid amount is lower than the starting price
-        if ($request->input('bid_amount') < $bidding->starting_price) {
-            return back()->withErrors(['bid_amount' => 'The bid amount must be equal to or greater than the starting price ($' . number_format($bidding->starting_price, 2) . ').']);
+        // Check if bidding is still open (no winner selected yet)
+        if ($bidding->vendor_id) {
+            return back()->withErrors(['bid_closed' => 'This bidding is already closed.']);
         }
 
-        // Check if a record for this vendor and bidding already exists in the vendor_bids table
+        // Check if a record for this vendor and bidding already exists
         $existingBid = VendorBid::where('vendor_id', $vendorId)
             ->where('bidding_id', $bidding->id)
             ->first();
 
-        if ($existingBid) {
-            // Update existing bid
-            $existingBid->bid_amount = $request->input('bid_amount');
-            $existingBid->comments = $request->input('comments');
-            $existingBid->save();
-        } else {
-            // Create a new bid
-            VendorBid::create([
-                'vendor_id' => $vendorId,
-                'bidding_id' => $bidding->id,
-                'bid_amount' => $request->input('bid_amount'),
-                'comments' => $request->input('comments'),
-                'shortname' => 'Vendor' . $vendorId . '_Bid_' . $bidding->id,
-            ]);
-        }
+        try {
+            if ($existingBid) {
+                // Update existing bid
+                $existingBid->update([
+                    'bid_amount' => $request->input('bid_amount'),
+                    'comments' => $request->input('comments'),
+                    'updated_at' => now()
+                ]);
+            } else {
+                // Create a new bid
+                VendorBid::create([
+                    'vendor_id' => $vendorId,
+                    'bidding_id' => $bidding->id,
+                    'bid_amount' => $request->input('bid_amount'),
+                    'comments' => $request->input('comments'),
+                    'shortname' => 'Vendor' . $vendorId . '_Bid_' . $bidding->id,
+                ]);
+            }
 
-        return redirect()->route('biddings.index')->with('success', 'Your bid has been updated successfully!');
+            return redirect()->route('biddings.index')
+                ->with('success', 'Your bid has been ' . ($existingBid ? 'updated' : 'submitted') . ' successfully!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to process your bid. Please try again.']);
+        }
     }
 
 

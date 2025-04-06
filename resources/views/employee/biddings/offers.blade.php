@@ -27,7 +27,7 @@
             <div class="min-height-200px">
                 <!-- AI-Generated Offer Analysis Section -->
                 <div class="card-box bg-light p-3 mb-4">
-                    <h5 class="text-primary">Offer Analysis</h5>
+                    <h5 class="text-primary">Offers</h5>
                     <p class="text-muted">
                         A quick summary of vendor bids to help you evaluate the best offer.
                     </p>
@@ -62,13 +62,7 @@
                         </div>
                     </div>
 
-                    <!-- AI-powered Notice -->
-                    <div class="mt-3 text-center">
-                        <small class="text-muted">
-                            🔍 This analysis is <strong>powered by AI</strong> to provide real-time insights on vendor
-                            bids.
-                        </small>
-                    </div>
+
                 </div>
                 <!-- End Offer Analysis Section -->
 
