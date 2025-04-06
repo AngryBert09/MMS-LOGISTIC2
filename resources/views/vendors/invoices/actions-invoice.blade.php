@@ -11,12 +11,12 @@
             <i class="dw dw-eye"></i> View
         </a>
 
-        @if ($invoice->status !== 'paid')
-            <!-- Check if the invoice status is not "paid" -->
+        @if (!in_array($invoice->status, ['paid', 'partial', 'overdue']))
             <a class="dropdown-item" href="{{ route('invoices.edit', $invoice->invoice_id) }}">
                 <i class="dw dw-edit2"></i> Edit
             </a>
         @endif
+
 
 
         <a class="dropdown-item" href="#" data-toggle="modal"

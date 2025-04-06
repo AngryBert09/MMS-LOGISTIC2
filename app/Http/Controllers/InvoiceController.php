@@ -17,12 +17,6 @@ use stdClass;
 
 class InvoiceController extends Controller
 {
-    protected $paypalService;
-
-    public function __construct(PayPalService $paypalService)
-    {
-        $this->paypalService = $paypalService;
-    }
 
     /**
      * Display a listing of the resource.
