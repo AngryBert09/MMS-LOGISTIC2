@@ -43,6 +43,7 @@ class AdminBiddingController extends Controller
                     'vendor_bids.bid_amount',
                     'vendor_bids.comments',
                     'vendor_bids.shortname',
+                    'vendor_bids.vendor_id',
                     'vendors.company_name'
                 )
                 ->get();

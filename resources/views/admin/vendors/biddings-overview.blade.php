@@ -138,7 +138,6 @@
 
     <script>
         $(document).ready(function() {
-            // Initialize main table
             var mainTable = $('#mainBiddingsTable').DataTable({
                 responsive: true,
                 paging: true,
@@ -148,10 +147,9 @@
                 autoWidth: false
             });
 
-            // Handle view bidding button click
             $(document).on('click', '.viewBiddingBtn', function() {
                 let biddingId = $(this).data('id');
-                let hasWinner = $(this).data('vendor-id') !== null && $(this).data('vendor-id') !== '';
+                let winningVendorId = $(this).data('vendor-id'); // Will be compared with bid.vendor_id
 
                 if (!biddingId) {
                     alert("⚠️ Bidding ID is missing!");
@@ -171,23 +169,31 @@
                         $('#winningVendor').hide();
                     },
                     success: function(response) {
-                        console.log('AJAX Response:', response); // Debugging
+                        console.log('AJAX Response:', response);
 
-                        // Clear previous data
                         $('#vendorBidsTable').empty();
 
                         if (response.vendorBids && response.vendorBids.length > 0) {
-                            // Only show winner section if there's an actual winner (vendor_id is not null)
-                            if (hasWinner) {
-                                // Find the winning vendor (the one with the lowest bid amount)
-                                let winningBid = response.vendorBids.reduce((prev, current) => {
-                                    return (prev.bid_amount < current.bid_amount) ?
-                                        prev : current;
-                                });
+                            let hasWinner = winningVendorId && winningVendorId !== null &&
+                                winningVendorId !== '';
 
-                                $('#winningVendorName').text(winningBid.company_name || 'N/A');
-                                $('#winningBidAmount').text(winningBid.bid_amount || '0.00');
-                                $('#winningVendor').show();
+                            if (hasWinner) {
+                                // Convert to number for safe comparison
+                                let winningBid = response.vendorBids.find(bid => Number(bid
+                                    .vendor_id) === Number(winningVendorId));
+
+                                if (winningBid) {
+                                    $('#winningVendorName').text(winningBid.company_name ||
+                                        'N/A');
+                                    $('#winningBidAmount').text(parseFloat(winningBid
+                                        .bid_amount).toLocaleString('en-US', {
+                                        style: 'currency',
+                                        currency: 'USD'
+                                    }));
+                                    $('#winningVendor').show();
+                                } else {
+                                    $('#winningVendor').hide();
+                                }
                             } else {
                                 $('#winningVendor').hide();
                             }
@@ -195,16 +201,19 @@
                             // Populate all bids
                             response.vendorBids.forEach(function(bid) {
                                 let row = `
-                                <tr>
-                                    <td>${bid.company_name || 'Unknown'}</td>
-                                    <td>${bid.bid_amount || 'N/A'}</td>
-                                    <td>${bid.comments || 'N/A'}</td>
-                                    <td>${bid.shortname || 'N/A'}</td>
-                                </tr>`;
+                            <tr>
+                                <td>${bid.company_name || 'Unknown'}</td>
+                                <td>${parseFloat(bid.bid_amount).toLocaleString('en-US', {
+                                    style: 'currency',
+                                    currency: 'USD'
+                                })}</td>
+                                <td>${bid.comments || 'N/A'}</td>
+                                <td>${bid.shortname || 'N/A'}</td>
+                            </tr>`;
                                 $('#vendorBidsTable').append(row);
                             });
 
-                            // Initialize or reinitialize DataTable
+                            // Reinit DataTable
                             if ($.fn.DataTable.isDataTable('#vendorBidsDataTable')) {
                                 $('#vendorBidsDataTable').DataTable().destroy();
                             }
@@ -233,7 +242,6 @@
                 });
             });
 
-            // Clean up when modal closes
             $('#viewBiddingModal').on('hidden.bs.modal', function() {
                 if ($.fn.DataTable.isDataTable('#vendorBidsDataTable')) {
                     $('#vendorBidsDataTable').DataTable().destroy();
