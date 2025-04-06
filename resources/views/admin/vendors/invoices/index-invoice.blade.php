@@ -42,9 +42,9 @@
                                 @foreach ($invoices as $invoice)
                                     <tr>
                                         <td class="table-plus">{{ $invoice->invoice_number }}</td>
-                                        <td>${{ number_format($invoice->tax_amount, 2) }}</td>
-                                        <td>${{ number_format($invoice->discount_amount, 2) }}</td>
-                                        <td>${{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->tax_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->discount_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->total_amount, 2) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}</td>
                                         <td>
@@ -119,6 +119,8 @@
                                                                                 <th>#</th>
                                                                                 <th>Amount Paid</th>
                                                                                 <th>Payment Method</th>
+                                                                                <th>REF #</th>
+                                                                                <!-- NEW COLUMN -->
                                                                                 <th>Date & Time</th>
                                                                             </tr>
                                                                         </thead>
@@ -130,6 +132,9 @@
                                                                                     </td>
                                                                                     <td>{{ $history->payment_method }}
                                                                                     </td>
+                                                                                    <td>{{ $history->reference_number ?? 'N/A' }}
+                                                                                    </td>
+                                                                                    <!-- Display reference or 'N/A' if empty -->
                                                                                     <td>{{ \Carbon\Carbon::parse($history->paid_at)->format('d-m-Y h:i A') }}
                                                                                     </td>
                                                                                 </tr>
@@ -138,8 +143,7 @@
                                                                     </table>
                                                                 @else
                                                                     <p class="text-muted">No transaction history
-                                                                        available.
-                                                                    </p>
+                                                                        available.</p>
                                                                 @endif
                                                             </div>
 

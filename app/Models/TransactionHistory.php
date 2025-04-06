@@ -10,6 +10,7 @@ class TransactionHistory extends Model
         'invoice_id',
         'amount_paid',
         'payment_method',
+        'reference_number',
         'paid_at',
     ];
 

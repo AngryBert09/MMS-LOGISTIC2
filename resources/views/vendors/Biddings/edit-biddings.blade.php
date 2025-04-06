@@ -151,31 +151,38 @@
                                     List</a>
                             </form>
                         </div>
-                    @elseif ($vendorBid && !$isWinner)
-                        <div class="alert alert-danger p-4 border-radius-10 mt-4">
-                            <h5 class="font-weight-bold text-danger">Unfortunately, Your Bid Was Not Selected</h5>
-                            <p>Thank you for your participation. While your bid was not the winning one this time, we
-                                appreciate your effort and look forward to working with you on future opportunities.</p>
-                            <p><strong>Your Bid Amount:</strong>
-                                <span
-                                    class="text-danger font-weight-bold">${{ number_format($vendorBid->bid_amount, 2) }}</span>
-                            </p>
-                            <p><strong>Your Comments:</strong> {{ $vendorBid->comments }}</p>
-                            <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding List</a>
-                        </div>
-                    @else
-                        <div class="alert alert-success p-4 border-radius-10 mt-4">
-                            <h5 class="font-weight-bold text-success">You Have Already Submitted Your Bid</h5>
-                            <p>Thank you for your submission! You can no longer make changes to your bid. Please wait
-                                for the results.</p>
-                            <p><strong>Your Bid Amount:</strong>
-                                <span
-                                    class="text-success font-weight-bold">${{ number_format($vendorBid->bid_amount, 2) }}</span>
-                            </p>
-                            <p><strong>Your Comments:</strong> {{ $vendorBid->comments }}</p>
-                        </div>
-                        <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding List</a>
+                    @elseif ($vendorBid && !is_null($bidding->vendor_id))
+                        @if ($isWinner)
+                            <div class="alert alert-success p-4 border-radius-10 mt-4">
+                                <h5 class="font-weight-bold text-success">Congratulations! You Have Been Selected</h5>
+                                <p>We are pleased to inform you that your bid has been selected as the winning bid for
+                                    this project.</p>
+                                <p><strong>Your Bid Amount:</strong>
+                                    <span
+                                        class="text-success font-weight-bold">${{ number_format($vendorBid->bid_amount, 2) }}</span>
+                                </p>
+                                <p><strong>Your Comments:</strong> {{ $vendorBid->comments }}</p>
+                                <a href="{{ route('biddings.index') }}" class="btn btn-success">Back to Bidding
+                                    List</a>
+                            </div>
+                        @else
+                            <div class="alert alert-danger p-4 border-radius-10 mt-4">
+                                <h5 class="font-weight-bold text-danger">Unfortunately, Your Bid Was Not Selected</h5>
+                                <p>Thank you for your participation. While your bid was not the winning one this time,
+                                    we
+                                    appreciate your effort and look forward to working with you on future opportunities.
+                                </p>
+                                <p><strong>Your Bid Amount:</strong>
+                                    <span
+                                        class="text-danger font-weight-bold">${{ number_format($vendorBid->bid_amount, 2) }}</span>
+                                </p>
+                                <p><strong>Your Comments:</strong> {{ $vendorBid->comments }}</p>
+                                <a href="{{ route('biddings.index') }}" class="btn btn-secondary">Back to Bidding
+                                    List</a>
+                            </div>
+                        @endif
                     @endif
+
                 </div>
 
 

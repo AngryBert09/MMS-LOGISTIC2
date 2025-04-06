@@ -169,10 +169,7 @@
                                             <th scope="row">Total Amount</th>
                                             <td id="modal-total-amount"></td>
                                         </tr>
-                                        <tr>
-                                            <th scope="row">Payment Terms</th>
-                                            <td id="modal-payment-terms"></td>
-                                        </tr>
+
                                         <tr>
                                             <th scope="row">Delivery Location</th>
                                             <td id="modal-delivery-location"></td>
@@ -181,23 +178,19 @@
                                             <th scope="row">Notes/Instructions</th>
                                             <td id="modal-notes"></td>
                                         </tr>
-                                        <tr>
-                                            <th scope="row">Shipping Method</th>
-                                            <td id="modal-shipping-method"></td>
-                                        </tr>
+
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="order-items" role="tabpanel"
-                            aria-labelledby="order-items-tab">
+                        <div class="tab-pane fade" id="order-items" role="tabpanel" aria-labelledby="order-items-tab">
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="modal-order-items-table">
                                     <thead>
                                         <tr>
                                             <th>Item Description</th>
                                             <th>Quantity</th>
-                                            <th>Unit Price</th>
+
                                             <th>Total Price</th>
                                         </tr>
                                     </thead>
@@ -275,10 +268,10 @@
                         $('#modal-total-amount').text(totalAmount.toFixed(
                             2)); // Display the calculated total amount
 
-                        $('#modal-payment-terms').text(data.payment_terms || 'N/A');
+
                         $('#modal-delivery-location').text(data.delivery_location || 'N/A');
                         $('#modal-notes').text(data.notes_instructions || 'N/A');
-                        $('#modal-shipping-method').text(data.shipping_method || 'N/A');
+
 
                         // Disable "Create Invoice" button if the status is "Rejected" or an invoice already exists
                         if (data.order_status === 'Rejected' || data.invoice_number) {
@@ -306,7 +299,7 @@
                                     '<tr>' +
                                     '<td>' + item.item_description + '</td>' +
                                     '<td>' + item.quantity + '</td>' +
-                                    '<td>' + item.unit_price + '</td>' +
+
                                     '<td>' + item.total_price + '</td>' +
                                     '</tr>'
                                 );

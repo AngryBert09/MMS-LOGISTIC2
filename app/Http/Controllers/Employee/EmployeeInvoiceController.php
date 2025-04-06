@@ -110,16 +110,20 @@ class EmployeeInvoiceController extends Controller
                 ]);
             }
 
+
+            $referenceNumber = 'REF-' . strtoupper(uniqid());
+
             // Log the transaction history
             TransactionHistory::create([
                 'invoice_id' => $invoice->invoice_id,
                 'amount_paid' => $paymentAmount,
+                'reference_number' => $referenceNumber,
                 'payment_method' => $validatedData['paymentMethod'] ?? null,
                 'paid_at' => now(),
             ]);
 
             DB::commit();
-            Log::info('Transaction Committed Successfully', ['invoice_id' => $invoice->id]);
+            Log::info('Transaction Committed Successfully', ['invoice_id' => $invoice->id,     'reference_number' => $referenceNumber,]);
 
             return redirect()
                 ->route('employee.invoices', $invoice->invoice_id)

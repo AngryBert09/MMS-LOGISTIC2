@@ -157,7 +157,8 @@
                                                         <div class="modal-header">
                                                             <h5 class="modal-title"
                                                                 id="historyModalLabel{{ $invoice->invoice_id }}">
-                                                                Transaction History - {{ $invoice->invoice_number }}
+                                                                Transaction History -
+                                                                {{ $invoice->invoice_number }}
                                                             </h5>
                                                             <button type="button" class="close" data-dismiss="modal"
                                                                 aria-label="Close">
@@ -173,6 +174,8 @@
                                                                             <th>#</th>
                                                                             <th>Amount Paid</th>
                                                                             <th>Payment Method</th>
+                                                                            <th>REF #</th>
+                                                                            <!-- NEW COLUMN -->
                                                                             <th>Date & Time</th>
                                                                         </tr>
                                                                     </thead>
@@ -182,7 +185,11 @@
                                                                                 <td>{{ $index + 1 }}</td>
                                                                                 <td>₱{{ number_format($history->amount_paid, 2) }}
                                                                                 </td>
-                                                                                <td>{{ $history->payment_method }}</td>
+                                                                                <td>{{ $history->payment_method }}
+                                                                                </td>
+                                                                                <td>{{ $history->reference_number ?? 'N/A' }}
+                                                                                </td>
+                                                                                <!-- Display reference or 'N/A' if empty -->
                                                                                 <td>{{ \Carbon\Carbon::parse($history->paid_at)->format('d-m-Y h:i A') }}
                                                                                 </td>
                                                                             </tr>
@@ -190,8 +197,8 @@
                                                                     </tbody>
                                                                 </table>
                                                             @else
-                                                                <p class="text-muted">No transaction history available.
-                                                                </p>
+                                                                <p class="text-muted">No transaction history
+                                                                    available.</p>
                                                             @endif
                                                         </div>
 
