@@ -292,32 +292,43 @@ class InvoiceController extends Controller
                     // Ensure discount doesn't make subtotal negative
                     $subtotalAfterDiscount = $invoice->total_amount - $value;
                     if ($subtotalAfterDiscount < 0) {
-                        $fail('Discount amount cannot be greater than the subtotal amount ($' . number_format($invoice->subtotal_amount, 2) . ').');
+                        $fail('Discount amount cannot exceed the subtotal ($' . number_format($invoice->subtotal_amount, 2) . ').');
                     }
                 }
             ],
         ]);
 
-        // Calculate new total
+        // Calculate new values
         $subtotalAfterDiscount = $invoice->total_amount - $validatedData['discount_amount'];
         $newTotal = $subtotalAfterDiscount + $validatedData['tax_amount'];
 
-        // Additional validation to prevent negative totals
+        // Prevent negative total
         if ($newTotal < 0) {
             return back()
-                ->withErrors(['total' => 'The combination of tax and discount would result in a negative total amount.'])
+                ->withErrors(['total' => 'Invalid amounts would result in negative total.'])
                 ->withInput();
         }
 
-        $invoice->update([
-            'tax_amount' => $validatedData['tax_amount'],
-            'discount_amount' => $validatedData['discount_amount'],
-            'total_amount' => $newTotal,
-        ]);
+        // Use transaction to ensure both updates succeed or fail together
+        DB::transaction(function () use ($invoice, $validatedData, $newTotal) {
+            // Update invoice
+            $invoice->update([
+                'tax_amount' => $validatedData['tax_amount'],
+                'discount_amount' => $validatedData['discount_amount'],
+                'total_amount' => $newTotal,
+            ]);
+
+            // Update related purchase order if exists
+            if ($invoice->purchaseOrder) {
+                $invoice->purchaseOrder->update([
+                    'total_amount' => $newTotal // Sync the same total
+                ]);
+            }
+        });
 
         return redirect()
             ->route('invoices.index')
-            ->with('success', 'Invoice updated successfully.');
+            ->with('success', 'Invoice and purchase order updated successfully.');
     }
 
     /**

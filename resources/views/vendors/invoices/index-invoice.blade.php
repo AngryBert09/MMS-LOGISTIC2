@@ -31,6 +31,7 @@
                                     <th>Tax Amount</th>
                                     <th>Discount Amount</th>
                                     <th>Balance</th>
+                                    <th>Total Amount</th>
                                     <th>Invoice Date</th>
                                     <th>Due Date</th>
                                     <th>Status</th>
@@ -41,9 +42,10 @@
                                 @foreach ($invoices as $invoice)
                                     <tr>
                                         <td class="table-plus">{{ $invoice->invoice_number }}</td>
-                                        <td>${{ number_format($invoice->tax_amount, 2) }}</td>
-                                        <td>${{ number_format($invoice->discount_amount, 2) }}</td>
-                                        <td>${{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->tax_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->discount_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->total_amount, 2) }}</td>
+                                        <td>₱{{ number_format($invoice->purchaseOrder->total_amount, 2) }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d-m-Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d-m-Y') }}</td>
                                         <td>

@@ -94,9 +94,8 @@
                                                 <span class="badge badge-dark">{{ $order->order_status }}</span>
                                             @endif
                                         </td>
-
-                                        <td>{{ number_format($order->orderItems->sum('total_price'), 2) }}</td>
-                                        {{-- <td>{{ $order->delivery_location }}</td>
+                                        <td>₱{{ number_format($order->total_amount, 2) }}
+                                            {{-- <td>{{ $order->delivery_location }}</td>
                                     <td>{{ $order->notes_instructions }}</td>
                                     <td>{{ $order->shipping_method }}</td> --}}
                                         <td>

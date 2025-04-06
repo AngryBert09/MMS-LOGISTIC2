@@ -89,7 +89,8 @@
                                                 <span class="badge badge-dark">{{ $order->order_status }}</span>
                                             @endif
                                         </td>
-                                        <td>₱{{ number_format($order->orderItems->sum('total_price'), 2) }}</td>
+                                        <td>₱{{ number_format($order->total_amount, 2) }}
+                                        </td>
                                         <td>{{ $order->vendor->company_name }}</td>
                                         <td>
                                             <button class="btn btn-primary btn-sm viewOrderBtn" data-toggle="modal"
@@ -255,13 +256,8 @@
                         $('#modal-delivery-date').text(data.delivery_date || 'N/A');
                         $('#modal-order-status').text(data.order_status || 'N/A');
 
-                        var totalAmount = 0;
-                        if (data.order_items && data.order_items.length > 0) {
-                            data.order_items.forEach(function(item) {
-                                totalAmount += parseFloat(item.total_price) || 0;
-                            });
-                        }
-                        $('#modal-total-amount').text(totalAmount.toFixed(2));
+
+                        $('#modal-total-amount').text(data.total_amount);
 
 
                         $('#modal-delivery-location').text(data.delivery_location || 'N/A');

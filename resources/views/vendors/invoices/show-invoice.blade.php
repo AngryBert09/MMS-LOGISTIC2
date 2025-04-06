@@ -72,7 +72,7 @@
                                             <div class="invoice-hours">{{ $item->quantity }}</div>
                                             <div class="invoice-subtotal">
                                                 <span
-                                                    class="weight-600">₱{{ number_format($item->total_price, 2) }}</span>
+                                                    class="weight-600">₱{{ number_format($item->purchaseOrder->total_amount, 2) }}</span>
                                             </div>
                                         </li>
                                     @endforeach
@@ -101,7 +101,7 @@
                                             </div>
                                             <div class="invoice-subtotal">
                                                 <span
-                                                    class="weight-600 font-24 text-danger">{{ number_format($invoice->orderItems->sum('total_price'), 2) }}</span>
+                                                    class="weight-600 font-24 text-danger">{{ number_format($invoice->purchaseOrder->total_amount, 2) }}</span>
                                             </div>
                                         </li>
                                     </ul>

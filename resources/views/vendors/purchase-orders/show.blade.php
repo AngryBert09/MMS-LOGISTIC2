@@ -142,16 +142,10 @@
                     $('#modal-order-status').text(data.order_status || 'N/A');
 
                     // Ensure totalAmount is initialized as a number
-                    var totalAmount = 0; // Initialize as number (in case it's undefined)
-                    if (data.order_items && data.order_items.length > 0) {
-                        data.order_items.forEach(function(item) {
-                            totalAmount += parseFloat(item.total_price) ||
-                                0; // Ensure total_price is treated as a number
-                        });
-                    }
+                    $('#modal-total-amount').text(data.total_amount);
 
-                    $('#modal-total-amount').text(totalAmount.toFixed(
-                        2)); // Display the calculated total amount
+
+
 
 
                     $('#modal-delivery-location').text(data.delivery_location || 'N/A');
