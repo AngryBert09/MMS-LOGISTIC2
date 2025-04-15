@@ -62,6 +62,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         Route::post('/vendors/{id}/update-status', [AdminVendorController::class, 'updateVendorStatus'])
             ->name('vendors.updateStatus');
 
+
+        //REPORTS
+        Route::get('/vendor-reports', [AdminVendorController::class, 'reports'])->name('reports');
         //BIDDINGS
         Route::get('/biddings-overview', [AdminBiddingController::class, 'index'])->name('biddings');
         Route::get('/bidding/{id}/vendor-bids', [AdminBiddingController::class, 'getVendorBids'])->name('bidding.vendorBids');

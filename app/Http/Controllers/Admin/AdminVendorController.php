@@ -263,4 +263,10 @@ class AdminVendorController extends Controller
             'performance' => $supplierPerformance
         ]);
     }
+
+    public function reports()
+    {
+
+        return view('admin.reports');
+    }
 }

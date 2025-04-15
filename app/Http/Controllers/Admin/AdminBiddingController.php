@@ -19,6 +19,7 @@ class AdminBiddingController extends Controller
         // Return the view with bidding details data
         return view('admin.vendors.biddings-overview', compact('biddings'));
     }
+    
 
     public function getVendorBids($id)
     {

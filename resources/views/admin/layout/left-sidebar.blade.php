@@ -23,6 +23,8 @@
                     </ul>
                 </li>
 
+
+
                 <li class="dropdown">
                     <a href="javascript:;" class="dropdown-toggle">
                         <span class="micon bi bi-people"></span><span class="mtext">Vendor Management</span>
@@ -30,8 +32,7 @@
                     <ul class="submenu">
                         <li><a href="{{ route('admin.vendors') }}">Vendor Applications</a></li>
                         <li><a href="{{ route('admin.vendors-list') }}">Vendor List</a></li>
-
-
+                        <li><a href="">Reports</a></li>
                     </ul>
                 </li>
 
