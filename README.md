@@ -1,6 +1,25 @@
 # 🏬 Merchandising Management System: Vendor Portal with Supplier Performance Analytics
 
-The **Vendor Portal** is a dedicated extension of the Merchandising Management System built for suppliers to seamlessly collaborate, submit offers, track orders, and review their performance analytics. It enhances transparency and builds a data-driven relationship between suppliers and the central merchandising team.
+[![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
+[![Chart.js](https://img.shields.io/badge/Charts-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white)](https://www.chartjs.org/)
+
+---
+
+## 📋 Overview
+
+The **Vendor Portal** is a dedicated extension of the *Merchandising Management System* built for suppliers to:
+
+- Seamlessly collaborate with the merchandising team
+- Submit product offers and quotations
+- Track and manage order statuses
+- View real-time performance analytics and feedback
+
+It enhances transparency, increases operational efficiency, and fosters data-driven supplier relationships.
+
+---
 
 ## 📊 Key Feature: AI-Powered Supplier Performance Analytics
 
@@ -30,6 +49,13 @@ Gemini AI transforms raw interaction data and logs into actionable performance e
 ## ⚙️ Setup Instructions
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/AngryBert09/MMS-LOGISTIC2.git
-   cd vendor-portal
+   
+ ```bash
+  git clone https://github.com/AngryBert09/MMS-LOGISTIC2.git
+  cd vendor-portal
+ ```
+   
+2. **Install the dependencies**
+   
+ ```bash
+  composer install
